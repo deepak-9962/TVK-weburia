@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVK தமிழ் வெற்றிக் கழகம் - அரசியல் கட்சி</title>
+    <meta name="description" content="TVK (தமிழ் வெற்றிக் கழகம்) - Tamil people's political party focused on social justice and development">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="images/tvk-logo.svg">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Particles Background -->
+    <div class="floating-particles" id="particles"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="leader-image">
+                    <img src="images/leader-image.png" alt="TVK Party Leader" class="leader-img">
+                </div>
+                <div class="logo-section">
+                    <div class="party-name">
+                        <span class="tvk-text">TVK தமிழ்</span>
+                        <span class="victory-text">நம்ம மந்தனூர்</span>
+                    </div>
+                </div>
+                <nav class="nav-menu">
+                    <a href="bla-registration.html" class="nav-link">உறுப்பினர் குరુல் எங்கள் கட்சி</a>
+                    <a href="#voice" class="nav-link">புத முகలवर्स BLA</a>
+                </nav>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVK தமிழ் வெற்றிக் கழகம் - அரசியல் கட்சி</title>
+    <meta name="description" content="TVK (தமிழ் வெற்றிக் கழகம்) - Tamil people's political party focused on social justice and development">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="images/tvk-logo.svg">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="leader-image">
+                    <img src="images/leader-image.png" alt="TVK Party Leader" class="leader-img">
+                </div>
+                <div class="logo-section">
+                    <div class="party-name">
+                        <span class="tvk-text">TVK தமிழ்</span>
+                        <span class="victory-text">நம்ம மந்தனூர்</span>
+                    </div>
+                </div>
+                <nav class="nav-menu">
+                    <a href="bla-registration.html" class="nav-link">உறுப்பினர் குરുল் എங்കள் கட்சি</a>
+                    <a href="#voice" class="nav-link">புத முகलवर्स BLA</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-slider">
+            <div class="hero-slide active">
+                <div class="hero-bg">
+                    <img src="images/vijay-hero.jpg" alt="Thalapathy Vijay" class="hero-image">
+                    <div class="hero-overlay"></div>
+                </div>
+                <div class="hero-content">
+                    <div class="container">
+                        <div class="hero-text">
+                            <h1 class="hero-title">தமிழக வெற்றிக் கழக நிகழர்சி</h1>
+                            <p class="hero-subtitle">மாதவாரம் பொதுக்கூட்டம் - 2025</p>
+                        </div>
+                        <div class="hero-navigation">
+                            <button class="nav-arrow nav-prev" onclick="previousSlide()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="nav-arrow nav-next" onclick="nextSlide()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide Indicators -->
+        <div class="hero-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="home" class="dashboard">
+        <div class="container">
+            <h2>கட்சி தகவல் தொகுப்பு</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <span class="stat-number" id="membersCount">0</span>
+                    <span class="stat-label">உறுப்பினர்கள்</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="stat-number" id="complaintsCount">0</span>
+                    <span class="stat-label">புகார்கள்</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="stat-number" id="activitiesCount">0</span>
+                    <span class="stat-label">நிகழ்ச்சிகள்</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span class="stat-number">32</span>
+                    <span class="stat-label">மாவட்டங்கள்</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Party Leaders Section -->
+    <section id="leaders" class="leaders-section">
+        <div class="container">
+            <h2>TVK கட்சி தலைவர்கள்</h2>
+            
+            <!-- Main Leader Profile -->
+            <div class="main-leader-profile">
+                <div class="leader-image-container">
+                    <img src="images/vijay-leader.jpg" alt="தளபதி சு. விஜய்" class="main-leader-photo">
+                    <div class="leader-title-overlay">
+                        <h3>தளபதி விஜய்</h3>
+                        <p>தமிழக வெற்றிக் கழகத்தின் தலைவர்</p>
+                    </div>
+                </div>
+                
+                <div class="leader-details">
+                    <div class="leader-header">
+                        <h2>தளபதி சு. விஜய்</h2>
+                    </div>
+                    
+                    <div class="leader-bio">
+                        <p>தமிழக வெற்றிக் கழகத்தின் (TVK) நிறுவனர் தளபதி விஜய் அவர்கள் சமூக நீதி, அரசியல் மாற்றம் மற்றும் தமிழக மக்களின் முன்னேற்றம் குறித்து ஆழ்ந்த ஆர்வத்துடன் செயல்படும் ஒரு தலைவர். மக்களுக்கான சேவையின் அடுப்படையில் அணுபவமும், ஊழல் இல்லாத, நலனான தமிழ்நாடு உருவாக்கும் முயற்சிகளும் அவருக்கு தமிழகத்தின் பல்வேறு பகுதிகளிலுள்ள மக்களின் மதிப்பு மற்றும் மரியாதையை பெற்றுத்தந்துள்ளன.</p>
+                    </div>
+                    
+                    <div class="leader-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">🎂</div>
+                            <div class="stat-info">
+                                <strong>பிறந்த தேதி</strong>
+                                <span>ஜூன் 22, 1974</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">📍</div>
+                            <div class="stat-info">
+                                <strong>பிறந்த இடம்</strong>
+                                <span>சென்னை</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">🎬</div>
+                            <div class="stat-info">
+                                <strong>திரைப்படங்கள்</strong>
+                                <span>65+</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="achievements">
+                        <h3>🏆 தனிப்பட்ட வாழ்க்கை</h3>
+                        <ul>
+                            <li><strong>பிறப்பு:</strong> சென்னையில் ஜூன் 22-ம் தேதி 1974-ம் வருடம் பிறந்தார்.</li>
+                            <li><strong>குடும்பம்:</strong> இவரின் அப்பா எஸ்.ஏ.சந்திரசேகர் தமிழர், அம்மா சோபா பெங்காலி.</li>
+                            <li><strong>திருமணம்:</strong> ஆகஸ்ட் 25, 1999 அன்று சங்கீதா கொர்ணாலிங்கம் என்பவரை திருமணம் செய்தார்.</li>
+                            <li><strong>குழந்தைகள்:</strong> மகன் - ஜேசன் சந்திர சேகர் (2000), மகள் - திவ்யா சாத்வா (2005)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other Leaders Grid -->
+            <div class="other-leaders">
+                <h3>மற்ற தலைவர்கள்</h3>
+                <div class="leaders-grid">
+                    <div class="leader-card">
+                        <img src="images/leader2.jpg" alt="Party Leader" class="leader-photo">
+                        <h4>தலைவர் பெயர்</h4>
+                        <p>பதவி விபரம்</p>
+                    </div>
+                    <div class="leader-card">
+                        <img src="images/leader3.jpg" alt="Party Leader" class="leader-photo">
+                        <h4>தலைவர் பெயர்</h4>
+                        <p>பதவி விபரம்</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voice/Complaint Section -->
+    <section id="voice" class="voice-section">
+        <div class="container">
+            <h2>உங்கள் குரல் எங்கள் காரம்</h2>
+            <div class="complaint-form-container" id="complaintFormContainer">
+                <form id="complaintForm" class="complaint-form">
+                    <div class="form-group">
+                        <input type="text" id="complainantName" placeholder="உங்கள் பெயர்" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="complainantPhone" placeholder="தொலைபேசி எண்" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="complainantEmail" placeholder="மின்னஞ்சல்">
+                    </div>
+                    <div class="form-group">
+                        <textarea id="complainantAddress" placeholder="முகவரி" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="complaintSubject" placeholder="புகார் தலைப்பு" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="complaintDetails" placeholder="விரிவான புகார் விபரம்" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <select id="complaintPriority">
+                            <option value="low">குறைந்த முக்கியத்துவம்</option>
+                            <option value="medium" selected>நடுத்தர முக்கியத்துவம்</option>
+                            <option value="high">அதிக முக்கியத்துவம்</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">புகார் சமர்ப்பிக்க</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>TVK கட்சியைப் பற்றி</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>TVK (தமிழ் வெற்றிக் கழகம்) தமிழ் மக்களின் நலன்களுக்காக பாடுபடும் அரசியல் கட்சியாகும். சமத்துவம், சமூக நீதி, மற்றும் மக்கள் நலன் ஆகியவை எங்கள் அடிப்படை கொள்கைகளாகும்.</p>
+                    
+                    <h3>எங்கள் குறிக்கோள்கள்:</h3>
+                    <ul>
+                        <li>தமிழ் மொழி மற்றும் பண்பாட்டை பாதுகாத்தல்</li>
+                        <li>சமூக நீதியை நிலைநாட்டுதல்</li>
+                        <li>கல்வி மற்றும் வேலை வாய்ப்பை பெருக்குதல்</li>
+                        <li>விவசாயம் மற்றும் தொழில் துறையை வளர்த்தல்</li>
+                        <li>பெண்கள் மற்றும் இளைஞர் நலன்களை முன்னேற்றுதல்</li>
+                    </ul>
+                </div>
+                
+                <div class="about-stats">
+                    <div class="about-stat">
+                        <i class="fas fa-flag"></i>
+                        <h4>நிறுவப்பட்ட ஆண்டு</h4>
+                        <p>2025</p>
+                    </div>
+                    <div class="about-stat">
+                        <i class="fas fa-users"></i>
+                        <h4>உறுப்பினர்கள்</h4>
+                        <p id="totalMembersCount">0+</p>
+                    </div>
+                    <div class="about-stat">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h4>மாவட்டங்கள்</h4>
+                        <p>அனைத்து தமிழக மாவட்டங்கள்</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities Modal -->
+    <div id="activitiesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleActivitiesList()">&times;</span>
+            <h3>வரவுள்ள நிகழ்ச்சிகள்</h3>
+            <div id="activitiesList">
+                <!-- Activities will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Messages -->
+    <div id="successMessage" class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span id="successText"></span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/tvk-logo.svg" alt="TVK Logo">
+                        <h3>TVK தமிழ் வெற்றிக் கழகம்</h3>
+                    </div>
+                    <p>தமிழ் மக்களின் நலனுக்காக பாடுபடும் அரசியல் கட்சி</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>தொடர்பு விபரங்கள்</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> தலைமை அலுவலகம், சென்னை</p>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                    <p><i class="fas fa-envelope"></i> info@tvkparty.com</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>முக்கியமான இணைப்புகள்</h4>
+                    <ul>
+                        <li><a href="#about">கட்சை பற்றி</a></li>
+                        <li><a href="#voice">புகார் பதிவு</a></li>
+                        <li><a href="bla-registration.html">BLA பதிவு</a></li>
+                        <li><a href="#contact">தொடர்பு</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>சமூக வலைதளங்கள்</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 TVK தமிழ் வெற்றிக் கழகம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
