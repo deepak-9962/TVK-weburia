@@ -9,9 +9,19 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="images/tvk-logo.svg">
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2025093001">
+    <link rel="stylesheet" href="modern-form-override.css?v=2025093001">
+    <!-- Font Awesome - Multiple sources for cross-browser reliability -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="icon-fixes.css">
+    <link href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" rel="stylesheet" crossorigin="anonymous">
 </head>
 <body>
     <!-- Removed floating particles background for a cleaner, static design -->
@@ -124,6 +134,55 @@
         </div>
     </section>
 
+    <!-- TVK Statistics Section (Clean Reset) -->
+    <section class="tvk-stats-section">
+      <div class="tvk-stats-container">
+        <div class="tvk-stats-header">
+          <h2>கட்சி தகவல் தொகுப்பு</h2>
+          <p>தமிழக வெற்றிக் கழகம் - புள்ளிவிவர அறிக்கை</p>
+        </div>
+        <div class="tvk-stats-grid">
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-users"></i></div>
+            <div class="tvk-stat-number">75,000</div>
+            <div class="tvk-stat-label">உறுப்பினர்கள்</div>
+            <div class="tvk-stat-desc">கட்சியில் பதிவு செய்யப்பட்ட மொத்த உறுப்பினர்களின் எண்ணிக்கை</div>
+          </div>
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="tvk-stat-number">234</div>
+            <div class="tvk-stat-label">மாவட்ட அலுவலகங்கள்</div>
+            <div class="tvk-stat-desc">தமிழ்நாடு முழுவதும் செயல்படும் மாவட்ட அலுவலகங்கள்</div>
+          </div>
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-bullhorn"></i></div>
+            <div class="tvk-stat-number">156</div>
+            <div class="tvk-stat-label">பொதுக் கூட்டங்கள்</div>
+            <div class="tvk-stat-desc">இந்த ஆண்டு நடத்தப்பட்ட பொதுக் கூட்டங்களின் எண்ணிக்கை</div>
+          </div>
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-heart"></i></div>
+            <div class="tvk-stat-number">892</div>
+            <div class="tvk-stat-label">சமூக சேவை</div>
+            <div class="tvk-stat-desc">நடத்தப்பட்ட சமூக சேவை நிகழ்ச்சிகளின் எண்ணிக்கை</div>
+          </div>
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="tvk-stat-number">45</div>
+            <div class="tvk-stat-label">கல்வி உதவித்தொகை</div>
+            <div class="tvk-stat-desc">வழங்கப்பட்ட கல்வி உதவித்தொகைகளின் எண்ணிக்கை (லட்சங்களில்)</div>
+          </div>
+          <div class="tvk-stat-card">
+            <div class="tvk-stat-icon"><i class="fas fa-trophy"></i></div>
+            <div class="tvk-stat-number">28</div>
+            <div class="tvk-stat-label">வெற்றிகள்</div>
+            <div class="tvk-stat-desc">உள்ளாட்சி தேர்தல்களில் பெற்ற வெற்றிகள்</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End TVK Statistics Section -->
+
     <!-- Party Leaders Section -->
     <section id="leaders" class="leaders-section">
         <div class="container">
@@ -195,46 +254,76 @@
                 <span class="title-decoration"></span>
             </h2>
             <div class="complaint-form-container" data-aos="fade-up">
-                <form id="complaintForm" class="complaint-form">
+                <div class="form-header">
+                    <div class="form-progress">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+                
+                <form id="complaintForm" class="complaint-form" novalidate>
                     <div class="form-group">
                         <div class="input-container">
                             <i class="fas fa-user input-icon"></i>
-                            <input type="text" id="complainantName" name="complainantName" placeholder="உங்கள் பெயர்" required>
+                            <input type="text" id="complainantName" name="complainantName" placeholder="உங்கள் பெயர்" required autocomplete="name">
+                            <div class="input-highlight"></div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
                         <div class="input-container">
                             <i class="fas fa-phone input-icon"></i>
-                            <input type="tel" id="complainantPhone" name="phone" placeholder="தொலைபேசி எண்" required>
+                            <input type="tel" id="complainantPhone" name="phone" placeholder="தொலைபேசி எண்" required autocomplete="tel">
+                            <div class="input-highlight"></div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
                         <div class="input-container">
                             <i class="fas fa-envelope input-icon"></i>
-                            <input type="email" id="complainantEmail" name="email" placeholder="மின்னஞ்சல்">
+                            <input type="email" id="complainantEmail" name="email" placeholder="மின்னஞ்சல்" autocomplete="email">
+                            <div class="input-highlight"></div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
                         <div class="input-container">
                             <i class="fas fa-map-marker-alt input-icon"></i>
-                            <textarea id="complainantAddress" name="address" placeholder="முகவரி" rows="3"></textarea>
+                            <textarea id="complainantAddress" name="address" placeholder="முகவரி" rows="3" autocomplete="street-address"></textarea>
+                            <div class="input-highlight"></div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
                         <div class="input-container">
-                            <i class="fas fa-comment input-icon"></i>
-                            <textarea id="complaintDetails" name="complaintDetails" placeholder="புகார் விவரங்கள்" rows="4" required></textarea>
+                            <i class="fas fa-comment-dots input-icon"></i>
+                            <textarea id="complaintDetails" name="complaintDetails" placeholder="புகார் விவரங்கள் - உங்கள் கருத்துகளை விளக்கமாக எழுதுங்கள்" rows="5" required></textarea>
+                            <div class="input-highlight"></div>
+                            <div class="char-counter">
+                                <span class="current-count">0</span>/<span class="max-count">500</span>
+                            </div>
                         </div>
                     </div>
+                    
                     <!-- Default values expected by script.js -->
                     <input type="hidden" name="complaintType" value="General">
                     <input type="hidden" name="priority" value="normal">
+                    
                     <div class="form-group">
                         <button type="submit" class="submit-btn">
-                            <i class="fas fa-paper-plane"></i>
-                            புகார் பதிவு செய்க
+                            <span class="btn-content">
+                                <i class="fas fa-paper-plane"></i>
+                                <span class="btn-text">புகார் பதிவு செய்க</span>
+                            </span>
                             <div class="btn-glow"></div>
+                            <div class="btn-ripple"></div>
                         </button>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <p class="privacy-note">
+                            <i class="fas fa-shield-alt"></i>
+                            உங்கள் தகவல்கள் பாதுகாப்பாக கையாளப்படும்
+                        </p>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVK கட்சி தகவல் தொகுப்பு - Statistics Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --tvk-red: #DC143C;
+            --tvk-yellow: #FFD700;
+            --tvk-gray: #8B7D6B;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --dark-bg: rgba(0, 0, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--tvk-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: var(--tvk-red);
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-color: var(--tvk-red);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: var(--tvk-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-description {
+            font-size: 0.85rem;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        /* All icons use same TVK red color */
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-count {
+            animation: countUp 0.8s ease-out forwards;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.2rem;
+            }
+            
+            .main-title::before {
+                left: -3rem;
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .stat-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2.8rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--tvk-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="stats-container">
+        <div class="stats-header">
+            <h1 class="main-title">கட்சி தகவல் தொகுப்பு</h1>
+            <p class="subtitle">தமிழக வெற்றிக் கழகம் - புள்ளிவிவர அறிக்கை</p>
+            <div class="divider"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" data-count="75000">0</div>
+                <div class="stat-label">உறுப்பினர்கள்</div>
+                <div class="stat-description">கட்சியில் பதிவு செய்யப்பட்ட மொத்த உறுப்பினர்களின் எண்ணிக்கை</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-number" data-count="234">0</div>
+                <div class="stat-label">மாவட்ட அலுவலகங்கள்</div>
+                <div class="stat-description">தமிழ்நாடு முழுவதும் செயல்படும் மாவட்ட அலுவலகங்கள்</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="stat-number" data-count="156">0</div>
+                <div class="stat-label">பொதுக் கூட்டங்கள்</div>
+                <div class="stat-description">இந்த ஆண்டு நடத்தப்பட்ட பொதுக் கூட்டங்களின் எண்ணிக்கை</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-number" data-count="892">0</div>
+                <div class="stat-label">சமூக சேவை</div>
+                <div class="stat-description">நடத்தப்பட்ட சமூக சேவை நிகழ்ச்சிகளின் எண்ணிக்கை</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-number" data-count="45">0</div>
+                <div class="stat-label">கல்வி உதவித்தொகை</div>
+                <div class="stat-description">வழங்கப்பட்ட கல்வி உதவித்தொகைகளின் எண்ணிக்கை (லட்சங்களில்)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-number" data-count="28">0</div>
+                <div class="stat-label">வெற்றிகள்</div>
+                <div class="stat-description">உள்ளாட்சி தேர்தல்களில் பெற்ற வெற்றிகள்</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animation and interaction effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Counter animation function
+            function animateCounter(element, target, duration = 2000) {
+                const start = 0;
+                const increment = target / (duration / 16);
+                let current = start;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    element.textContent = Math.floor(current).toLocaleString('ta-IN');
+                }, 16);
+            }
+
+            // Intersection Observer for counter animation
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const numberElement = entry.target.querySelector('.stat-number');
+                        const targetCount = parseInt(numberElement.dataset.count);
+                        
+                        // Add animation class
+                        entry.target.classList.add('animate-count');
+                        
+                        // Start counter animation
+                        setTimeout(() => {
+                            animateCounter(numberElement, targetCount);
+                        }, 200);
+                        
+                        // Stop observing this element
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all stat cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            console.log('TVK Statistics Dashboard loaded successfully!');
+        });
+    </script>
+</body>
+</html>

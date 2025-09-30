@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Modern Form - TVK</title>
+    
+    <!-- Reset any potential cache issues -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #FFF8DC 0%, #ffffff 50%, #f8f9fa 100%); 
+            min-height: 100vh; 
+            padding: 2rem;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+    </style>
+    
+    <!-- Load CSS with cache buster -->
+    <link rel="stylesheet" href="styles.css?v=debug202509301">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Inline test styles to ensure they work */
+        .debug-test {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(220, 20, 60, 0.1);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+        
+        .debug-input {
+            width: 100%;
+            padding: 20px 20px 20px 65px;
+            border: 2px solid rgba(220, 20, 60, 0.15);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .debug-input:focus {
+            outline: none;
+            border-color: #DC143C;
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(220, 20, 60, 0.2);
+        }
+        
+        .debug-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B7D6B;
+            background: rgba(255, 255, 255, 0.9);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .debug-button {
+            background: linear-gradient(135deg, #DC143C 0%, #B71C1C 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .debug-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(220, 20, 60, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #DC143C; margin-bottom: 2rem;">Debug: Modern Form Styles</h1>
+    
+    <!-- Test 1: Inline Styles (Should ALWAYS work) -->
+    <div class="debug-test">
+        <h3 style="color: #DC143C; margin-bottom: 1rem;">Test 1: Inline Styles (Control Test)</h3>
+        <div style="position: relative;">
+            <i class="fas fa-user debug-icon"></i>
+            <input type="text" class="debug-input" placeholder="This should look modern" value="Inline styles working">
+        </div>
+        <button class="debug-button">Modern Button (Inline CSS)</button>
+        <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+            ✅ If this looks modern with glassmorphism, the problem is CSS loading or specificity
+        </p>
+    </div>
+
+    <!-- Test 2: External CSS Classes -->
+    <div class="complaint-form-container">
+        <h3 style="color: #DC143C; margin-bottom: 1rem;">Test 2: External CSS Classes</h3>
+        <div class="form-progress">
+            <div class="progress-bar" style="width: 70%;"></div>
+        </div>
+        
+        <form class="complaint-form">
+            <div class="form-group">
+                <div class="input-container">
+                    <i class="fas fa-user input-icon"></i>     
+                    <input type="text" placeholder="External CSS test" value="Testing external styles">
+                    <div class="input-highlight"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="input-container">
+                    <i class="fas fa-comment-dots input-icon"></i>
+                    <textarea placeholder="Textarea test" rows="3">External CSS textarea styling test</textarea>
+                    <div class="input-highlight"></div>
+                    <div class="char-counter">
+                        <span class="current-count">33</span>/<span class="max-count">500</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="submit-btn">
+                <span class="btn-content">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="btn-text">External CSS Button</span>
+                </span>
+            </button>
+        </form>
+        
+        <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+            ❓ If this doesn't look modern, the external CSS isn't loading properly
+        </p>
+    </div>
+
+    <!-- Debug Info -->
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 2rem auto; max-width: 600px;">
+        <h4 style="color: #DC143C; margin-bottom: 1rem;">Debug Information:</h4>
+        <div id="debug-info">
+            <p><strong>CSS Loading:</strong> <span id="css-status">Checking...</span></p>
+            <p><strong>Font Loading:</strong> <span id="font-status">Checking...</span></p>
+            <p><strong>Container Element:</strong> <span id="container-status">Checking...</span></p>
+            <p><strong>Form Element:</strong> <span id="form-status">Checking...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Debug script to check what's loading
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check CSS loading
+            const container = document.querySelector('.complaint-form-container');
+            const computedStyle = window.getComputedStyle(container);
+            const backgroundValue = computedStyle.background || computedStyle.backgroundColor;
+            
+            document.getElementById('css-status').textContent = 
+                backgroundValue.includes('rgba') || backgroundValue.includes('255, 255, 255') ? '✅ Loaded' : '❌ Not loaded';
+            
+            // Check font loading
+            const fontFamily = computedStyle.fontFamily;
+            document.getElementById('font-status').textContent = 
+                fontFamily.includes('Inter') ? '✅ Inter loaded' : '❌ Inter not loaded';
+            
+            // Check elements
+            document.getElementById('container-status').textContent = 
+                container ? '✅ Found' : '❌ Not found';
+            
+            const form = document.querySelector('.complaint-form');
+            document.getElementById('form-status').textContent = 
+                form ? '✅ Found' : '❌ Not found';
+                
+            console.log('Container background:', backgroundValue);
+            console.log('Font family:', fontFamily);
+            console.log('Container found:', !!container);
+        });
+    </script>
+</body>
+</html>

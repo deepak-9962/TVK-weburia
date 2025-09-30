@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick CSS Test</title>
+    <style>
+        body { 
+            background: linear-gradient(135deg, #FFF8DC 0%, #ffffff 50%, #f8f9fa 100%); 
+            font-family: 'Arial', sans-serif; 
+            padding: 20px; 
+        }
+        .test-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(220, 20, 60, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #DC143C 0%, #B71C1C 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(220, 20, 60, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 style="color: #DC143C;">CSS Test</h1>
+        <p>If you can see this styled properly with:</p>
+        <ul style="text-align: left;">
+            <li>✅ Glassmorphism background (blurred white)</li>
+            <li>✅ Rounded corners (24px)</li>
+            <li>✅ TVK red color (#DC143C)</li>
+            <li>✅ Subtle shadows</li>
+        </ul>
+        <button class="test-button" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+            Modern Button Test
+        </button>
+        <p style="margin-top: 1rem; color: #666;">Then the CSS is working and you should see the modern form!</p>
+    </div>
+</body>
+</html>

@@ -123,7 +123,250 @@ function setupEventListeners() {
     const complaintForm = document.getElementById('complaintForm');
     if (complaintForm) {
         complaintForm.addEventListener('submit', handleComplaintSubmission);
+        initializeModernForm();
     }
+}
+
+// Modern Form Initialization
+function initializeModernForm() {
+    const form = document.getElementById('complaintForm');
+    if (!form) {
+        console.log('Complaint form not found, skipping modern form initialization');
+        return;
+    }
+    
+    const inputs = form.querySelectorAll('input, textarea');
+    const progressBar = document.querySelector('.progress-bar');
+    const charCounter = document.querySelector('.char-counter');
+    const complaintDetails = document.getElementById('complaintDetails');
+    
+    // Initialize progress tracking
+    let completedFields = 0;
+    const requiredFields = form.querySelectorAll('[required]').length;
+    
+    // Input event listeners for enhanced interactions
+    inputs.forEach((input, index) => {
+        const container = input.closest('.input-container');
+        
+        // Skip if container not found (fallback for basic forms)
+        if (!container) {
+            console.log('Input container not found for input:', input.name || input.id);
+            return;
+        }
+        
+        // Focus and blur events
+        input.addEventListener('focus', () => {
+            container.classList.add('focused');
+            // Add subtle animation delay
+            setTimeout(() => {
+                container.style.transform = 'translateY(-2px)';
+            }, 100);
+        });
+        
+        input.addEventListener('blur', () => {
+            container.classList.remove('focused');
+            container.style.transform = 'translateY(0)';
+            
+            // Check if field has value
+            if (input.value.trim()) {
+                container.classList.add('filled');
+            } else {
+                container.classList.remove('filled');
+            }
+            
+            // Validate field
+            validateField(input);
+        });
+        
+        // Input event for real-time feedback
+        input.addEventListener('input', () => {
+            updateProgress();
+            
+            // Character counter for complaint details
+            if (input.id === 'complaintDetails' && charCounter) {
+                updateCharacterCounter(input, charCounter);
+            }
+            
+            // Real-time validation
+            if (input.value.trim()) {
+                validateField(input);
+            }
+        });
+        
+        // Initial state check
+        if (input.value.trim()) {
+            container.classList.add('filled');
+        }
+    });
+    
+    // Progress update function
+    function updateProgress() {
+        completedFields = 0;
+        const requiredInputs = form.querySelectorAll('[required]');
+        
+        requiredInputs.forEach(input => {
+            if (input.value.trim()) {
+                completedFields++;
+            }
+        });
+        
+        const progress = (completedFields / requiredFields) * 100;
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
+    }
+    
+    // Character counter function
+    function updateCharacterCounter(textarea, counter) {
+        const current = textarea.value.length;
+        const max = 500;
+        const currentSpan = counter.querySelector('.current-count');
+        
+        if (currentSpan) {
+            currentSpan.textContent = current;
+        }
+        
+        // Update counter styling based on character count
+        counter.classList.remove('warning', 'danger');
+        if (current > max * 0.8) {
+            counter.classList.add('warning');
+        }
+        if (current > max * 0.95) {
+            counter.classList.add('danger');
+        }
+        
+        // Limit character count
+        if (current > max) {
+            textarea.value = textarea.value.substring(0, max);
+            if (currentSpan) {
+                currentSpan.textContent = max;
+            }
+        }
+    }
+    
+    // Field validation function
+    function validateField(input) {
+        const container = input.closest('.input-container');
+        const value = input.value.trim();
+        
+        // Skip validation if container not found
+        if (!container) {
+            return true;
+        }
+        
+        // Remove previous validation classes
+        container.classList.remove('error', 'success');
+        
+        // Validate based on input type
+        let isValid = true;
+        
+        if (input.required && !value) {
+            isValid = false;
+        } else if (input.type === 'email' && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            isValid = emailRegex.test(value);
+        } else if (input.type === 'tel' && value) {
+            const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+            isValid = phoneRegex.test(value) && value.length >= 10;
+        }
+        
+        // Apply validation styling
+        if (value) {
+            container.classList.add(isValid ? 'success' : 'error');
+        }
+        
+        return isValid;
+    }
+    
+    // Form submission enhancement
+    const submitBtn = form.querySelector('.submit-btn');
+    const originalSubmitHandler = form.onsubmit;
+    
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Validate all fields
+        let isFormValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isFormValid = false;
+            }
+        });
+        
+        if (!isFormValid) {
+            // Shake form container
+            const container = document.querySelector('.complaint-form-container');
+            container.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                container.style.animation = '';
+            }, 500);
+            return;
+        }
+        
+        // Add loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        
+        // Call original submit handler
+        if (originalSubmitHandler) {
+            originalSubmitHandler.call(form, e);
+        } else {
+            handleComplaintSubmission(e);
+        }
+    });
+    
+    // Initialize character counter
+    if (complaintDetails && charCounter) {
+        updateCharacterCounter(complaintDetails, charCounter);
+    }
+    
+    // Initial progress update
+    updateProgress();
+}
+
+// Enhanced form success handling
+function showFormSuccess() {
+    const form = document.getElementById('complaintForm');
+    const container = document.querySelector('.complaint-form-container');
+    const submitBtn = form ? form.querySelector('.submit-btn') : null;
+    
+    // Remove loading state
+    if (submitBtn) {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+    
+    // Add success state
+    if (container) {
+        container.classList.add('form-success');
+    }
+    
+    // Reset form after delay
+    setTimeout(() => {
+        if (form) {
+            form.reset();
+        }
+        if (container) {
+            container.classList.remove('form-success');
+            
+            // Reset all input containers
+            form.querySelectorAll('.input-container').forEach(inputContainer => {
+                inputContainer.classList.remove('filled', 'focused', 'success', 'error');
+            });
+        }
+        
+        // Reset progress
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
+        
+        // Reset character counter
+        const charCounter = document.querySelector('.char-counter .current-count');
+        if (charCounter) {
+            charCounter.textContent = '0';
+        }
+    }, 3000);
 }
 
 // Navigation Functions
@@ -524,6 +767,7 @@ async function handleComplaintSubmission(e) {
                 
                 complaints.push(savedComplaint);
                 showNotification('வெற்றி!', 'உங்கள் குறை வெற்றிகரமாக பதிவு செய்யப்பட்டது. குறை எண்: ' + savedComplaint.id, 'success');
+                showFormSuccess();
             } else {
                 throw new Error(result.error);
             }
@@ -537,10 +781,18 @@ async function handleComplaintSubmission(e) {
             complaints.push(localComplaint);
             localStorage.setItem('complaints', JSON.stringify(complaints));
             showNotification('வெற்றி!', 'உங்கள் குறை வெற்றிகரமாக பதிவு செய்யப்பட்டது. குறை எண்: ' + localComplaint.id, 'success');
+            showFormSuccess();
         }
     } catch (error) {
         console.error('Error saving complaint:', error);
         showNotification('பிழை', 'குறை சமர்ப்பிக்கும்போது பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.', 'error');
+        
+        // Remove loading state on error
+        const submitBtn = e.target.querySelector('.submit-btn');
+        if (submitBtn) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
     }
     
     e.target.reset();
@@ -790,18 +1042,22 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Service Worker for offline functionality (optional)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker registration successful');
-            })
-            .catch(function(err) {
-                console.log('ServiceWorker registration failed: ', err);
-            });
-    });
-}
+// Service Worker for offline functionality (disabled on localhost to avoid stale content while developing)
+(function() {
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname) || location.hostname.endsWith('.local');
+    if ('serviceWorker' in navigator && !isLocal) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function() { console.log('ServiceWorker registered'); })
+                .catch(function(err) { console.log('ServiceWorker registration failed: ', err); });
+        });
+    } else if ('serviceWorker' in navigator && isLocal) {
+        // Proactively unregister any existing SW during local dev to prevent caching mismatches
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+        caches && caches.keys && caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        console.log('ServiceWorker disabled on localhost and caches cleared for dev.');
+    }
+})();
 
 // ================================================
 // MOBILE MENU FUNCTIONALITY

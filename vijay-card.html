@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>தளபதி விஜய் - Minimalistic Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --tvk-red: #DC143C;
+            --tvk-yellow: #FFD700;
+            --tvk-gray: #8B7D6B;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-light: rgba(220, 20, 60, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .card-container {
+            position: relative;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .vijay-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vijay-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--tvk-red);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .vijay-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            border-color: var(--tvk-red);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .main-title {
+            color: var(--tvk-red);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .leader-title {
+            color: var(--tvk-red);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .leader-subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 1.5rem 0;
+            text-align: justify;
+            font-weight: 400;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: #e9ecef;
+            transform: translateX(2px);
+            border-color: var(--tvk-red);
+        }
+
+        .info-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: var(--tvk-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .info-text {
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .footer-message {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer-text {
+            color: var(--tvk-red);
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .vijay-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .main-title {
+                font-size: 1.8rem;
+            }
+            
+            .leader-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="vijay-card">
+            <div class="card-header">
+                <h1 class="main-title">தளபதி விஜய்</h1>
+                <p class="subtitle">தமிழக வெற்றிக் கழகத்தின் தலைவர்</p>
+                
+                <h2 class="leader-title">தளபதி ஜ. விஜய்</h2>
+                <p class="leader-subtitle">தலைவர் நடிகர் அரசியல்வாதி</p>
+            </div>
+
+            <div class="description">
+                தமிழக வெற்றிக் கழகத்தின் (TVK) நிறுவனர் தளபதி விஜய் அவர்கள் சமூக நீதி, அரசியல் மாற்றம் மற்றும் தமிழக மக்களின் முன்னேற்றம் குறித்து ஆழ்ந்த அக்கறை கொண்டு செயற்படும் ஒரு தலைவர்.
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="info-text">பிறந்த தேதி: ஜூன் 22, 1974</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-text">பிறந்த இடம் சென்னை</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="info-text">திரைப்படங்கள் 65+</div>
+                </div>
+            </div>
+
+            <div class="footer-message">
+                <div class="footer-text">
+                    <i class="fas fa-fist-raised pulse-icon"></i>
+                    உங்கள் குரல் எங்கள் கரம்
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add subtle interaction effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.vijay-card');
+            const infoItems = document.querySelectorAll('.info-item');
+
+            // Simple fade-in animation for info items
+            infoItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.4s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0px)';
+                }, 100 * (index + 1));
+            });
+
+            console.log('🎉 தளபதி விஜய் card loaded successfully!');
+        });
+    </script>
+</body>
+</html>
