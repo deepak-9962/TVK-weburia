@@ -851,12 +851,15 @@ body {
     padding: 2rem;
     text-align: center;
     transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    animation: cardFloat 3s ease-in-out infinite;
-}
-
+    font-size: 1.25rem;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    color: var(--tvk-primary);
+    background: rgba(229,57,53,0.1);
+    border: 1px solid rgba(229,57,53,0.25);
+    border-radius: 10px;
 .stat-card:nth-child(2) {
     animation-delay: 0.5s;
 }
@@ -2140,13 +2143,16 @@ body {
 .leader-image-container {
     position: relative;
     flex-shrink: 0;
+    width: 300px; /* preserve layout space */
+    max-width: 100%;
 }
 
 .main-leader-photo {
-    width: 250px;
-    height: 250px;
+    width: 100%;
+    height: auto; /* don't crop vertically */
     border-radius: 20px;
-    object-fit: cover;
+    object-fit: contain; /* show full image */
+    background: #1f1f1f; /* letterbox background behind transparent areas */
     border: 3px solid var(--tvk-primary);
     box-shadow: 0 0 30px rgba(229, 57, 53, 0.4);
     transition: all 0.4s ease;
@@ -2163,26 +2169,14 @@ body {
     left: -10px;
     right: -10px;
     bottom: -10px;
-    background: linear-gradient(45deg, var(--tvk-primary), var(--tvk-gold), var(--tvk-primary));
+    background: radial-gradient(circle at 40% 35%, rgba(255,215,0,0.35), rgba(229,57,53,0.15) 45%, rgba(0,0,0,0) 70%);
     border-radius: 25px;
-    opacity: 0;
-    animation: glowRotate 3s linear infinite;
+    opacity: 0.5; /* visible but calm */
+    animation: none; /* remove spinning */
     z-index: -1;
 }
 
-@keyframes glowRotate {
-    0% {
-        transform: rotate(0deg);
-        opacity: 0.3;
-    }
-    50% {
-        opacity: 0.6;
-    }
-    100% {
-        transform: rotate(360deg);
-        opacity: 0.3;
-    }
-}
+/* removed keyframes glowRotate to disable rotation */
 
 .leader-badges {
     display: flex;
