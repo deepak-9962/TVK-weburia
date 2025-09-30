@@ -3,367 +3,2165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TVK தமிழ் வெற்றிக் கழகம் - அரசியல் கட்சி</title>
-    <meta name="description" content="TVK (தமிழ் வெற்றிக் கழகம்) - Tamil people's political party focused on social justice and development">
+    <title>தமிழக வெற்றிக் கழகம் - TVK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --tvk-primary: #DC143C;
+            --tvk-secondary: #FFD700;
+            --tvk-accent: #FFA500;
+            --tvk-white: #FFFFFF;
+            --tvk-light: #FFF8DC;
+            --tvk-dark: #2C1810;
+            --tvk-gold: #FFD700;
+            --tvk-yellow: #FFA500;
+            --tvk-gold-light: #FFED4A;
+            --tvk-gold-dark: #B8860B;
+            --tvk-red: #DC143C;
+            --tvk-gray: #8B4513;
+            --tvk-gray-light: #CD853F;
+            --tvk-gray-dark: #2C1810;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            color: var(--tvk-yellow);
+            background: var(--tvk-gray-dark);
+            overflow-x: hidden;
+            line-height: 1.6;
+            padding-top: 130px;
+        }
+
+        /* Header Styles with Enhanced Animation */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 5%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+         transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+            background: rgba(33, 33, 33, 0.8);
+            backdrop-filter: blur(10px);
+        
+          
+        }
+
+        .header.scrolled {
+            padding: 10px 5%;
+            background: rgba(33, 33, 33, 0.95);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.03);
+        }
+
+        .logo-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+        }
+
+        .logo-img:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        }
+        
+        /* Enhanced TVK Text Animation */
+        .tvk-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.2;
+            perspective: 1000px;
+        }
+
+        .tvk-top {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--tvk-red);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .tvk-heading {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--tvk-gold);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tvk-heading::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--tvk-gold);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+
+        .logo-container:hover .tvk-heading::after {
+            transform: scaleX(1);
+        }
+
+        /* Enhanced Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--tvk-yellow);
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 215, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .mobile-menu-btn:hover {
+            transform: scale(1.1);
+            color: var(--tvk-gold);
+        }
+        
+        .mobile-menu-btn:hover::before {
+            left: 0;
+        }
+        
+        /* Enhanced Navigation */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            justify-content: center;
+        }
+        
+        .nav-menu a {
+            color: var(--tvk-yellow);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            padding: 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+        }
+        
+        .nav-menu a:hover {
+            color: var(--tvk-gold);
+            transform: translateY(-3px);
+        }
+        
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--tvk-gold);
+            transition: width 0.3s;
+        }
+        
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced Dropdown Menu */
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 220px;
+            background: var(--tvk-gray-dark);
+            border-radius: 5px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) rotateX(-15deg);
+            transform-origin: top center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 3px solid var(--tvk-primary);
+            perspective: 1000px;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) rotateX(0);
+        }
+        
+        .dropdown-content a {
+            color: var(--tvk-yellow);
+            padding: 12px 20px;
+            display: block;
+            transition: all 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateZ(0);
+        }
+        
+        .dropdown-content a:hover {
+            background: rgba(30, 136, 229, 0.2);
+            color: var(--tvk-gold);
+            padding-left: 25px;
+            transform: translateX(5px) translateZ(10px);
+        }
+
+        /* Enhanced Hero Section (Replacing Slider) */
+        .hero-section {
+            width: 100%;
+            height: 100vh;
+            max-height: 800px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--tvk-gray-dark);
+            color: white;
+            text-align: center;
+            padding: 0 20px;
+            margin-top: 130px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 40px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            border: 2px solid var(--tvk-gold);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s;
+        }
+
+        .hero-content:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6);
+            border-color: var(--tvk-gold);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--tvk-gold);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--tvk-gold);
+            transition: all 0.5s;
+        }
+
+        .hero-content:hover .hero-title::after {
+            width: 150px;
+            background: var(--tvk-gold);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--tvk-white);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1s forwards;
+        }
+
+        .hero-btn.primary {
+            background: var(--tvk-gold);
+            color: var(--tvk-dark);
+            animation-delay: 0.8s;
+        }
+
+        .hero-btn.secondary {
+            background: transparent;
+            color: var(--tvk-gold);
+            border: 2px solid var(--tvk-gold);
+            animation-delay: 1s;
+        }
+
+        .hero-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-btn:hover::before {
+            left: 100%;
+        }
+
+        .hero-btn.primary:hover {
+            background: var(--tvk-gold-light);
+        }
+
+        .hero-btn.secondary:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* Scroll Down Indicator with Enhanced Animation */
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--tvk-gold);
+            font-size: 2.5rem;
+            animation: bounce 2s infinite, pulse 2s infinite alternate;
+            z-index: 5;
+            cursor: pointer;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            transition: all 0.3s;
+        }
+
+        .scroll-down:hover {
+            color: var(--tvk-yellow);
+            transform: translateX(-50%) scale(1.2);
+            animation: none;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-20px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+        }
+
+        /* Enhanced Section Styles */
+        .section {
+            padding: 100px 10%;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s;
+        }
+        
+        .section:nth-child(even) {
+            background: #222222;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--tvk-gold);
+            margin-bottom: 70px;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: all 0.8s;
+        }
+
+        .section.in-view .section-title {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--tvk-gold);
+            border-radius: 2px;
+            transition: all 0.5s;
+        }
+
+        .section:hover .section-title::after {
+            width: 120px;
+            background: var(--tvk-gold);
+        }
+
+        /* Enhanced Leader Container */
+        .leader-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin-bottom: 60px;
+            position: relative;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+
+        .section.in-view .leader-container {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .leader-image-container {
+            flex: 1;
+            min-width: 350px;
+            max-width: 450px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .leader-image-frame {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border: 5px solid var(--tvk-gold);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .leader-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.8s;
+        }
+
+        .leader-image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            transform: translateZ(20px);
+        }
+
+        .leader-image-overlay h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: var(--tvk-gold);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+
+        .leader-image-overlay p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+
+        .leader-quick-facts {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .fact-box {
+            background: rgba(255,215,0,0.1);
+            border-radius: 12px;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+        }
+
+        .fact-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--tvk-gold);
+            transition: all 0.4s ease;
+        }
+
+        .fact-box:hover {
+            background: rgba(255,215,0,0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3), 0 5px 15px rgba(220, 20, 60, 0.1);
+            border-color: var(--tvk-gold);
+        }
+
+        .fact-box:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+
+        .fact-box i {
+            font-size: 1.8rem;
+            color: var(--tvk-gold);
+            transition: all 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .fact-box:hover i {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .fact-label {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: var(--tvk-white);
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+
+        .fact-value {
+            display: block;
+            font-weight: bold;
+            color: var(--tvk-gold);
+            font-size: 1rem;
+            line-height: 1.3;
+        }
+
+        .leader-image-frame:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(255, 215, 0, 0.4), 0 0 30px rgba(220, 20, 60, 0.2);
+            border-color: var(--tvk-red);
+        }
+
+        .leader-image-frame:hover .leader-image {
+            transform: scale(1.05);
+        }
+
+        .leader-image-frame:hover .leader-image-overlay h3 {
+            transform: translateY(-5px);
+        }
+
+        .leader-image-frame:hover .leader-image-overlay p {
+            transform: translateY(-3px);
+        }
+
+        .leader-info {
+            flex: 2;
+            min-width: 300px;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s 0.2s;
+        }
+
+        .section.in-view .leader-info {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .leader-name {
+            font-size: 2.2rem;
+            color: var(--tvk-gold);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .leader-name::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--tvk-gold);
+            transition: all 0.5s;
+        }
+
+        .leader-info:hover .leader-name::after {
+            width: 100px;
+            background: var(--tvk-gold);
+        }
+
+        .leader-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: var(--tvk-white);
+            transition: all 0.3s;
+        }
+
+        .leader-info:hover .leader-description {
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+            background: rgba(255, 215, 0, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--tvk-gold);
+            transition: width 0.4s ease;
+        }
+
+        .info-section:hover {
+            background: rgba(255, 215, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: var(--tvk-gold);
+        }
+
+        .info-section:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+
+        .section-heading {
+            font-size: 1.3rem;
+            color: var(--tvk-gold);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading i {
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .info-section:hover .section-heading i {
+            transform: rotate(15deg);
+            color: var(--tvk-yellow);
+        }
+
+        .section-content {
+            padding-left: 25px;
+            transition: all 0.3s;
+        }
+
+        .info-section:hover .section-content {
+            padding-left: 30px;
+        }
+
+        .section-content p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .section-content p::before {
+            content: '•';
+            position: absolute;
+            left: -15px;
+            color: var(--tvk-gold);
+            transition: all 0.3s;
+        }
+
+        .info-section:hover .section-content p::before {
+            left: -20px;
+            color: var(--tvk-yellow);
+        }
+
+        .awards-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .awards-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .awards-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .awards-list li::before {
+            content: '★';
+            position: absolute;
+            left: 0;
+            color: var(--tvk-gold);
+            transition: all 0.3s;
+        }
+
+        .awards-list li:hover::before {
+            transform: scale(1.5) rotate(15deg);
+            color: var(--tvk-yellow);
+        }
+
+        .leader-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .leader-social a {
+            color: var(--tvk-yellow);
+            font-size: 1.5rem;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 234, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leader-social a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s;
+        }
+        
+        .leader-social a:hover {
+            color: var(--tvk-dark);
+            background: var(--tvk-yellow);
+            transform: translateY(-5px) scale(1.1) rotate(10deg);
+            box-shadow: 0 5px 20px rgba(255, 234, 0, 0.5);
+        }
+
+        .leader-social a:hover::before {
+            left: 100%;
+        }
+
+        /* Enhanced Footer */
+        .footer {
+            background: var(--tvk-gray-dark);
+            color: var(--tvk-yellow);
+            padding: 70px 10% 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--tvk-gold);
+        }
+
+        /* Removed rainbow animation for minimalistic design */
+        
+        .footer-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--tvk-gold);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--tvk-gold);
+            transition: all 0.5s;
+        }
+
+        .footer:hover .footer-logo::after {
+            width: 150px;
+            background: var(--tvk-gold);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--tvk-yellow);
+            text-decoration: none;
+            transition: all 0.5s;
+            position: relative;
+            padding: 5px 0;
+            font-size: 1.1rem;
+        }
+        
+        .footer-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--tvk-gold);
+            transition: width 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--tvk-gold);
+            transform: translateY(-3px);
+        }
+        
+        .footer-links a:hover::before {
+            width: 100%;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .social-icons a {
+            color: var(--tvk-yellow);
+            font-size: 1.8rem;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 234, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-icons a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s;
+        }
+        
+        .social-icons a:hover {
+            color: var(--tvk-dark);
+            background: var(--tvk-yellow);
+            transform: translateY(-5px) scale(1.1) rotate(10deg);
+            box-shadow: 0 5px 20px rgba(255, 234, 0, 0.5);
+        }
+
+        .social-icons a:hover::before {
+            left: 100%;
+        }
+        
+        .copyright {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 30px;
+            line-height: 1.6;
+            color: var(--tvk-white);
+            position: relative;
+        }
+
+        .copyright::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Enhanced Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            background: var(--tvk-gray-dark);
+            color: var(--tvk-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--tvk-yellow);
+            transform: scale(0.8);
+        }
+        
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        
+        .back-to-top:hover {
+            background: var(--tvk-yellow);
+            color: var(--tvk-dark);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 30px rgba(255, 234, 0, 0.3);
+        }
+
+        /* Enhanced Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: var(--tvk-gray-dark);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            animation: modalFadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 5px solid var(--tvk-primary);
+            color: var(--tvk-yellow);
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: perspective(1000px) translateY(-50px) rotateX(15deg);
+            }
+            to {
+                opacity: 1;
+                transform: perspective(1000px) translateY(0) rotateX(0);
+            }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--tvk-yellow);
+            transition: all 0.5s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-modal:hover {
+            color: var(--tvk-gold);
+            transform: rotate(90deg) scale(1.2);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* Enhanced Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--tvk-gray-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-content {
+            text-align: center;
+            color: var(--tvk-yellow);
+        }
+        
+        .loader-spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(255, 234, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--tvk-yellow);
+            animation: spin 1.5s linear infinite, pulse 2s infinite alternate;
+            margin: 0 auto 30px;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.3);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loader-text {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            color: var(--tvk-yellow);
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* New Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px rgba(255, 234, 0, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 234, 0, 0.8), 0 0 20px rgba(255, 234, 0, 0.6);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Removed float animation for cleaner design */
+
+        @keyframes wave {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+            60% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Removed Particle Effects for Clean Design */
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .section {
+                padding: 80px 8%;
+            }
+            
+            .leader-container {
+                gap: 30px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--tvk-gray-dark);
+                flex-direction: column;
+                padding: 100px 30px 30px;
+                gap: 25px;
+                transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+            }
+            
+            .nav-menu.active {
+                left: 0;
+            }
+            
+            .dropdown-content {
+                position: static;
+                width: 100%;
+                box-shadow: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                display: none;
+                background: rgba(0, 0, 0, 0.2);
+                margin-top: 15px;
+                animation: none;
+            }
+            
+            .dropdown:hover .dropdown-content {
+                display: none;
+            }
+            
+            .dropdown.active .dropdown-content {
+                display: block;
+            }
+            
+            .leader-container {
+                flex-direction: column;
+            }
+            
+            .leader-image {
+                max-width: 100%;
+            }
+            
+            .dot-menu {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: var(--tvk-gray-dark);
+                border-radius: 50%;
+                width: 60px;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+                margin-left: 0;
+                z-index: 999;
+            }
+            
+            .dot-dropdown {
+                bottom: auto;
+                top: auto;
+                right: 0;
+                margin-bottom: 15px;
+            }
+
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+
+            .hero-btn {
+                padding: 12px 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                margin-top: 100px;
+                height: 80vh;
+            }
+
+            .hero-content {
+                padding: 30px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .section {
+                padding: 70px 5%;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .leader-name {
+                font-size: 1.8rem;
+            }
+            
+            .leader-description {
+                font-size: 1rem;
+            }
+            
+            .footer-links {
+                gap: 20px;
+            }
+
+            .footer-logo {
+                font-size: 2rem;
+            }
+
+            .social-icons a {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .back-to-top {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                bottom: 30px;
+                right: 30px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header {
+                padding: 10px 5%;
+            }
+            
+            .logo-img {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .tvk-heading {
+                font-size: 1.3rem;
+            }
+
+            .hero-section {
+                height: 70vh;
+                margin-top: 80px;
+            }
+
+            .hero-content {
+                padding: 20px;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .leader-image-container {
+                min-width: 100%;
+            }
+            
+            .leader-quick-facts {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .section-content {
+                padding-left: 15px;
+            }
+            
+            .footer-links {
+                gap: 15px;
+                flex-direction: column;
+            }
+            
+            .social-icons a {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+
+            .back-to-top {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+/* Image Slider Styles - Clean Version */
+.slider-container {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 500px; /* Original height */
+}
+
+.slide {
+    min-width: 100%;
+    position: relative;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.slide-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.slide-content h3 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--tvk-yellow);
+}
+
+.slide-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.slider-nav button {
+    background: rgba(0,0,0,0.3);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 0 20px;
+}
+
+.slider-nav button:hover {
+    background: rgba(0,0,0,0.7);
+    transform: scale(1.1);
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 10;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slider-dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .slider {
+        height: 400px;
+    }
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="images/tvk-logo.svg">
+    .slide-content h3 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .slider {
+        height: 350px;
+    }
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    .slide-content {
+        padding: 20px;
+    }
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css?v=2025093001">
-    <link rel="stylesheet" href="modern-form-override.css?v=2025093001">
-    <!-- Font Awesome - Multiple sources for cross-browser reliability -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" rel="stylesheet" crossorigin="anonymous">
-    <link rel="stylesheet" href="icon-fixes.css">
-    <link href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" rel="stylesheet" crossorigin="anonymous">
+    .slider-nav button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .slider {
+        height: 250px;
+    }
+    
+    .slide-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .slider-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+ /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .tvk-logo {
+            width: 150px;
+            height: 150px;
+            background-image: url('images/leader-image.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .loading-text {
+            font-size: 1.5rem;
+            color: #ea190a;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #ea190a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+</style>
 </head>
 <body>
-    <!-- Removed floating particles background for a cleaner, static design -->
-    
+     <div id="preloader">
+        <div class="tvk-logo"></div>
+        <div class="spinner"></div>
+        
+        <h1 class="brand-title text-center" style="color:#ea190a;" id="mainTitle">தமிழக வெற்றிக் கழகம்</h1>
+        <div class="brand-sub text-center" style="color:#c52222;" id="mainSubtitle">பிறப்பொக்கும் எல்லா உயிர்க்கும் !</div>
+        <div class="brand-loc text-center mt-2" style="color:black;" id="locationText">திருவள்ளூர் தென்மேற்கு மாவட்டம்<br>மாதவரம் தொகுதி</div>
+    </div>
+
+
+
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="badge-glow">
-                        <img src="images/leader-image.png" alt="TVK" class="header-badge">
-                    </div>
-                    <div class="brand-stack">
-                        <div class="brand-mini">TVK IN</div>
-                        <div class="brand-main">நம்ம மாதவரம்</div>
-                    </div>
-                </div>
-                <nav class="nav-menu header-nav">
-                    <a href="#voice" class="nav-link nav-link-hero">உங்கள் குரல் எங்கள் கரம்</a>
-                    <a href="bla-registration.html" class="nav-link nav-link-hero">புத் முகவர்கள் BLA</a>
-                </nav>
-                <button class="mobile-menu-btn" id="mobileMenuBtn">
-                    <i class="fas fa-bars"></i>
-                </button>
+        <div class="logo-container">
+            <img src="images/leader-image.png" alt="தளபதி விஜய்" class="logo-img">
+            <div class="tvk-text">
+                <div class="tvk-top">TVK IN</div>
+                <h1 class="tvk-heading">நம்ம மாதவரம்</h1>
             </div>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-slider">
-            <div class="hero-slide active">
-                <div class="hero-bg">
-                    <img src="images/vijay.jpeg" alt="Thalapathy Vijay" class="hero-image">
-                    <div class="hero-overlay"></div>
-                </div>
-                <div class="hero-content">
-                    <div class="container">
-                        <div class="hero-text">
-                            <h1 class="hero-title">தமிழக வெற்றிக் கழக நிகழர்சி</h1>
-                            <p class="hero-subtitle">மாதவாரம் பொதுக்கூட்டம் - 2025</p>
-                        </div>
-                        <div class="hero-navigation">
-                            <button class="nav-arrow nav-prev" onclick="plusSlides(-1)">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="nav-arrow nav-next" onclick="plusSlides(1)">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-container">
+            <nav class="nav-menu" id="navMenu">
+                <a href="ad.html" class="hover-shine">உங்கள் குரல் எங்கள் கரம்</a>
+                <a href="buthmugavarigal.html" class="hover-shine">பூத் முகவர்கள் BLA</a>
+            </nav>
         </div>
         
-        <!-- Slide Indicators -->
-        <div class="hero-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </section>
+    </header>
 
-    <!-- Dashboard -->
-    <section id="home" class="dashboard">
-        <div class="container">
-            <h2 class="section-title">
-                <span class="title-icon">📊</span>
-                கட்சி தகவல் தொகுப்பு
-                <span class="title-decoration"></span>
-            </h2>
-            <div class="stats-modern">
-                <div class="metric-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="metric-icon gradient-red">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-number" data-count="15000">15,000</div>
-                        <div class="metric-label">உறுப்பினர்கள்</div>
-                    </div>
-                </div>
-                <div class="metric-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="metric-icon gradient-orange">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-number" data-count="850">850</div>
-                        <div class="metric-label">புகார்கள்</div>
-                    </div>
-                </div>
-                <div class="metric-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="metric-icon gradient-purple">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-number" data-count="120">120</div>
-                        <div class="metric-label">நிகழ்ச்சிகள்</div>
-                    </div>
-                </div>
-                <div class="metric-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="metric-icon gradient-blue">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-number" data-count="32">32</div>
-                        <div class="metric-label">மாவட்டங்கள்</div>
-                    </div>
-                </div>
+   <!-- Slider HTML -->
+<div class="slider-container">
+    <div class="slider" id="imageSlider">
+        <div class="slide">
+            <img src="images/bg1.jpg" alt="TVK Event">
+            <div class="slide-content">
+                <h3>தமிழக வெற்றிக் கழக நிகழ்ச்சி</h3>
+                <p>மாதவரம் பொதுக்கூட்டம் - 2025</p>
             </div>
         </div>
-    </section>
-
-    <!-- TVK Statistics Section (Clean Reset) -->
-    <section class="tvk-stats-section">
-      <div class="tvk-stats-container">
-        <div class="tvk-stats-header">
-          <h2>கட்சி தகவல் தொகுப்பு</h2>
-          <p>தமிழக வெற்றிக் கழகம் - புள்ளிவிவர அறிக்கை</p>
+        <div class="slide">
+            <img src="images/bg2.jpg" alt="TVK Event">
+            <div class="slide-content">
+                <h3>தளபதி விஜய் உரை</h3>
+                <p>மக்கள் நலன் காக்கும் அரசியல்</p>
+            </div>
         </div>
-        <div class="tvk-stats-grid">
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-users"></i></div>
-            <div class="tvk-stat-number">75,000</div>
-            <div class="tvk-stat-label">உறுப்பினர்கள்</div>
-            <div class="tvk-stat-desc">கட்சியில் பதிவு செய்யப்பட்ட மொத்த உறுப்பினர்களின் எண்ணிக்கை</div>
-          </div>
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="tvk-stat-number">234</div>
-            <div class="tvk-stat-label">மாவட்ட அலுவலகங்கள்</div>
-            <div class="tvk-stat-desc">தமிழ்நாடு முழுவதும் செயல்படும் மாவட்ட அலுவலகங்கள்</div>
-          </div>
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-bullhorn"></i></div>
-            <div class="tvk-stat-number">156</div>
-            <div class="tvk-stat-label">பொதுக் கூட்டங்கள்</div>
-            <div class="tvk-stat-desc">இந்த ஆண்டு நடத்தப்பட்ட பொதுக் கூட்டங்களின் எண்ணிக்கை</div>
-          </div>
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-heart"></i></div>
-            <div class="tvk-stat-number">892</div>
-            <div class="tvk-stat-label">சமூக சேவை</div>
-            <div class="tvk-stat-desc">நடத்தப்பட்ட சமூக சேவை நிகழ்ச்சிகளின் எண்ணிக்கை</div>
-          </div>
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-graduation-cap"></i></div>
-            <div class="tvk-stat-number">45</div>
-            <div class="tvk-stat-label">கல்வி உதவித்தொகை</div>
-            <div class="tvk-stat-desc">வழங்கப்பட்ட கல்வி உதவித்தொகைகளின் எண்ணிக்கை (லட்சங்களில்)</div>
-          </div>
-          <div class="tvk-stat-card">
-            <div class="tvk-stat-icon"><i class="fas fa-trophy"></i></div>
-            <div class="tvk-stat-number">28</div>
-            <div class="tvk-stat-label">வெற்றிகள்</div>
-            <div class="tvk-stat-desc">உள்ளாட்சி தேர்தல்களில் பெற்ற வெற்றிகள்</div>
-          </div>
+        <div class="slide">
+            <img src="images/bg1.jpg" alt="TVK Event">
+            <div class="slide-content">
+                <h3>இளைஞர் சந்திப்பு</h3>
+                <p>தமிழகத்தின் எதிர்காலம்</p>
+            </div>
         </div>
-      </div>
-    </section>
-    <!-- End TVK Statistics Section -->
+    </div>
+    
+    <div class="slider-nav">
+        <button id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    
+    <div class="slider-dots" id="sliderDots">
+        <!-- Dots will be added by JavaScript -->
+    </div>
+</div>
 
-    <!-- Party Leaders Section -->
-    <section id="leaders" class="leaders-section">
-        <div class="container">
-            <h2 class="section-title">
-                <span class="title-icon">👑</span>
-                TVK கட்சி தலைவர்கள்
-                <span class="title-decoration"></span>
-            </h2>
-            
-            <!-- Main Leader Profile -->
-            <div class="main-leader-profile" data-aos="zoom-in">
-                <div class="leader-image-container">
-                    <img src="images/vijay.jpeg" alt="தளபதி சு. விஜய்" class="main-leader-photo">
-                    <div class="leader-title-overlay">
+    <!-- About Section - Thalapathy Vijay -->
+    <section class="section" id="about">
+        <h2 class="section-title">எங்கள் தலைவர் தளபதி ச. விஜய் பற்றி</h2>
+        
+        <div class="leader-container">
+            <div class="leader-image-container">
+                <div class="leader-image-frame">
+                    <img src="images/vijay.jpeg" alt="தளபதி விஜய்" class="leader-image">
+                    <div class="leader-image-overlay">
                         <h3>தளபதி விஜய்</h3>
                         <p>தமிழக வெற்றிக் கழகத்தின் தலைவர்</p>
                     </div>
-                    <div class="leader-glow-effect"></div>
+                </div>
+                <div class="leader-quick-facts">
+                    <div class="fact-box">
+                        <i class="fas fa-birthday-cake"></i>
+                        <div>
+                            <span class="fact-label">பிறந்த தேதி</span>
+                            <span class="fact-value">ஜூன் 22, 1974</span>
+                        </div>
+                    </div>
+                    <div class="fact-box">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span class="fact-label">பிறந்த இடம்</span>
+                            <span class="fact-value">சென்னை</span>
+                        </div>
+                    </div>
+                    <div class="fact-box">
+                        <i class="fas fa-film"></i>
+                        <div>
+                            <span class="fact-label">திரைப்படங்கள்</span>
+                            <span class="fact-value">65+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="leader-info">
+                <h3 class="leader-name">தளபதி ச. விஜய்</h3>
+                <p class="leader-description">
+                    <span class="highlight">தமிழக வெற்றிக் கழகத்தின் (TVK)</span> நிறுவனர் தளபதி விஜய் அவர்கள் சமூக நீதி, அரசியல் மாற்றம் மற்றும் தமிழக மக்களின் முன்னேற்றம் குறித்து ஆழ்ந்த ஆர்வத்துடன் செயல்படும் ஒரு தலைவர். மக்களுக்கான சேவையின் அடிப்படையில் அனுபவமும், ஊழல் இல்லாத, நலனான தமிழ்நாடு உருவாக்கும் முயற்சிகளும் அவருக்கு தமிழகத்தின் பல்வேறு பகுதிகளிலுள்ள மக்களின் மதிப்பு மற்றும் மரியாதையை பெற்றுத்தந்துள்ளன.
+                </p>
+                
+                <div class="info-section">
+                    <h4 class="section-heading">
+                        <i class="fas fa-user"></i> தனிப்பட்ட வாழ்க்கை
+                    </h4>
+                    <div class="section-content">
+                        <p><strong>பிறப்பு:</strong> சென்னையில் ஜூன் 22-ம் தேதி 1974-ம் வருடம் பிறந்தார்.</p>
+                        <p><strong>குடும்பம்:</strong> இவரின் அப்பா எஸ்.ஏ.சந்திரசேகர் தமிழர், அம்மா ஷோபா மலையாளி.</p>
+                        <p><strong>திருமணம்:</strong> ஆகஸ்ட் 25, 1999 அன்று சங்கீதா சொர்ணலிங்கம் என்பவரை திருமணம் செய்தார்.</p>
+                        <p><strong>குழந்தைகள்:</strong> மகன் - ஜேசன் சஞ்சய் (2000), மகள் - திவ்யா சாஷா (2005)</p>
+                    </div>
                 </div>
                 
-                <div class="leader-details">
-                    <div class="leader-header">
-                        <h2>தளபதி சு. விஜய்</h2>
-                        <div class="leader-badges">
-                            <span class="badge">தலைவர்</span>
-                            <span class="badge">நடிகர்</span>
-                            <span class="badge">அரசியல்வாதி</span>
-                        </div>
+                <div class="info-section">
+                    <h4 class="section-heading">
+                        <i class="fas fa-film"></i> திரைப்பட வாழ்க்கை
+                    </h4>
+                    <div class="section-content">
+                        <p><strong>அறிமுகம்:</strong> "நாளைய தீர்ப்பு" (1992)</p>
+                        <p><strong>மொத்த படங்கள்:</strong> 65+ (60 படங்களில் நாயகனாக)</p>
+                        <p><strong>விருதுகள்:</strong> 
+                            <ul class="awards-list">
+                                <li>தமிழ்நாடு அரசு சிறந்த நடிகர் விருது - 2 முறை</li>
+                                <li>விஜய் டிவி விருதுகள் - 5 முறை</li>
+                                <li>விகடன் சிறந்த நடிகர் விருது</li>
+                            </ul>
+                        </p>
+                        <p><strong>சாதனைகள்:</strong>
+                            <ul>
+                                <li>"கத்தி" படம் முதல் நாளே 15 கோடி வசூல்</li>
+                                <li>ரஜினிக்கு பிறகு 100 கோடி க்ளப்பில் இணைந்த இரண்டாவது நாயகன்</li>
+                            </ul>
+                        </p>
                     </div>
-                    
-                    <div class="leader-bio">
-                        <p>தமிழக வெற்றிக் கழகத்தின் (TVK) நிறுவனர் தளபதி விஜய் அவர்கள் சமூக நீதி, அரசியல் மாற்றம் மற்றும் தமிழக மக்களின் முன்னேற்றம் குறித்து ஆழ்ந்த ஆர்வத்துடன் செயல்படும் ஒரு தலைவர்.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h4 class="section-heading">
+                        <i class="fas fa-landmark"></i> அரசியல் வாழ்க்கை
+                    </h4>
+                    <div class="section-content">
+                        <p><strong>தமிழக வெற்றிக் கழகம்:</strong> 2009-ல் ரசிகர் மன்றங்களை "மக்கள் இயக்கம்" என்கிற அரசியல் கட்சியாக மாற்றினார்</p>
+                        <p><strong>சமூக சேவை:</strong> ஆண்டுதோறும் தனது பிறந்தநாளன்று ஆதரவற்றோர் இல்லங்களுக்கும் அரசு மருத்துவமனைகளுக்கும் உதவிகள் வழங்குவது வழக்கம்</p>
                     </div>
-                    
-                    <div class="leader-stats">
-                        <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-cake-candles"></i></div>
-                            <div class="stat-info">
-                                <strong>பிறந்த தேதி</strong>
-                                <span>ஜூன் 22, 1974</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-location-dot"></i></div>
-                            <div class="stat-info">
-                                <strong>பிறந்த இடம்</strong>
-                                <span>சென்னை</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-film"></i></div>
-                            <div class="stat-info">
-                                <strong>திரைப்படங்கள்</strong>
-                                <span>65+</span>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                
+                <div class="leader-social">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Voice/Complaint Section -->
-    <section id="voice" class="voice-section">
-        <div class="container">
-            <h2 class="section-title">
-                <span class="title-icon">🗣️</span>
-                உங்கள் குரல் எங்கள் கரம்
-                <span class="title-decoration"></span>
-            </h2>
-            <div class="complaint-form-container" data-aos="fade-up">
-                <div class="form-header">
-                    <div class="form-progress">
-                        <div class="progress-bar"></div>
+    <!-- About Section - Bussy Anand -->
+    <section class="section">
+        <h2 class="section-title">திரு. Bussy N. ஆனந்த் பற்றி</h2>
+        
+        <div class="leader-container">
+            <div class="leader-image-container">
+                <div class="leader-image-frame">
+                    <img src="https://i.pinimg.com/736x/59/c1/2a/59c12a1bbaef1daafcc54a123f1c7031.jpg" alt="திரு. Bussy N. ஆனந்த்" class="leader-image">
+                    <div class="leader-image-overlay">
+                        <h3>திரு. Bussy N. ஆனந்த்</h3>
+                        <p>தமிழக வெற்றிக் கழக பொதுச் செயலாளர்</p>
+                    </div>
+                </div>
+                <div class="leader-quick-facts">
+                    <div class="fact-box">
+                        <i class="fas fa-user-tie"></i>
+                        <div>
+                            <span class="fact-label">பதவி</span>
+                            <span class="fact-value">பொதுச் செயலாளர்</span>
+                        </div>
+                    </div>
+                    <div class="fact-box">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span class="fact-label">பகுதி</span>
+                            <span class="fact-value">மாதவரம்</span>
+                        </div>
+                    </div>
+                    <div class="fact-box">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div>
+                            <span class="fact-label">பணிக்காலம்</span>
+                            <span class="fact-value">2009 முதல்</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="leader-info">
+                <h3 class="leader-name">திரு. Bussy N. ஆனந்த்</h3>
+                <p class="leader-description">
+                    <span class="highlight">திரு. Bussy N. ஆனந்த்</span>, முன்னாள் MLA, தமிழக வெற்றிக் கழகத்தின் பொதுச் செயலாளராக உள்ளார் மற்றும் கட்சியின் அனைத்து உறுப்பினர்களையும் ஒருங்கிணைக்கும் நிரம்பியான ஒருங்கிணைப்பாளராக விளங்குகிறார். அவர் தமிழகத்தின் அனைத்து பகுதிகளிலும் நடைபெறும் கட்சிக் கூட்டங்களில் கலந்து கொண்டு, முக்கியமான முடிவுகளை எடுப்பதில் முக்கிய பங்கு வகிக்கிறார்.
+                </p>
+                <p>
+                    திரு. Bussy N. ஆனந்த், முன்னாள் MLA, தமிழக வெற்றிக் கழகத்தின் பொதுச் செயலாளராக உள்ளார் மற்றும் கட்சியின் அனைத்து உறுப்பினர்களையும் ஒருங்கிணைக்கும் திறமையான ஒருங்கிணைப்பாளராக விளங்குகிறார். அவர் தமிழ்நாட்டின் அனைத்து பகுதிகளிலும் நடைபெறும் கட்சிக் கூட்டங்களில் கலந்துகொண்டு, முக்கியமான முடிவுகளை எடுப்பதில் முக்கிய பங்கு வகிக்கிறார்.
+                </p>
+                <p class="leader-description">
+                    <span class="highlight">திரு. Bussy N. ஆனந்த்</span> அவர்களின் வழிகாட்டுதலின் கீழ், கட்சி மிகப்பெரிய வளர்ச்சியடைந்து வருகிறது. அவர் கட்சியின் அடிப்படை கொள்கைகளை வலுப்படுத்துவதிலும், சமூகநீதியை நிலைநிறுத்துவதிலும், மற்றும் கட்சி உறுப்பினர்களின் ஒற்றுமையை உறுதிப்படுத்துவதிலும் முக்கிய பங்கு வகிக்கிறார். அவரது கடின உழைப்பு, திட்டமிட்ட செயல்பாடுகள் மற்றும் அனுபவத்தின் பலம், TVK தமிழ்நாட்டின் பல பகுதிகளில் வளர்ச்சியடைய வழிவகுத்துள்ளது.
+                </p>
+                
+                <div class="info-section">
+                    <h4 class="section-heading">
+                        <i class="fas fa-briefcase"></i> அரசியல் பணி
+                    </h4>
+                    <div class="section-content">
+                        <p><strong>பதவி:</strong> தமிழக வெற்றிக் கழக பொதுச் செயலாளர்</p>
+                        <p><strong>பணிக்காலம்:</strong> 2009 முதல் தற்போது வரை</p>
+                        <p><strong>முன்னாள் பதவிகள்:</strong> MLA, மாதவரம் (2011-2016)</p>
                     </div>
                 </div>
                 
-                <form id="complaintForm" class="complaint-form" novalidate>
-                    <div class="form-group">
-                        <div class="input-container">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" id="complainantName" name="complainantName" placeholder="உங்கள் பெயர்" required autocomplete="name">
-                            <div class="input-highlight"></div>
-                        </div>
+                <div class="info-section">
+                    <h4 class="section-heading">
+                        <i class="fas fa-trophy"></i> சாதனைகள்
+                    </h4>
+                    <div class="section-content">
+                        <p><strong>மாதவரம் வளர்ச்சி:</strong> மாதவரம் பகுதியில் பல அடிப்படை வசதிகளை உருவாக்கியுள்ளார்</p>
+                        <p><strong>இளைஞர் மேம்பாடு:</strong> பல இளைஞர்களுக்கு வேலைவாய்ப்பு வழங்கியுள்ளார்</p>
+                        <p><strong>கல்வி உதவிகள்:</strong> பல ஏழை மாணவர்களுக்கு கல்வி உதவிகள் வழங்கியுள்ளார்</p>
                     </div>
-                    
-                    <div class="form-group">
-                        <div class="input-container">
-                            <i class="fas fa-phone input-icon"></i>
-                            <input type="tel" id="complainantPhone" name="phone" placeholder="தொலைபேசி எண்" required autocomplete="tel">
-                            <div class="input-highlight"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="input-container">
-                            <i class="fas fa-envelope input-icon"></i>
-                            <input type="email" id="complainantEmail" name="email" placeholder="மின்னஞ்சல்" autocomplete="email">
-                            <div class="input-highlight"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="input-container">
-                            <i class="fas fa-map-marker-alt input-icon"></i>
-                            <textarea id="complainantAddress" name="address" placeholder="முகவரி" rows="3" autocomplete="street-address"></textarea>
-                            <div class="input-highlight"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="input-container">
-                            <i class="fas fa-comment-dots input-icon"></i>
-                            <textarea id="complaintDetails" name="complaintDetails" placeholder="புகார் விவரங்கள் - உங்கள் கருத்துகளை விளக்கமாக எழுதுங்கள்" rows="5" required></textarea>
-                            <div class="input-highlight"></div>
-                            <div class="char-counter">
-                                <span class="current-count">0</span>/<span class="max-count">500</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Default values expected by script.js -->
-                    <input type="hidden" name="complaintType" value="General">
-                    <input type="hidden" name="priority" value="normal">
-                    
-                    <div class="form-group">
-                        <button type="submit" class="submit-btn">
-                            <span class="btn-content">
-                                <i class="fas fa-paper-plane"></i>
-                                <span class="btn-text">புகார் பதிவு செய்க</span>
-                            </span>
-                            <div class="btn-glow"></div>
-                            <div class="btn-ripple"></div>
-                        </button>
-                    </div>
-                    
-                    <div class="form-footer">
-                        <p class="privacy-note">
-                            <i class="fas fa-shield-alt"></i>
-                            உங்கள் தகவல்கள் பாதுகாப்பாக கையாளப்படும்
-                        </p>
-                    </div>
-                </form>
+                </div>
+                
+                <div class="leader-social">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <h3>TVK தமிழ் வெற்றிக் கழகம்</h3>
-                    <p>மக்களுக்காக • மக்களால் • மக்களுடன்</p>
-                </div>
-                <div class="footer-links">
-                    <a href="#home">முகப்பு</a>
-                    <a href="#leaders">தலைவர்கள்</a>
-                    <a href="#voice">புகார் பதிவு</a>
-                    <a href="bla-registration.html">உறுப்பினர் பதிவு</a>
-                </div>
-                <div class="social-icons">
-                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2025 TVK தமிழ் வெற்றிக் கழகம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</p>
-            </div>
+        <div class="footer-logo">தமிழக வெற்றிக் கழகம்</div>
+        
+        <div class="footer-links">
+             <a href="niru.html" class="hover-shine">நிர்வாகிகள் விவரம்</a>
+            <a href="programs.php" class="hover-shine">நிகழ்ச்சிகள்</a>
+            <a href="buthmugavarigal.html" class="hover-shine">பூத் முகவர்கள் BLA</a>
+        </div>
+        
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        
+        <div class="copyright">
+            <p>This website is maintained by TVK members to showcase Madhavaram people welfare activities and Voters Data Management and initiatives but is not an official
+            website of Tamilaga Vettri Kazhagam.</p>
+            Copyright © 2025. All Rights Reserved.
         </div>
     </footer>
 
     <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop">
+    <div class="back-to-top" id="backToTop">
         <i class="fas fa-arrow-up"></i>
-    </button>
+    </div>
 
-    <!-- Scripts -->
-    <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <!-- Modal Structure removed -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+   <script>
+// Initialize WOW.js for animations
+if (typeof WOW !== 'undefined') {
+    new WOW().init();
+}
+
+ // Preloader
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('preloader').style.opacity = '0';
+                
+                setTimeout(function() {
+                    document.getElementById('preloader').style.display = 'none';
+                }, 500);
+            }, 1500); // Adjust time as needed
+        });
+
+
+// Mobile Menu Toggle
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const navMenu = document.getElementById('navMenu');
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        this.innerHTML = navMenu.classList.contains('active') ? 
+            '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!navMenu.contains(e.target) && e.target !== mobileMenuBtn) {
+            navMenu.classList.remove('active');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+    });
+}
+
+// Dropdown toggle for mobile
+const dropdowns = document.querySelectorAll('.dropdown > a');
+dropdowns.forEach(dropdown => {
+    dropdown.addEventListener('click', function(e) {
+        if (window.innerWidth <= 992) {
+            e.preventDefault();
+            const parent = this.parentElement;
+            if (parent) {
+                parent.classList.toggle('active');
+            }
+        }
+    });
+});
+
+
+// Three Dot Menu removed
+
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        if (window.scrollY > 300) {
+            backToTop.classList.add('active');
+        } else {
+            backToTop.classList.remove('active');
+        }
+    }
+
+    // Check if sections are in view
+    document.querySelectorAll('.section').forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        if (sectionTop < window.innerHeight - 100) {
+            section.classList.add('in-view');
+        }
+    });
+
+
+// Back to top button
+const backToTopBtn = document.getElementById('backToTop');
+if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            window.scrollTo({
+                top: targetElement.offsetTop - 80,
+                behavior: 'smooth'
+            });
+            
+            // Close mobile menu if open
+            if (navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                if (mobileMenuBtn) {
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            }
+        }
+    });
+});
+
+// Modal functions removed
+
+// Removed particle creation for cleaner design
+
+// Initialize animations
+window.addEventListener('load', function() {
+    
+    // Add animation classes to elements when they come into view
+    const animateOnScroll = () => {
+        document.querySelectorAll('.section').forEach(section => {
+            const sectionPosition = section.getBoundingClientRect().top;
+            if (sectionPosition < window.innerHeight - 100) {
+                section.classList.add('in-view');
+            }
+        });
+    };
+    
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll(); // Run once on load
+});
+
+// Stats counter animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-count');
+        const count = +counter.innerText;
+        const increment = target / speed;
+        
+        if(count < target) {
+            counter.innerText = Math.ceil(count + increment);
+            setTimeout(animateCounters, 1);
+        } else {
+            counter.innerText = target;
+        }
+    });
+}
+
+// Testimonial slider
+const testimonials = document.querySelectorAll('.testimonial');
+const testimonialDots = document.querySelectorAll('.testimonial-dots .dot');
+
+if (testimonials.length > 0 && testimonialDots.length > 0) {
+    let currentTestimonial = 0;
+    
+    function showTestimonial(n) {
+        testimonials.forEach(testimonial => testimonial.classList.remove('active'));
+        testimonialDots.forEach(dot => dot.classList.remove('active'));
+        
+        currentTestimonial = (n + testimonials.length) % testimonials.length;
+        testimonials[currentTestimonial].classList.add('active');
+        testimonialDots[currentTestimonial].classList.add('active');
+    }
+
+    const nextBtn = document.querySelector('.testimonial-next');
+    const prevBtn = document.querySelector('.testimonial-prev');
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            showTestimonial(currentTestimonial + 1);
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            showTestimonial(currentTestimonial - 1);
+        });
+    }
+
+    testimonialDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showTestimonial(index);
+        });
+    });
+
+    // Auto rotate testimonials
+    setInterval(() => {
+        showTestimonial(currentTestimonial + 1);
+    }, 5000);
+}
+// Image Slider Functionality (same as before)
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('imageSlider');
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsContainer = document.getElementById('sliderDots');
+    
+    if (!slider || !slides.length || !prevBtn || !nextBtn || !dotsContainer) return;
+    
+    let currentSlide = 0;
+    const slideCount = slides.length;
+    
+    // Create dots
+    slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('slider-dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+    });
+    
+    const dots = document.querySelectorAll('.slider-dot');
+    
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+    
+    function goToSlide(index) {
+        currentSlide = (index + slideCount) % slideCount;
+        updateSlider();
+    }
+    
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slideCount;
+        updateSlider();
+    }
+    
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+        updateSlider();
+    }
+    
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+    
+    let slideInterval = setInterval(nextSlide, 5000);
+    
+    slider.addEventListener('mouseenter', () => {
+        clearInterval(slideInterval);
+    });
+    
+    slider.addEventListener('mouseleave', () => {
+        slideInterval = setInterval(nextSlide, 5000);
+    });
+    
+    // Touch support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    slider.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        clearInterval(slideInterval);
+    }, {passive: true});
+    
+    slider.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+        slideInterval = setInterval(nextSlide, 5000);
+    }, {passive: true});
+    
+    function handleSwipe() {
+        const difference = touchStartX - touchEndX;
+        if (difference > 50) nextSlide();
+        else if (difference < -50) prevSlide();
+    }
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextSlide();
+        else if (e.key === 'ArrowLeft') prevSlide();
+    });
+});
+</script>
 </body>
 </html>
