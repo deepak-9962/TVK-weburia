@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>நிர்வாக உள்நுழைவு - TVK Admin Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --tvk-primary: #DC143C;
+            --tvk-secondary: #FFD700;
+            --tvk-accent: #FFA500;
+            --tvk-dark: #2C1810;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            background: linear-gradient(135deg, var(--tvk-dark) 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(220, 20, 60, 0.3);
+            max-width: 450px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(220, 20, 60, 0.3));
+        }
+
+        .login-title {
+            color: var(--tvk-primary);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--tvk-dark);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--tvk-primary);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: var(--tvk-primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 20, 60, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border-left: 4px solid #c00;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--tvk-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: var(--tvk-accent);
+        }
+
+        .security-note {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            border-left: 3px solid var(--tvk-secondary);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px;
+            }
+            
+            .login-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-container">
+            <img src="images/tvk-logo.svg" alt="TVK Logo" class="logo-img">
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt"></i> நிர்வாக உள்நுழைவு
+            </div>
+        </div>
+
+        <h1 class="login-title">நிர்வாக பேனல்</h1>
+        <p class="login-subtitle">Admin Panel Access</p>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user"></i> பயனர் பெயர் (Username)
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input" 
+                    required 
+                    autocomplete="username"
+                    placeholder="உங்கள் பயனர் பெயரை உள்ளிடவும்"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> கடவுச்சொல் (Password)
+                </label>
+                <div class="password-wrapper">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="உங்கள் கடவுச்சொல்லை உள்ளிடவும்"
+                    >
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <div class="btn-content">
+                    <span id="btnText">உள்நுழைக (Login)</span>
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                </div>
+            </button>
+        </form>
+
+        <div class="security-note">
+            <i class="fas fa-info-circle"></i>
+            இந்தப் பக்கம் நிர்வாகிகளுக்கு மட்டுமே. உங்களுக்கு அணுகல் இல்லையெனில், தயவுசெய்து உங்கள் மேற்பார்வையாளரைத் தொடர்பு கொள்ளவும்.
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">
+                <i class="fas fa-arrow-left"></i> முகப்பு பக்கத்திற்கு திரும்பு
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Password toggle functionality
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+
+        // Form submission
+        const loginForm = document.getElementById('adminLoginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        function setLoading(isLoading) {
+            loginBtn.disabled = isLoading;
+            if (isLoading) {
+                btnText.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+            } else {
+                btnText.style.display = 'block';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('பயனர் பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும் (Please enter username and password)');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                // Hash the password using simple SHA-256 (in production, use bcrypt on server)
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                console.log('Login attempt for username:', username);
+                console.log('Generated password hash:', passwordHash);
+
+                // Query the employees table
+                const { data: employee, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password_hash', passwordHash)
+                    .eq('is_active', true)
+                    .single();
+
+                if (error) {
+                    console.error('Login error:', error);
+                    showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
+                    setLoading(false);
+                    return;
+                }
+
+                if (!employee) {
+                    showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
+                    setLoading(false);
+                    return;
+                }
+
+                console.log('Employee found:', employee);
+
+                // Check if user is admin
+                if (!employee.is_admin) {
+                    showError('நீங்கள் நிர்வாகி அல்ல. இந்தப் பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை (You are not an admin. Access denied)');
+                    setLoading(false);
+                    return;
+                }
+
+                // Store admin session
+                sessionStorage.setItem('tvk_admin_user', JSON.stringify({
+                    id: employee.id,
+                    username: employee.username,
+                    full_name: employee.full_name,
+                    is_admin: employee.is_admin,
+                    login_time: new Date().toISOString()
+                }));
+
+                // Redirect to admin dashboard
+                window.location.href = 'admin-dashboard.html';
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('உள்நுழைவில் பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும் (Login error occurred. Please try again)');
+                setLoading(false);
+            }
+        });
+
+        // Check if already logged in as admin
+        window.addEventListener('DOMContentLoaded', function() {
+            const adminUser = sessionStorage.getItem('tvk_admin_user');
+            if (adminUser) {
+                try {
+                    const user = JSON.parse(adminUser);
+                    if (user.is_admin) {
+                        window.location.href = 'admin-dashboard.html';
+                    }
+                } catch (e) {
+                    sessionStorage.removeItem('tvk_admin_user');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

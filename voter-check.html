@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLA வாக்காளர் சரிபார்ப்பு - TVK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --tvk-primary: #DC143C;
+            --tvk-secondary: #FFD700;
+            --tvk-dark: #2C1810;
+            --tvk-light: #FFF8DC;
+            --tvk-success: #28a745;
+            --tvk-danger: #dc3545;
+            --tvk-warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            background: linear-gradient(135deg, var(--tvk-primary) 0%, var(--tvk-dark) 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .voter-check-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-top: 5px solid var(--tvk-secondary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--tvk-primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--tvk-dark);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--tvk-primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--tvk-primary);
+            color: white;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .btn-success {
+            background: var(--tvk-success);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .status-message.loading {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #99ccff;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--tvk-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #333;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .voter-check-container {
+                margin: 20px auto;
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="voter-check-container">
+        <div class="header">
+            <h1><i class="fas fa-search-plus"></i> வாக்காளர் எண் சரிபார்ப்பு</h1>
+            <p>பதிவுக்கு முன் உங்கள் வாக்காளர் எண் கிடைக்கிறதா என்பதை சரிபார்க்கவும்</p>
+        </div>
+
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> முக்கியமான தகவல்</h3>
+            <ul>
+                <li>வாக்காளர் எண் 10 இலக்கங்கள் கொண்டதாக இருக்க வேண்டும்</li>
+                <li>பாகம் எண் உங்கள் வாக்காளர் அடையாள அட்டையில் உள்ளது</li>
+                <li>ஏதேனும் சந்தேகம் இருந்தால், உங்கள் வாக்காளர் அடையாள அட்டையை சரிபார்க்கவும்</li>
+            </ul>
+        </div>
+
+        <form id="voterCheckForm">
+            <div class="form-group">
+                <label for="voterId">
+                    <i class="fas fa-id-card"></i> வாக்காளர் எண் *
+                </label>
+                <input 
+                    type="text" 
+                    id="voterId" 
+                    name="voterId" 
+                    placeholder="உங்கள் வாக்காளர் எண்ணை உள்ளிடவும் (எ.கா: ABC1234567)" 
+                    required
+                    maxlength="20"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="partNumber">
+                    <i class="fas fa-list-ol"></i> பாகம் எண் *
+                </label>
+                <input 
+                    type="text" 
+                    id="partNumber" 
+                    name="partNumber" 
+                    placeholder="பாகம் எண்ணை உள்ளிடவும் (எ.கா: 123)" 
+                    required
+                    maxlength="10"
+                >
+            </div>
+
+            <button type="button" id="checkBtn" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                <span>கிடைக்குமா என சரிபார்க்கவும்</span>
+            </button>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <button type="button" id="proceedBtn" class="btn btn-success" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span>பதிவுக்கு தொடரவும்</span>
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" style="color: var(--tvk-primary); text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fas fa-arrow-left"></i>
+                முகப்புப் பக்கத்திற்கு திரும்பு
+            </a>
+        </div>
+    </div>
+
+    <script src="voter-check.js"></script>
+</body>
+</html>

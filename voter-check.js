@@ -1,0 +1,268 @@
+// BLA Voter Check JavaScript for TVK
+
+// Supabase configuration
+const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+
+let supabaseClient;
+
+// Initialize Supabase
+async function initializeSupabase() {
+    try {
+        // Load Supabase library from CDN
+        if (!window.supabase) {
+            await loadSupabaseLibrary();
+        }
+        
+        // Create Supabase client
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialized successfully');
+        return supabaseClient;
+    } catch (error) {
+        console.error('Error initializing Supabase:', error);
+        throw error;
+    }
+}
+
+// Load Supabase library from CDN
+function loadSupabaseLibrary() {
+    return new Promise((resolve, reject) => {
+        if (window.supabase) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Supabase library'));
+        document.head.appendChild(script);
+    });
+}
+
+// DOM elements
+let voterIdInput, partNumberInput, checkBtn, statusMessage, proceedBtn;
+
+// Authentication Guard - Check if employee is logged in
+function checkAuthentication() {
+    const sessionData = sessionStorage.getItem('bla_employee_session');
+    
+    if (!sessionData) {
+        alert('அங்கீகரிக்கப்படவில்லை. முதலில் உள்நுழைய வேண்டும்.');
+        window.location.href = 'office-login.html';
+        return false;
+    }
+    
+    try {
+        const employee = JSON.parse(sessionData);
+        console.log('Employee authenticated:', employee.username);
+        return employee;
+    } catch (error) {
+        console.error('Invalid session data');
+        alert('அமர்வு தரவு செல்லாது. மீண்டும் உள்நுழைக்கவும்.');
+        window.location.href = 'office-login.html';
+        return false;
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        // Check authentication first
+        const currentEmployee = checkAuthentication();
+        if (!currentEmployee) {
+            return; // Redirect handled by checkAuthentication
+        }
+        
+        // Initialize Supabase
+        await initializeSupabase();
+        
+        // Get DOM elements
+        voterIdInput = document.getElementById('voterId');
+        partNumberInput = document.getElementById('partNumber');
+        checkBtn = document.getElementById('checkBtn');
+        statusMessage = document.getElementById('statusMessage');
+        proceedBtn = document.getElementById('proceedBtn');
+        
+        // Add event listeners
+        checkBtn.addEventListener('click', checkVoterAvailability);
+        proceedBtn.addEventListener('click', proceedToRegistration);
+        
+        // Add input validation
+        voterIdInput.addEventListener('input', validateVoterId);
+        partNumberInput.addEventListener('input', validatePartNumber);
+        
+        console.log('Voter check page initialized successfully');
+        
+    } catch (error) {
+        console.error('Error initializing voter check page:', error);
+        showStatusMessage('பிழை: பயன்பாட்டை தொடங்க முடியவில்லை. பக்கத்தை மீண்டும் ஏற்றவும்.', 'error');
+    }
+});
+
+// Validate voter ID format
+function validateVoterId() {
+    const voterId = voterIdInput.value.trim().toUpperCase();
+    voterIdInput.value = voterId;
+    
+    // Reset proceed button when input changes
+    proceedBtn.disabled = true;
+    hideStatusMessage();
+}
+
+// Validate part number format
+function validatePartNumber() {
+    const partNumber = partNumberInput.value.trim();
+    partNumberInput.value = partNumber;
+    
+    // Reset proceed button when input changes
+    proceedBtn.disabled = true;
+    hideStatusMessage();
+}
+
+// Check voter ID availability
+async function checkVoterAvailability() {
+    const voterId = voterIdInput.value.trim().toUpperCase();
+    const partNumber = partNumberInput.value.trim();
+    
+    // Validation
+    if (!voterId || !partNumber) {
+        showStatusMessage('⚠️ கிருपया வாக்காளர் எண் மற்றும் பாகம் எண் இரண்டையும் உள்ளிடவும்', 'error');
+        return;
+    }
+    
+    if (voterId.length < 8 || voterId.length > 20) {
+        showStatusMessage('⚠️ வாக்காளர் எண் 8-20 எழுத்துகள் வரை இருக்க வேண்டும்', 'error');
+        return;
+    }
+    
+    if (partNumber.length < 1 || partNumber.length > 10) {
+        showStatusMessage('⚠️ பாகம் எண் சரியான வடிவத்தில் இல்லை', 'error');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        showStatusMessage('சரிபார்க்கப்படுகிறது...', 'loading');
+        checkBtn.disabled = true;
+        checkBtn.innerHTML = '<div class="loading-spinner"></div> சரிபார்க்கப்படுகிறது...';
+        
+        // Check if voter ID exists in database
+        const { data, error, count } = await supabaseClient
+            .from('bla_members')
+            .select('voter_id', { count: 'exact' })
+            .eq('voter_id', voterId)
+            .limit(1);
+        
+        if (error) {
+            throw error;
+        }
+        
+        // Check results
+        if (data && data.length > 0) {
+            // Voter ID already exists
+            showStatusMessage('⚠️ இந்த வாக்காளர் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது', 'error');
+            proceedBtn.disabled = true;
+        } else {
+            // Voter ID is available
+            showStatusMessage('✅ இந்த வாக்காளர் எண் கிடைக்கிறது', 'success');
+            proceedBtn.disabled = false;
+        }
+        
+    } catch (error) {
+        console.error('Error checking voter availability:', error);
+        showStatusMessage('❌ சரிபார்ப்பதில் பிழை. மீண்டும் முயற்சிக்கவும்.', 'error');
+        proceedBtn.disabled = true;
+        
+    } finally {
+        // Reset check button
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = '<i class="fas fa-search"></i> <span>கிடைக்குமா என சரிபார்க்கவும்</span>';
+    }
+}
+
+// Proceed to registration
+function proceedToRegistration() {
+    const voterId = voterIdInput.value.trim().toUpperCase();
+    const partNumber = partNumberInput.value.trim();
+    
+    // Validate inputs before proceeding
+    if (!voterId || !partNumber) {
+        showStatusMessage('⚠️ கிருபया வாக்காளர் எண் மற்றும் பாகம் எண் இரண்டையும் உள்ளிடவும்', 'error');
+        return;
+    }
+    
+    // Create URL with query parameters
+    const registrationUrl = `bla-office-entry.html?voterId=${encodeURIComponent(voterId)}&partNumber=${encodeURIComponent(partNumber)}`;
+    
+    // Show loading state
+    proceedBtn.disabled = true;
+    proceedBtn.innerHTML = '<div class="loading-spinner"></div> பதிவுக்கு தொடர்கிறது...';
+    
+    // Redirect to registration form
+    setTimeout(() => {
+        window.location.href = registrationUrl;
+    }, 1000);
+}
+
+// Show status message
+function showStatusMessage(message, type) {
+    statusMessage.textContent = message;
+    statusMessage.className = `status-message ${type}`;
+    statusMessage.style.display = 'block';
+    
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            if (statusMessage.classList.contains('success')) {
+                hideStatusMessage();
+            }
+        }, 5000);
+    }
+}
+
+// Hide status message
+function hideStatusMessage() {
+    statusMessage.style.display = 'none';
+    statusMessage.className = 'status-message';
+}
+
+// Utility functions
+function formatVoterId(value) {
+    // Remove any non-alphanumeric characters and convert to uppercase
+    return value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+}
+
+function formatPartNumber(value) {
+    // Remove any non-numeric characters
+    return value.replace(/[^0-9]/g, '');
+}
+
+// Enhanced input formatting
+voterIdInput?.addEventListener('input', function() {
+    this.value = formatVoterId(this.value);
+});
+
+partNumberInput?.addEventListener('input', function() {
+    this.value = formatPartNumber(this.value);
+});
+
+// Handle Enter key press
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        if (!proceedBtn.disabled) {
+            proceedToRegistration();
+        } else if (!checkBtn.disabled) {
+            checkVoterAvailability();
+        }
+    }
+});
+
+// Error handling for network issues
+window.addEventListener('online', function() {
+    showStatusMessage('✅ இணைய இணைப்பு மீண்டும் கிடைத்துள்ளது', 'success');
+});
+
+window.addEventListener('offline', function() {
+    showStatusMessage('⚠️ இணைய இணைப்பு துண்டிக்கப்பட்டது', 'error');
+});

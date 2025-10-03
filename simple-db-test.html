@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Database Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        #log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Simple Database Test</h1>
+        <p>Testing TVK Supabase database connection</p>
+        
+        <button onclick="testBasicConnection()">Test Basic Connection</button>
+        <button onclick="testEmployees()">Test Employees Table</button>
+        <button onclick="testMembers()">Test Members Table</button>
+        <button class="success" onclick="runAllTests()">Run All Tests</button>
+        <button class="danger" onclick="clearLog()">Clear Log</button>
+        
+        <div id="log">Initializing...</div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('📋 Page loaded');
+            log('💡 Click buttons to test database connection');
+        });
+
+        async function testBasicConnection() {
+            log('🔄 Testing basic connection...');
+            
+            try {
+                // Load Supabase if not already loaded
+                if (!window.supabase) {
+                    log('📦 Loading Supabase library...');
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
+                    
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                    
+                    log('✅ Supabase library loaded');
+                }
+
+                // Create client
+                const supabaseUrl = 'https://cbcuhojwffwppocnoxel.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+                
+                window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                log('✅ Supabase client created');
+                
+                // Test basic query
+                const { data, error } = await window.supabaseClient
+                    .from('employees')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('✅ Basic connection test PASSED');
+                return true;
+                
+            } catch (error) {
+                log('❌ Basic connection test FAILED: ' + error.message);
+                return false;
+            }
+        }
+
+        async function testEmployees() {
+            log('🔄 Testing employees table...');
+            
+            try {
+                if (!window.supabaseClient) {
+                    const connected = await testBasicConnection();
+                    if (!connected) return false;
+                }
+
+                const { data: employees, error } = await window.supabaseClient
+                    .from('employees')
+                    .select('*')
+                    .limit(10);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log(`✅ Employees table accessible - Found ${employees.length} employees`);
+                employees.forEach(emp => {
+                    log(`   - ${emp.username}: ${emp.full_name || 'No name'}`);
+                });
+                
+                return true;
+                
+            } catch (error) {
+                log('❌ Employees table test FAILED: ' + error.message);
+                return false;
+            }
+        }
+
+        async function testMembers() {
+            log('🔄 Testing BLA members table...');
+            
+            try {
+                if (!window.supabaseClient) {
+                    const connected = await testBasicConnection();
+                    if (!connected) return false;
+                }
+
+                // Test read
+                const { data: members, error: readError } = await window.supabaseClient
+                    .from('bla_members')
+                    .select('membership_number, full_name, voter_id')
+                    .limit(5);
+                
+                if (readError) {
+                    throw readError;
+                }
+                
+                log(`✅ BLA Members table accessible - Found ${members.length} members`);
+                
+                // Test insert
+                const testMember = {
+                    membership_number: 'TEST' + Date.now(),
+                    full_name: 'டெஸ்ட் பயனர்',
+                    father_name: 'டெஸ்ட் தந்தை',
+                    date_of_birth: '1990-01-01',
+                    gender: 'male',
+                    occupation: 'டெஸ்ட்',
+                    mobile: '9876543210',
+                    address: 'டெஸ்ட் முகவரி',
+                    district: 'சென்னை',
+                    pincode: '600001',
+                    voter_id: 'TST' + Math.random().toString(36).substr(2, 7).toUpperCase(),
+                    status: 'active'
+                };
+                
+                const { data: insertResult, error: insertError } = await window.supabaseClient
+                    .from('bla_members')
+                    .insert([testMember])
+                    .select();
+                
+                if (insertError) {
+                    throw insertError;
+                }
+                
+                log('✅ Successfully inserted test member: ' + testMember.membership_number);
+                return true;
+                
+            } catch (error) {
+                log('❌ BLA Members table test FAILED: ' + error.message);
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            log('🚀 Running all tests...');
+            
+            const test1 = await testBasicConnection();
+            const test2 = await testEmployees();
+            const test3 = await testMembers();
+            
+            if (test1 && test2 && test3) {
+                log('🎉 ALL TESTS PASSED! Database is working correctly.');
+            } else {
+                log('⚠️ Some tests failed. Check the errors above.');
+            }
+        }
+    </script>
+</body>
+</html>

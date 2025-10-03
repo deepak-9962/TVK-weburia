@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Diagnostic Tool - TVK</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #DC143C; }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #DC143C;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            background: #DC143C;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover { background: #b8112e; }
+        .result {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Admin Login Diagnostic Tool</h1>
+        
+        <div class="info">
+            <strong>Purpose:</strong> This tool helps you debug login issues by:
+            <ul>
+                <li>Showing what hash your password generates</li>
+                <li>Checking if the user exists in the database</li>
+                <li>Verifying the is_admin flag</li>
+                <li>Comparing password hashes</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Step 1: Generate Password Hash</h2>
+            <label>Enter your password:</label>
+            <input type="text" id="testPassword" placeholder="Enter password to test">
+            <button onclick="generateHash()">Generate Hash</button>
+            <div id="hashResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>Step 2: Check User in Database</h2>
+            <label>Username:</label>
+            <input type="text" id="checkUsername" placeholder="e.g., admin1" value="admin1">
+            <button onclick="checkUser()">Check User</button>
+            <div id="userResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>Step 3: Test Login</h2>
+            <label>Username:</label>
+            <input type="text" id="loginUsername" placeholder="Username" value="admin1">
+            <label>Password:</label>
+            <input type="text" id="loginPassword" placeholder="Password">
+            <button onclick="testLogin()">Test Login</button>
+            <div id="loginResult"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        async function generateHash() {
+            const password = document.getElementById('testPassword').value;
+            if (!password) {
+                alert('Please enter a password');
+                return;
+            }
+
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            document.getElementById('hashResult').innerHTML = `
+                <div class="result">
+                    <strong>Password:</strong> ${password}<br>
+                    <strong>SHA-256 Hash:</strong><br>${hash}
+                </div>
+            `;
+        }
+
+        async function checkUser() {
+            const username = document.getElementById('checkUsername').value;
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
+            try {
+                const { data: user, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
+
+                if (error) {
+                    document.getElementById('userResult').innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> ${error.message}<br>
+                            <strong>Details:</strong> User "${username}" not found in database
+                        </div>
+                    `;
+                    return;
+                }
+
+                document.getElementById('userResult').innerHTML = `
+                    <div class="result">
+                        <strong>✅ User Found!</strong><br><br>
+                        <strong>ID:</strong> ${user.id}<br>
+                        <strong>Username:</strong> ${user.username}<br>
+                        <strong>Full Name:</strong> ${user.full_name}<br>
+                        <strong>Is Admin:</strong> ${user.is_admin ? '✅ YES' : '❌ NO'}<br>
+                        <strong>Is Active:</strong> ${user.is_active ? '✅ YES' : '❌ NO'}<br>
+                        <strong>Password Hash in DB:</strong><br>${user.password_hash}<br><br>
+                        <strong>Created:</strong> ${user.created_at}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('userResult').innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            try {
+                // Generate hash from entered password
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const generatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                console.log('Generated hash:', generatedHash);
+
+                // Get user from database
+                const { data: user, error: userError } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
+
+                if (userError || !user) {
+                    document.getElementById('loginResult').innerHTML = `
+                        <div class="error">
+                            <strong>❌ Login Failed</strong><br>
+                            User "${username}" not found in database
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Compare hashes
+                const hashMatch = user.password_hash === generatedHash;
+
+                let resultHtml = `
+                    <div class="${hashMatch ? 'result' : 'error'}">
+                        <strong>${hashMatch ? '✅ LOGIN SUCCESSFUL!' : '❌ LOGIN FAILED'}</strong><br><br>
+                        <strong>Username:</strong> ${username}<br>
+                        <strong>Password Entered:</strong> ${password}<br><br>
+                        
+                        <strong>Hash from your password:</strong><br>
+                        ${generatedHash}<br><br>
+                        
+                        <strong>Hash in database:</strong><br>
+                        ${user.password_hash}<br><br>
+                        
+                        <strong>Hashes Match:</strong> ${hashMatch ? '✅ YES' : '❌ NO'}<br>
+                        <strong>Is Admin:</strong> ${user.is_admin ? '✅ YES' : '❌ NO'}<br>
+                        <strong>Is Active:</strong> ${user.is_active ? '✅ YES' : '❌ NO'}<br>
+                `;
+
+                if (!hashMatch) {
+                    resultHtml += `
+                        <br><hr><br>
+                        <strong>🔧 Problem Detected:</strong><br>
+                        The password you entered generates a different hash than what's stored in the database.<br><br>
+                        
+                        <strong>Solution:</strong><br>
+                        Either the password is wrong, OR you need to update the database with the correct hash.<br><br>
+                        
+                        To fix this, run in Supabase SQL Editor:<br>
+                        <code style="background: #f0f0f0; padding: 5px; display: block; margin-top: 5px;">
+                        UPDATE public.employees<br>
+                        SET password_hash = '${generatedHash}'<br>
+                        WHERE username = '${username}';
+                        </code>
+                    `;
+                } else if (!user.is_admin) {
+                    resultHtml += `
+                        <br><hr><br>
+                        <strong>🔧 Problem Detected:</strong><br>
+                        Password is correct, but user is not an admin!<br><br>
+                        
+                        To fix this, run in Supabase SQL Editor:<br>
+                        <code style="background: #f0f0f0; padding: 5px; display: block; margin-top: 5px;">
+                        UPDATE public.employees<br>
+                        SET is_admin = true<br>
+                        WHERE username = '${username}';
+                        </code>
+                    `;
+                }
+
+                resultHtml += '</div>';
+                document.getElementById('loginResult').innerHTML = resultHtml;
+
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+                console.error('Login test error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

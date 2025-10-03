@@ -284,7 +284,26 @@
         </div>
     </footer>
 
+    <!-- Load Supabase library first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <script src="supabase-config.js"></script>
     <script src="bla-registration.js"></script>
+    
+    <!-- Error handling for script loading -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('Script loading error:', e.filename, e.lineno, e.message);
+        });
+        
+        // Check if scripts loaded properly
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.supabase) {
+                console.error('Supabase library not loaded');
+            }
+            if (typeof initializeSupabase !== 'function') {
+                console.error('Supabase config not loaded');
+            }
+        });
+    </script>
 </body>
 </html>

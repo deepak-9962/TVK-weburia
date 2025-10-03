@@ -3,6 +3,17 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create employees table for office staff authentication
+CREATE TABLE IF NOT EXISTS public.employees (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL, -- Ensure you hash passwords before storing
+    full_name VARCHAR(200),
+    is_admin BOOLEAN DEFAULT false, -- Admin flag for privileged access
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create BLA Members table
 CREATE TABLE public.bla_members (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -26,9 +37,13 @@ CREATE TABLE public.bla_members (
     
     -- Political Information
     voter_id VARCHAR(20),
+    part_number VARCHAR(50),
     constituency VARCHAR(100),
     previous_party VARCHAR(200),
     interests JSONB,
+    aadhaar_number VARCHAR(20),
+    religion VARCHAR(100),
+    member_category VARCHAR(100),
     
     -- Documents
     photo_url TEXT,
@@ -129,10 +144,51 @@ CREATE TABLE public.office_tasks (
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('activity-media', 'activity-media', true);
 
 -- Create indexes for better performance
+-- Add employee reference column to bla_members (if not exists)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bla_members' AND column_name = 'registered_by_employee_id') THEN
+        ALTER TABLE public.bla_members ADD COLUMN registered_by_employee_id UUID REFERENCES public.employees(id);
+    END IF;
+END $$;
+
+-- Add unique constraint to voter_id to prevent duplicates (if not exists)
+DO $$
+BEGIN
+    -- Check if constraint already exists
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name = 'bla_members_voter_id_unique' 
+        AND table_name = 'bla_members'
+    ) THEN
+        -- Check for duplicates first
+        IF NOT EXISTS (
+            SELECT voter_id FROM public.bla_members 
+            WHERE voter_id IS NOT NULL 
+            GROUP BY voter_id 
+            HAVING COUNT(*) > 1
+        ) THEN
+            ALTER TABLE public.bla_members ADD CONSTRAINT bla_members_voter_id_unique UNIQUE (voter_id);
+        END IF;
+    END IF;
+EXCEPTION 
+    WHEN duplicate_table THEN
+        -- Constraint already exists, ignore
+        NULL;
+    WHEN others THEN
+        -- Log other errors but don't fail
+        RAISE NOTICE 'Could not add unique constraint on voter_id: %', SQLERRM;
+END $$;
+
+-- Create indexes for employees table
+CREATE INDEX IF NOT EXISTS idx_employees_username ON public.employees(username);
+
+-- Create indexes for bla_members table
 CREATE INDEX idx_bla_members_membership_number ON public.bla_members(membership_number);
 CREATE INDEX idx_bla_members_mobile ON public.bla_members(mobile);
 CREATE INDEX idx_bla_members_status ON public.bla_members(status);
 CREATE INDEX idx_bla_members_created_at ON public.bla_members(created_at);
+CREATE INDEX IF NOT EXISTS idx_bla_members_registered_by ON public.bla_members(registered_by_employee_id);
 
 CREATE INDEX idx_complaints_complaint_number ON public.complaints(complaint_number);
 CREATE INDEX idx_complaints_status ON public.complaints(status);
@@ -203,6 +259,7 @@ CREATE TRIGGER trigger_update_office_tasks_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Row Level Security (RLS) Policies
+ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bla_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.complaints ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
@@ -225,12 +282,89 @@ CREATE POLICY "Enable read access for all users" ON public.office_tasks FOR SELE
 CREATE POLICY "Enable insert access for all users" ON public.office_tasks FOR INSERT WITH CHECK (true);
 CREATE POLICY "Enable update access for all users" ON public.office_tasks FOR UPDATE USING (true);
 
--- Storage policies for buckets
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'member-documents');
-CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'member-documents');
+-- Storage policies for buckets (only create if they don't exist)
+DO $$
+BEGIN
+    -- Check and create member-documents SELECT policy
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' 
+        AND tablename = 'objects' 
+        AND policyname = 'Public Access member-documents'
+    ) THEN
+        CREATE POLICY "Public Access member-documents" ON storage.objects FOR SELECT USING (bucket_id = 'member-documents');
+    END IF;
+    
+    -- Check and create member-documents INSERT policy
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' 
+        AND tablename = 'objects' 
+        AND policyname = 'Public Upload member-documents'
+    ) THEN
+        CREATE POLICY "Public Upload member-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'member-documents');
+    END IF;
+    
+    -- Check and create activity-media SELECT policy
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' 
+        AND tablename = 'objects' 
+        AND policyname = 'Public Access activity-media'
+    ) THEN
+        CREATE POLICY "Public Access activity-media" ON storage.objects FOR SELECT USING (bucket_id = 'activity-media');
+    END IF;
+    
+    -- Check and create activity-media INSERT policy
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' 
+        AND tablename = 'objects' 
+        AND policyname = 'Public Upload activity-media'
+    ) THEN
+        CREATE POLICY "Public Upload activity-media" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'activity-media');
+    END IF;
+END
+$$;
 
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'activity-media');
-CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'activity-media');
+-- Create employees table for staff authentication
+CREATE TABLE public.employees (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    full_name VARCHAR(200) NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL, -- Passwords should always be hashed
+    role VARCHAR(50) DEFAULT 'data_entry' NOT NULL CHECK (role IN ('admin', 'manager', 'data_entry', 'supervisor')),
+    is_active BOOLEAN DEFAULT true,
+    last_login TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add index for faster username lookups
+CREATE INDEX idx_employees_username ON public.employees(username);
+CREATE INDEX idx_employees_role ON public.employees(role);
+CREATE INDEX idx_employees_active ON public.employees(is_active);
+
+-- Enable RLS for security
+ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for employees table
+CREATE POLICY "Allow authenticated employees to read their own data" ON public.employees FOR SELECT USING (true);
+CREATE POLICY "Allow insert for employee registration" ON public.employees FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow update for employee data" ON public.employees FOR UPDATE USING (true);
+
+-- Add the new column to track which employee registered a member
+ALTER TABLE public.bla_members
+ADD COLUMN registered_by_employee_id UUID REFERENCES public.employees(id);
+
+-- Create an index for this new column
+CREATE INDEX idx_bla_members_registered_by ON public.bla_members(registered_by_employee_id);
+
+-- Add trigger for employees updated_at
+CREATE TRIGGER trigger_update_employees_updated_at
+    BEFORE UPDATE ON public.employees
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert sample data (optional)
 -- You can run this to populate with sample data

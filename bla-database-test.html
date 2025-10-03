@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLA Database Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .schema-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 BLA Database Test</h1>
+        <p>Test database connection and schema for BLA member registration</p>
+        
+        <div id="testResults"></div>
+        
+        <button onclick="testConnection()">Test Connection</button>
+        <button onclick="testSchema()">Check Schema</button>
+        <button onclick="testInsert()">Test Insert</button>
+        <button onclick="clearResults()">Clear Results</button>
+        
+        <div id="schemaInfo" class="schema-info" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        let tvkDatabase = null;
+        
+        async function initializeDatabase() {
+            try {
+                // Initialize Supabase properly
+                await initializeSupabase();
+                
+                if (window.supabaseClient) {
+                    tvkDatabase = {
+                        supabase: window.supabaseClient,
+                        async query(sql, params = []) {
+                            const { data, error } = await this.supabase.rpc('execute_sql', { 
+                                sql_query: sql, 
+                                params: params 
+                            });
+                            if (error) throw error;
+                            return { success: true, data };
+                        },
+                        async insert(table, data) {
+                            console.log(`Inserting into ${table}:`, data);
+                            const { data: result, error } = await this.supabase
+                                .from(table)
+                                .insert(data)
+                                .select();
+                            if (error) {
+                                console.error('Insert error:', error);
+                                throw error;
+                            }
+                            return { success: true, data: result };
+                        },
+                        async select(table, columns = '*') {
+                            const { data, error } = await this.supabase
+                                .from(table)
+                                .select(columns);
+                            if (error) throw error;
+                            return { success: true, data };
+                        }
+                    };
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Database initialization failed:', error);
+                return false;
+            }
+        }
+        
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        async function testConnection() {
+            addResult('Testing database connection...', 'info');
+            
+            try {
+                const connected = await initializeDatabase();
+                if (!connected) {
+                    addResult('❌ Database connection failed - Supabase not available', 'error');
+                    return;
+                }
+                
+                const result = await tvkDatabase.select('bla_members');
+                addResult(`✅ Database connection successful! Found ${result.data.length} members`, 'success');
+                
+            } catch (error) {
+                addResult(`❌ Connection error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testSchema() {
+            addResult('Checking database schema...', 'info');
+            
+            try {
+                if (!tvkDatabase) {
+                    const connected = await initializeDatabase();
+                    if (!connected) {
+                        addResult('❌ Database not available', 'error');
+                        return;
+                    }
+                }
+                
+                // Try to insert a test record to verify all columns exist
+                const schemaTestId = Date.now() + Math.random().toString(36).substr(2, 5);
+                const testColumns = {
+                    membership_number: 'SCHEMA_TEST_' + schemaTestId,
+                    full_name: 'Schema Test',
+                    father_name: 'Test Father',
+                    date_of_birth: '1990-01-01',
+                    gender: 'male',
+                    occupation: 'Test',
+                    mobile: '1234567890',
+                    address: 'Test Address',
+                    district: 'test',
+                    pincode: '123456',
+                    voter_id: 'SCH' + Date.now().toString().slice(-7),
+                    area_union_city: 'Test Area',
+                    ward_village: 'Test Ward',
+                    part_number: 'T123',
+                    aadhaar_number: '123456789012',
+                    religion: 'Test Religion',
+                    status: 'active'
+                };
+                
+                // Test insert (will fail if columns are missing)
+                const { data: insertData, error: insertError } = await tvkDatabase.supabase
+                    .from('bla_members')
+                    .insert([testColumns])
+                    .select();
+                
+                if (insertError) {
+                    throw new Error(`Schema validation failed: ${insertError.message}`);
+                }
+                
+                // Clean up test data immediately
+                await tvkDatabase.supabase
+                    .from('bla_members')
+                    .delete()
+                    .eq('membership_number', testColumns.membership_number);
+                
+                const schemaDiv = document.getElementById('schemaInfo');
+                schemaDiv.style.display = 'block';
+                schemaDiv.textContent = 'Schema Validation: All required columns are present and working!\n\nTest columns verified:\n' + 
+                    Object.keys(testColumns).join(', ');
+                
+                const requiredColumns = ['full_name', 'father_name', 'voter_id', 'mobile', 'district', 'area_union_city', 'ward_village', 'aadhaar_number', 'religion'];
+                const missingColumns = []; // All columns worked if we got here
+                
+                if (missingColumns.length === 0) {
+                    addResult('✅ All required columns present in schema', 'success');
+                } else {
+                    addResult(`⚠️ Missing columns: ${missingColumns.join(', ')}. Please run fix-bla-columns.sql`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Schema check error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testInsert() {
+            addResult('Testing member data insert...', 'info');
+            
+            try {
+                if (!tvkDatabase) {
+                    const connected = await initializeDatabase();
+                    if (!connected) {
+                        addResult('❌ Database not available', 'error');
+                        return;
+                    }
+                }
+                
+                const uniqueId = Date.now();
+                const testMemberData = {
+                    membership_number: 'TVK_TEST_' + uniqueId,
+                    full_name: 'Test Member',
+                    father_name: 'Test Father',
+                    date_of_birth: '1990-01-01',
+                    gender: 'male',
+                    occupation: 'Software Developer',
+                    mobile: '9876543210',
+                    address: 'Test Address',
+                    district: 'chennai',
+                    pincode: '600001',
+                    voter_id: 'TST' + uniqueId.toString().slice(-7),
+                    status: 'active',
+                    interests: ['youth', 'social']
+                };
+                
+                const result = await tvkDatabase.insert('bla_members', testMemberData);
+                
+                if (result.success) {
+                    addResult(`✅ Test member inserted successfully! ID: ${result.data[0].id}`, 'success');
+                    
+                    // Clean up test data
+                    setTimeout(async () => {
+                        try {
+                            await tvkDatabase.supabase
+                                .from('bla_members')
+                                .delete()
+                                .eq('membership_number', testMemberData.membership_number);
+                            addResult('🗑️ Test data cleaned up', 'info');
+                        } catch (cleanupError) {
+                            addResult('⚠️ Could not clean up test data', 'error');
+                        }
+                    }, 2000);
+                } else {
+                    addResult('❌ Insert failed', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Insert test error: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('schemaInfo').style.display = 'none';
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            addResult('Page loaded. Click buttons to run tests.', 'info');
+        });
+    </script>
+</body>
+</html>

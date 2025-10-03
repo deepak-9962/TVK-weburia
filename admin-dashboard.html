@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>நிர்வாக டாஷ்போர்டு - TVK Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --tvk-primary: #DC143C;
+            --tvk-secondary: #FFD700;
+            --tvk-accent: #FFA500;
+            --tvk-dark: #2C1810;
+            --tvk-light: #FFF8DC;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-top: 120px; /* Increased from 80px to give more space */
+        }
+
+        /* Header */
+        .admin-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-height: 80px; /* Ensure minimum height */
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1);
+        }
+
+        .header-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .admin-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            color: white;
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: white;
+            color: var(--tvk-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Noto Sans Tamil', sans-serif;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-title {
+            color: var(--tvk-primary);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .stat-icon.members {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-icon.activities {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-icon.complaints {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .stat-content h3 {
+            color: #333;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-content p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Action Cards */
+        .section-title {
+            color: var(--tvk-dark);
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-header {
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .action-header.primary {
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+        }
+
+        .action-header.secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .action-header.tertiary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .action-header.quaternary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .action-icon {
+            font-size: 32px;
+        }
+
+        .action-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .action-body {
+            padding: 20px;
+        }
+
+        .action-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--tvk-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            background: var(--tvk-accent);
+            transform: scale(1.02);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-link-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .quick-link-item:last-child {
+            border-bottom: none;
+        }
+
+        .quick-link-item:hover {
+            background: #f8f9fa;
+            padding-left: 20px;
+        }
+
+        .quick-link-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--tvk-light);
+            color: var(--tvk-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .quick-link-text {
+            flex: 1;
+        }
+
+        .quick-link-text h4 {
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .quick-link-text p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Export Filters */
+        .export-filters {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .filter-title {
+            color: var(--tvk-primary);
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label i {
+            color: var(--tvk-primary);
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--tvk-primary);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .filter-info {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 14px;
+            border-left: 4px solid var(--tvk-primary);
+        }
+
+        .filter-info i {
+            color: var(--tvk-primary);
+        }
+
+        /* Export Section */
+        .export-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .export-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            transition: all 0.3s;
+        }
+
+        .export-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .export-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+
+        .export-icon.pdf-icon {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+        }
+
+        .export-icon.excel-icon {
+            background: linear-gradient(135deg, #217346 0%, #0e5c2f 100%);
+        }
+
+        .export-content {
+            flex: 1;
+        }
+
+        .export-content h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .export-content p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .export-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 15px;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pdf-btn {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+        }
+
+        .pdf-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .excel-btn {
+            background: linear-gradient(135deg, #217346 0%, #0e5c2f 100%);
+        }
+
+        .excel-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(33, 115, 70, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 18px;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <img src="images/tvk-logo.svg" alt="TVK Logo" class="logo-img">
+            <div>
+                <div class="header-title">நிர்வாக டாஷ்போர்டு</div>
+                <div class="admin-badge">
+                    <i class="fas fa-shield-alt"></i> Admin Panel
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-role">நிர்வாகி (Administrator)</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> வெளியேறு
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">வணக்கம், <span id="welcomeName">நிர்வாகி</span>!</h1>
+            <p class="welcome-subtitle">BLA (பூத் முகவர்கள்) நிர்வாக பேனலுக்கு வரவேற்கிறோம். இங்கு அனைத்து அலுவலக செயல்பாடுகளையும் நிர்வகிக்கலாம்.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon members">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalMembers">0</h3>
+                    <p>மொத்த உறுப்பினர்கள்</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon activities">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalActivities">0</h3>
+                    <p>செயல்பாடுகள்</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon complaints">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalComplaints">0</h3>
+                    <p>புகார்கள்</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="pendingTasks">0</h3>
+                    <p>நிலுவை பணிகள்</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <h2 class="section-title">முக்கிய செயல்பாடுகள்</h2>
+        <div class="action-grid">
+            <!-- BLA Office Entry -->
+            <div class="action-card" onclick="window.location.href='bla-office-entry.html'">
+                <div class="action-header primary">
+                    <div class="action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="action-title">உறுப்பினர் பதிவு</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        புதிய BLA உறுப்பினர்களை பதிவு செய்யவும். முழு விவரங்கள் மற்றும் ஆவணங்களுடன் உறுப்பினர் தகவல்களை சேர்க்கவும்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> பதிவு செய்ய செல்லவும்
+                    </button>
+                </div>
+            </div>
+
+            <!-- Member Photos -->
+            <div class="action-card" onclick="window.location.href='member-photos.html'">
+                <div class="action-header secondary">
+                    <div class="action-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="action-title">உறுப்பினர் புகைப்படங்கள்</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        அனைத்து BLA உறுப்பினர்களின் புகைப்படங்கள் மற்றும் விவரங்களை காணவும். தேடல் மற்றும் வடிகட்டுதல் வசதிகளுடன்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> புகைப்படங்களை காண
+                    </button>
+                </div>
+            </div>
+
+            <!-- Member List -->
+            <div class="action-card" onclick="alert('இந்த அம்சம் விரைவில் வரும் (Coming soon)')">
+                <div class="action-header tertiary">
+                    <div class="action-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="action-title">உறுப்பினர் பட்டியல்</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        அனைத்து பதிவு செய்யப்பட்ட உறுப்பினர்களின் முழுமையான பட்டியலை காணவும். தரவுகளை ஏற்றுமதி செய்யவும்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> பட்டியலை காண
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div class="action-card" onclick="alert('இந்த அம்சம் விரைவில் வரும் (Coming soon)')">
+                <div class="action-header quaternary">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="action-title">அறிக்கைகள்</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        மாவட்டம், தொகுதி மற்றும் செயல்பாடுகள் வாரியாக விரிவான அறிக்கைகளை உருவாக்கவும்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> அறிக்கைகளை காண
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <h2 class="section-title">விரைவு இணைப்புகள்</h2>
+        <div class="quick-links">
+            <div class="quick-link-item" onclick="window.location.href='index.html'">
+                <div class="quick-link-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h4>முகப்பு பக்கம்</h4>
+                    <p>TVK வலைதளத்தின் முகப்பு பக்கத்திற்கு செல்லவும்</p>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <div class="quick-link-item" onclick="window.location.href='bla-registration.html'">
+                <div class="quick-link-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h4>பொது பதிவு படிவம்</h4>
+                    <p>பொது உறுப்பினர் பதிவு படிவத்தை காணவும்</p>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <div class="quick-link-item" onclick="alert('இந்த அம்சம் விரைவில் வரும் (Coming soon)')">
+                <div class="quick-link-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h4>அமைப்புகள்</h4>
+                    <p>கணினி அமைப்புகள் மற்றும் விருப்பங்களை நிர்வகிக்கவும்</p>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <div class="quick-link-item" onclick="alert('இந்த அம்சம் விரைவில் வரும் (Coming soon)')">
+                <div class="quick-link-icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <div class="quick-link-text">
+                    <h4>பயனர் நிர்வாகம்</h4>
+                    <p>பணியாளர்கள் மற்றும் அனுமதிகளை நிர்வகிக்கவும்</p>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <h2 class="section-title">தரவு ஏற்றுமதி (Data Export)</h2>
+        
+        <!-- Export Filters -->
+        <div class="export-filters">
+            <h3 class="filter-title">
+                <i class="fas fa-filter"></i> வடிகட்டி விருப்பங்கள் (Filter Options)
+            </h3>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="exportDistrictFilter">
+                        <i class="fas fa-map-marker-alt"></i> மாவட்டம் (District)
+                    </label>
+                    <select class="filter-input" id="exportDistrictFilter">
+                        <option value="">அனைத்து மாவட்டங்கள்</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="exportGenderFilter">
+                        <i class="fas fa-venus-mars"></i> பாலினம் (Gender)
+                    </label>
+                    <select class="filter-input" id="exportGenderFilter">
+                        <option value="">அனைத்து பாலினம்</option>
+                        <option value="male">ஆண் (Male)</option>
+                        <option value="female">பெண் (Female)</option>
+                        <option value="other">மற்றவை (Other)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="exportCategoryFilter">
+                        <i class="fas fa-users"></i> வகை (Category)
+                    </label>
+                    <select class="filter-input" id="exportCategoryFilter">
+                        <option value="">அனைத்து வகைகள்</option>
+                        <option value="மாற்றுத்திறனாளி">மாற்றுத்திறனாளி</option>
+                        <option value="முதியோர்">முதியோர்</option>
+                        <option value="மூன்றாம் பாலினம்">மூன்றாம் பாலினம்</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="exportStatusFilter">
+                        <i class="fas fa-check-circle"></i> நிலை (Status)
+                    </label>
+                    <select class="filter-input" id="exportStatusFilter">
+                        <option value="">அனைத்து நிலைகள்</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-info">
+                <i class="fas fa-info-circle"></i>
+                <span id="filterCount">அனைத்து உறுப்பினர்கள் தேர்ந்தெடுக்கப்பட்டுள்ளனர்</span>
+            </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="export-section">
+            <div class="export-card">
+                <div class="export-icon pdf-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="export-content">
+                    <h3>PDF அறிக்கை</h3>
+                    <p>அனைத்து உறுப்பினர் தகவல்களையும் PDF வடிவத்தில் பதிவிறக்கவும்</p>
+                    <button class="export-btn pdf-btn" onclick="exportToPDF()">
+                        <i class="fas fa-download"></i> PDF பதிவிறக்கம்
+                    </button>
+                </div>
+            </div>
+
+            <div class="export-card">
+                <div class="export-icon excel-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <div class="export-content">
+                    <h3>Excel தாள்</h3>
+                    <p>அனைத்து உறுப்பினர் தகவல்களையும் Excel வடிவத்தில் பதிவிறக்கவும்</p>
+                    <button class="export-btn excel-btn" onclick="exportToExcel()">
+                        <i class="fas fa-download"></i> Excel பதிவிறக்கம்
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- jsPDF and jsPDF-AutoTable for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', async function() {
+            const adminUser = sessionStorage.getItem('tvk_admin_user');
+            
+            if (!adminUser) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(adminUser);
+                
+                // Verify admin status
+                if (!user.is_admin) {
+                    sessionStorage.removeItem('tvk_admin_user');
+                    alert('நீங்கள் நிர்வாகி அல்ல. அணுகல் மறுக்கப்பட்டது (You are not an admin. Access denied)');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+
+                // Update UI with user info
+                document.getElementById('userName').textContent = user.full_name || user.username;
+                document.getElementById('welcomeName').textContent = user.full_name || user.username;
+
+                // Load statistics
+                await loadStatistics();
+
+                // Load districts for export filter
+                await loadExportFilters();
+
+            } catch (e) {
+                console.error('Session error:', e);
+                sessionStorage.removeItem('tvk_admin_user');
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('நீங்கள் வெளியேற விரும்புகிறீர்களா? (Are you sure you want to logout?)')) {
+                sessionStorage.removeItem('tvk_admin_user');
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        // Load statistics from database
+        async function loadStatistics() {
+            try {
+                // Get total members
+                const { count: membersCount, error: membersError } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true });
+
+                if (!membersError && membersCount !== null) {
+                    document.getElementById('totalMembers').textContent = membersCount;
+                }
+
+                // Get total activities
+                const { count: activitiesCount, error: activitiesError } = await supabase
+                    .from('activities')
+                    .select('*', { count: 'exact', head: true });
+
+                if (!activitiesError && activitiesCount !== null) {
+                    document.getElementById('totalActivities').textContent = activitiesCount;
+                }
+
+                // Get total complaints
+                const { count: complaintsCount, error: complaintsError } = await supabase
+                    .from('complaints')
+                    .select('*', { count: 'exact', head: true });
+
+                if (!complaintsError && complaintsCount !== null) {
+                    document.getElementById('totalComplaints').textContent = complaintsCount;
+                }
+
+                // Get pending tasks
+                const { count: tasksCount, error: tasksError } = await supabase
+                    .from('office_tasks')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'pending');
+
+                if (!tasksError && tasksCount !== null) {
+                    document.getElementById('pendingTasks').textContent = tasksCount;
+                }
+
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Refresh statistics every 30 seconds
+        setInterval(loadStatistics, 30000);
+
+        // Load export filters (districts from database)
+        async function loadExportFilters() {
+            try {
+                const { data: members, error } = await supabase
+                    .from('bla_members')
+                    .select('district');
+
+                if (!error && members) {
+                    const districts = [...new Set(members.map(m => m.district).filter(Boolean))];
+                    const districtFilter = document.getElementById('exportDistrictFilter');
+                    
+                    districts.sort().forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        option.textContent = district;
+                        districtFilter.appendChild(option);
+                    });
+                }
+
+                // Add event listeners to filters
+                document.getElementById('exportDistrictFilter').addEventListener('change', updateFilterCount);
+                document.getElementById('exportGenderFilter').addEventListener('change', updateFilterCount);
+                document.getElementById('exportCategoryFilter').addEventListener('change', updateFilterCount);
+                document.getElementById('exportStatusFilter').addEventListener('change', updateFilterCount);
+
+            } catch (error) {
+                console.error('Error loading export filters:', error);
+            }
+        }
+
+        // Update filter count when filters change
+        async function updateFilterCount() {
+            try {
+                const districtFilter = document.getElementById('exportDistrictFilter').value;
+                const genderFilter = document.getElementById('exportGenderFilter').value;
+                const categoryFilter = document.getElementById('exportCategoryFilter').value;
+                const statusFilter = document.getElementById('exportStatusFilter').value;
+
+                // Fetch all members
+                const { data: members, error } = await supabase
+                    .from('bla_members')
+                    .select('*');
+
+                if (error) throw error;
+
+                // Apply filters
+                const filtered = members.filter(member => {
+                    const matchesDistrict = !districtFilter || member.district === districtFilter;
+                    const matchesGender = !genderFilter || member.gender === genderFilter;
+                    const matchesCategory = !categoryFilter || 
+                        (member.member_category && member.member_category.includes(categoryFilter));
+                    const matchesStatus = !statusFilter || member.status === statusFilter;
+
+                    return matchesDistrict && matchesGender && matchesCategory && matchesStatus;
+                });
+
+                const filterInfoSpan = document.getElementById('filterCount');
+                if (filtered.length === members.length) {
+                    filterInfoSpan.textContent = `அனைத்து உறுப்பினர்கள் தேர்ந்தெடுக்கப்பட்டுள்ளனர் (${members.length} உறுப்பினர்கள்)`;
+                } else {
+                    filterInfoSpan.textContent = `${filtered.length} உறுப்பினர்கள் வடிகட்டப்பட்டனர் (மொத்தம்: ${members.length})`;
+                }
+
+            } catch (error) {
+                console.error('Error updating filter count:', error);
+            }
+        }
+
+        // Get filtered members based on export filters
+        async function getFilteredMembers() {
+            const districtFilter = document.getElementById('exportDistrictFilter').value;
+            const genderFilter = document.getElementById('exportGenderFilter').value;
+            const categoryFilter = document.getElementById('exportCategoryFilter').value;
+            const statusFilter = document.getElementById('exportStatusFilter').value;
+
+            // Fetch all members
+            const { data: membersData, error: membersError } = await supabase
+                .from('bla_members')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (membersError) throw membersError;
+
+            // Fetch all employees
+            const { data: employeesData, error: employeesError } = await supabase
+                .from('employees')
+                .select('id, full_name, username');
+
+            if (employeesError) throw employeesError;
+
+            // Create employee lookup map
+            const employeeMap = {};
+            (employeesData || []).forEach(emp => {
+                employeeMap[emp.id] = emp;
+            });
+
+            // Attach employee data and filter
+            const allMembers = (membersData || []).map(member => ({
+                ...member,
+                registered_by: member.registered_by_employee_id ? employeeMap[member.registered_by_employee_id] : null
+            }));
+
+            // Apply filters
+            const filtered = allMembers.filter(member => {
+                const matchesDistrict = !districtFilter || member.district === districtFilter;
+                const matchesGender = !genderFilter || member.gender === genderFilter;
+                const matchesCategory = !categoryFilter || 
+                    (member.member_category && member.member_category.includes(categoryFilter));
+                const matchesStatus = !statusFilter || member.status === statusFilter;
+
+                return matchesDistrict && matchesGender && matchesCategory && matchesStatus;
+            });
+
+            return filtered;
+        }
+
+        // Helper function to load image as base64
+        function loadImageAsBase64(url) {
+            return new Promise((resolve, reject) => {
+                if (!url) {
+                    resolve(null);
+                    return;
+                }
+
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    try {
+                        const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve(base64);
+                    } catch (e) {
+                        resolve(null);
+                    }
+                };
+                
+                img.onerror = function() {
+                    resolve(null);
+                };
+                
+                img.src = url;
+            });
+        }
+
+        // Export to PDF function with photos
+        async function exportToPDF() {
+            try {
+                const exportBtn = event.target;
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது...';
+
+                // Get filtered members
+                const members = await getFilteredMembers();
+
+                if (!members || members.length === 0) {
+                    alert('தரவு இல்லை (No data to export with current filters)');
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
+                    return;
+                }
+
+                // Update button text to show progress
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> புகைப்படங்களை ஏற்றுகிறது...';
+
+                // Load all images
+                const membersWithImages = await Promise.all(
+                    members.map(async (member, index) => {
+                        exportBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது... ${index + 1}/${members.length}`;
+                        const imageData = await loadImageAsBase64(member.photo_url);
+                        return { ...member, imageData };
+                    })
+                );
+
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PDF உருவாக்குகிறது...';
+
+                // Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4'); // Portrait orientation for better photo display
+
+                let pageNumber = 1;
+                const pageHeight = doc.internal.pageSize.height;
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 15;
+                const cardWidth = (pageWidth - margin * 3) / 2; // 2 cards per row
+                const cardHeight = 80;
+                const photoSize = 25;
+                let xPos = margin;
+                let yPos = 40;
+
+                // Add header on first page
+                function addHeader() {
+                    doc.setFontSize(20);
+                    doc.setTextColor(220, 20, 60);
+                    doc.text('TVK - BLA Members Photo Report', pageWidth / 2, 15, { align: 'center' });
+                    
+                    doc.setFontSize(9);
+                    doc.setTextColor(100);
+                    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 25);
+                    doc.text(`Total: ${members.length} Members`, pageWidth - margin, 25, { align: 'right' });
+                    
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                }
+
+                addHeader();
+
+                // Draw each member card
+                membersWithImages.forEach((member, index) => {
+                    // Check if we need a new row
+                    if (index % 2 === 0 && index !== 0) {
+                        xPos = margin;
+                        yPos += cardHeight + 5;
+                    } else if (index % 2 === 1) {
+                        xPos = margin + cardWidth + margin;
+                    }
+
+                    // Check if we need a new page
+                    if (yPos + cardHeight > pageHeight - 20) {
+                        doc.addPage();
+                        pageNumber++;
+                        yPos = 40;
+                        xPos = margin;
+                        addHeader();
+                    }
+
+                    // Draw card border
+                    doc.setDrawColor(220, 20, 60);
+                    doc.setLineWidth(0.5);
+                    doc.rect(xPos, yPos, cardWidth, cardHeight);
+
+                    // Add photo or placeholder
+                    if (member.imageData) {
+                        try {
+                            doc.addImage(member.imageData, 'JPEG', xPos + 5, yPos + 5, photoSize, photoSize);
+                        } catch (e) {
+                            // Draw placeholder if image fails
+                            doc.setFillColor(240, 240, 240);
+                            doc.rect(xPos + 5, yPos + 5, photoSize, photoSize, 'F');
+                            doc.setFontSize(10);
+                            doc.setTextColor(150);
+                            doc.text('📷', xPos + 5 + photoSize/2, yPos + 5 + photoSize/2, { align: 'center' });
+                        }
+                    } else {
+                        // Draw placeholder
+                        doc.setFillColor(240, 240, 240);
+                        doc.rect(xPos + 5, yPos + 5, photoSize, photoSize, 'F');
+                        doc.setFontSize(10);
+                        doc.setTextColor(150);
+                        doc.text('📷', xPos + 5 + photoSize/2, yPos + 5 + photoSize/2, { align: 'center' });
+                    }
+
+                    // Add member details
+                    const textX = xPos + photoSize + 10;
+                    let textY = yPos + 10;
+                    
+                    doc.setFontSize(11);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(member.full_name || 'N/A', textX, textY, { maxWidth: cardWidth - photoSize - 20 });
+                    
+                    textY += 6;
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(80);
+                    
+                    doc.text(`Father: ${member.father_name || 'N/A'}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
+                    textY += 5;
+                    doc.text(`ID: ${member.membership_number || member.id?.substring(0, 8) || 'N/A'}`, textX, textY);
+                    textY += 5;
+                    doc.text(`Mobile: ${member.mobile || 'N/A'}`, textX, textY);
+                    textY += 5;
+                    doc.text(`Gender: ${member.gender || 'N/A'}`, textX, textY);
+                    textY += 5;
+                    doc.text(`District: ${member.district || 'N/A'}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
+                    textY += 5;
+                    
+                    if (member.voter_id) {
+                        doc.text(`Voter ID: ${member.voter_id}`, textX, textY);
+                        textY += 5;
+                    }
+                    
+                    if (member.registered_by) {
+                        doc.setFontSize(7);
+                        doc.setTextColor(100);
+                        doc.text(`Registered by: ${member.registered_by.full_name || member.registered_by.username}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
+                        textY += 4;
+                    }
+                    
+                    // Status badge
+                    doc.setFontSize(7);
+                    const status = member.status || 'pending';
+                    if (status === 'active') {
+                        doc.setTextColor(0, 128, 0);
+                    } else {
+                        doc.setTextColor(255, 140, 0);
+                    }
+                    doc.text(`Status: ${status.toUpperCase()}`, textX, textY);
+                });
+
+                // Save PDF
+                const fileName = `TVK_BLA_Members_Photos_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
+                alert(`PDF வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!\n${members.length} உறுப்பினர்கள், ${pageNumber} பக்கங்கள்\n(PDF downloaded successfully!)`);
+
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                alert('PDF ஏற்றுமதியில் பிழை (Error exporting PDF): ' + error.message);
+                const exportBtn = event.target;
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
+            }
+        }
+
+        // Export to Excel function
+        async function exportToExcel() {
+            try {
+                const exportBtn = event.target;
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது...';
+
+                // Get filtered members
+                const members = await getFilteredMembers();
+
+                if (!members || members.length === 0) {
+                    alert('தரவு இல்லை (No data to export with current filters)');
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
+                    return;
+                }
+
+                // Prepare Excel data with all fields
+                const excelData = members.map((member, index) => ({
+                    'S.No': index + 1,
+                    'Membership ID': member.membership_number || member.id.substring(0, 8),
+                    'Full Name': member.full_name || '',
+                    'Father Name': member.father_name || '',
+                    'Gender': member.gender || '',
+                    'Date of Birth': member.date_of_birth || '',
+                    'Mobile': member.mobile || '',
+                    'Email': member.email || '',
+                    'Address': member.address || '',
+                    'District': member.district || '',
+                    'Assembly Constituency': member.assembly_constituency || '',
+                    'Voter ID': member.voter_id || '',
+                    'Aadhaar': member.aadhaar || '',
+                    'Member Category': member.member_category || '',
+                    'Education': member.education || '',
+                    'Occupation': member.occupation || '',
+                    'Blood Group': member.blood_group || '',
+                    'Registered By': member.registered_by ? (member.registered_by.full_name || member.registered_by.username) : '',
+                    'Status': member.status || 'pending',
+                    'Created At': member.created_at ? new Date(member.created_at).toLocaleString() : ''
+                }));
+
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Set column widths
+                const colWidths = [
+                    { wch: 6 },  // S.No
+                    { wch: 15 }, // Membership ID
+                    { wch: 25 }, // Full Name
+                    { wch: 25 }, // Father Name
+                    { wch: 10 }, // Gender
+                    { wch: 12 }, // DOB
+                    { wch: 15 }, // Mobile
+                    { wch: 25 }, // Email
+                    { wch: 35 }, // Address
+                    { wch: 20 }, // District
+                    { wch: 25 }, // Assembly
+                    { wch: 15 }, // Voter ID
+                    { wch: 15 }, // Aadhaar
+                    { wch: 20 }, // Category
+                    { wch: 15 }, // Education
+                    { wch: 20 }, // Occupation
+                    { wch: 12 }, // Blood Group
+                    { wch: 20 }, // Registered By
+                    { wch: 12 }, // Status
+                    { wch: 20 }  // Created At
+                ];
+                ws['!cols'] = colWidths;
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'BLA Members');
+
+                // Save Excel file
+                const fileName = `TVK_BLA_Members_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
+                alert('Excel வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது! (Excel downloaded successfully!)');
+
+            } catch (error) {
+                console.error('Excel Export Error:', error);
+                alert('Excel ஏற்றுமதியில் பிழை (Error exporting Excel): ' + error.message);
+                const exportBtn = event.target;
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
+            }
+        }
+    </script>
+</body>
+</html>

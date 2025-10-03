@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVK Database Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 TVK Database Connection Test</h1>
+        <p>This page tests if your BLA workflow can connect to and store data in Supabase.</p>
+        
+        <div class="test-buttons">
+            <button class="test-button" onclick="testConnection()">
+                1️⃣ Test Database Connection
+            </button>
+            
+            <button class="test-button" onclick="testEmployeesTable()">
+                2️⃣ Test Employees Table
+            </button>
+            
+            <button class="test-button" onclick="testBLAMembersTable()">
+                3️⃣ Test BLA Members Table
+            </button>
+            
+            <button class="test-button success" onclick="testFullWorkflow()">
+                🚀 Test Complete Workflow
+            </button>
+            
+            <button class="test-button danger" onclick="clearResults()">
+                🗑️ Clear Results
+            </button>
+        </div>
+        
+        <div id="results" class="results">
+Results will appear here...
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        let supabaseClient;
+        let testResults = [];
+
+        // Initialize Supabase
+        async function initTestSupabase() {
+            try {
+                if (!window.supabase) {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+                
+                supabaseClient = window.supabase.createClient(
+                    'https://cbcuhojwffwppocnoxel.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI'
+                );
+                
+                return true;
+            } catch (error) {
+                addResult('❌ Failed to initialize Supabase: ' + error.message);
+                return false;
+            }
+        }
+
+        function addResult(message) {
+            testResults.push(`[${new Date().toLocaleTimeString()}] ${message}`);
+            document.getElementById('results').textContent = testResults.join('\n');
+        }
+
+        function clearResults() {
+            testResults = [];
+            document.getElementById('results').textContent = 'Results will appear here...';
+        }
+
+        async function testConnection() {
+            addResult('🔄 Testing database connection...');
+            
+            if (!supabaseClient) {
+                const initialized = await initTestSupabase();
+                if (!initialized) return;
+            }
+            
+            try {
+                // Simple connection test
+                const { data, error } = await supabaseClient
+                    .from('employees')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                addResult('✅ Database connection successful!');
+                return true;
+            } catch (error) {
+                addResult('❌ Database connection failed: ' + error.message);
+                return false;
+            }
+        }
+
+        async function testEmployeesTable() {
+            addResult('🔄 Testing employees table...');
+            
+            if (!supabaseClient) {
+                const initialized = await initTestSupabase();
+                if (!initialized) return;
+            }
+            
+            try {
+                // Check employees table
+                const { data: employees, error } = await supabaseClient
+                    .from('employees')
+                    .select('*')
+                    .limit(10);
+                
+                if (error) throw error;
+                
+                addResult(`✅ Employees table accessible`);
+                addResult(`📊 Found ${employees.length} employees:`);
+                employees.forEach(emp => {
+                    addResult(`   - ${emp.username}: ${emp.full_name} (${emp.role || 'no role'})`);
+                });
+                
+                return true;
+            } catch (error) {
+                addResult('❌ Employees table test failed: ' + error.message);
+                return false;
+            }
+        }
+
+        async function testBLAMembersTable() {
+            addResult('🔄 Testing BLA members table...');
+            
+            if (!supabaseClient) {
+                const initialized = await initTestSupabase();
+                if (!initialized) return;
+            }
+            
+            try {
+                // Check if we can read from bla_members table
+                const { data: members, error: readError } = await supabaseClient
+                    .from('bla_members')
+                    .select('membership_number, full_name, voter_id, created_at')
+                    .limit(5);
+                
+                if (readError) throw readError;
+                
+                addResult(`✅ BLA Members table accessible`);
+                addResult(`📊 Found ${members.length} existing members`);
+                
+                if (members.length > 0) {
+                    addResult('📋 Recent members:');
+                    members.forEach(member => {
+                        addResult(`   - ${member.membership_number}: ${member.full_name}`);
+                    });
+                }
+                
+                // Test insert capability
+                const testMember = {
+                    membership_number: 'TEST' + Date.now(),
+                    full_name: 'டெஸ்ட் உறுப்பினர் ' + Math.floor(Math.random() * 1000),
+                    father_name: 'டெஸ்ட் தந்தை',
+                    date_of_birth: '1990-01-01',
+                    gender: 'male',
+                    occupation: 'டெஸ்ட்',
+                    mobile: '9876543210',
+                    address: 'டெஸ்ட் முகவரி',
+                    district: 'சென்னை',
+                    pincode: '600001',
+                    voter_id: 'TST' + Math.random().toString(36).substr(2, 7).toUpperCase(),
+                    status: 'active'
+                };
+                
+                const { data: insertResult, error: insertError } = await supabaseClient
+                    .from('bla_members')
+                    .insert([testMember])
+                    .select();
+                
+                if (insertError) throw insertError;
+                
+                addResult('✅ Successfully inserted test member: ' + testMember.membership_number);
+                
+                return true;
+            } catch (error) {
+                addResult('❌ BLA Members table test failed: ' + error.message);
+                return false;
+            }
+        }
+
+        async function testFullWorkflow() {
+            addResult('🚀 Starting complete workflow test...');
+            
+            const step1 = await testConnection();
+            if (!step1) return;
+            
+            const step2 = await testEmployeesTable();
+            const step3 = await testBLAMembersTable();
+            
+            if (step2 && step3) {
+                addResult('🎉 ALL TESTS PASSED! Your database is ready for the BLA workflow.');
+            } else {
+                addResult('⚠️ Some tests failed. Check the errors above.');
+            }
+        }
+
+        // Auto-test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            addResult('📋 Database Test Page Loaded');
+            addResult('💡 Click "Test Database Connection" to start testing');
+            
+            // Test basic functionality
+            setTimeout(async () => {
+                addResult('🔄 Checking basic functionality...');
+                
+                try {
+                    // Test if we can access the Supabase config
+                    if (typeof SUPABASE_URL !== 'undefined') {
+                        addResult('✅ Supabase config loaded');
+                    } else {
+                        addResult('⚠️ Supabase config not found - will use hardcoded values');
+                    }
+                    
+                    // Test if we can load Supabase library
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
+                    script.onload = () => {
+                        addResult('✅ Supabase library loaded successfully');
+                        addResult('🚀 Ready for testing! Click the buttons above.');
+                    };
+                    script.onerror = () => {
+                        addResult('❌ Failed to load Supabase library');
+                    };
+                    document.head.appendChild(script);
+                    
+                } catch (error) {
+                    addResult('❌ Basic functionality test failed: ' + error.message);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
