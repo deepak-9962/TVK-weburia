@@ -48,28 +48,39 @@ let voterNumberInput, partNumberInput, photoInput, photoPreview, photoUpload;
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Check if user is logged in (admin or employee)
-        const adminUser = sessionStorage.getItem('tvk_admin_user');
-        if (!adminUser) {
-            // Redirect to admin login if not logged in
-            alert('நீங்கள் உள்நுழைய வேண்டும். தயவுசெய்து முதலில் உள்நுழைக.\nYou must be logged in. Please login first.');
-            window.location.href = 'admin-login.html';
-            return;
+        // First check for BLA employee session, then fall back to admin session
+        let userSession = sessionStorage.getItem('bla_employee_session');
+        let isEmployee = false;
+        
+        if (!userSession) {
+            // Check for admin session
+            userSession = sessionStorage.getItem('tvk_admin_user');
+            if (!userSession) {
+                // Neither employee nor admin logged in
+                alert('நீங்கள் உள்நுழைய வேண்டும். தயவுசெய்து முதலில் உள்நுழைக.\nYou must be logged in. Please login first.');
+                window.location.href = 'office-login.html';
+                return;
+            }
+        } else {
+            isEmployee = true;
         }
         
         // Verify the user session
         try {
-            const user = JSON.parse(adminUser);
-            console.log('Logged in as:', user.username, '(ID:', user.id, ')');
+            const user = JSON.parse(userSession);
+            console.log('Logged in as:', user.username || user.full_name, '(ID:', user.id || user.employeeId, ')');
+            console.log('User type:', isEmployee ? 'Employee' : 'Admin');
             
             // Display logged-in user info if there's a header element
             const userDisplay = document.getElementById('loggedInUser');
             if (userDisplay) {
-                userDisplay.textContent = `உள்நுழைந்தவர்: ${user.full_name || user.username}`;
+                userDisplay.textContent = `உள்நுழைந்தவர்: ${user.fullName || user.full_name || user.username}`;
             }
         } catch (e) {
             console.error('Invalid session:', e);
+            sessionStorage.removeItem('bla_employee_session');
             sessionStorage.removeItem('tvk_admin_user');
-            window.location.href = 'admin-login.html';
+            window.location.href = 'office-login.html';
             return;
         }
         
@@ -260,11 +271,20 @@ async function handleFormSubmission(e) {
         // Get logged-in employee/admin ID from session
         let registeredByEmployeeId = null;
         try {
-            const adminUser = sessionStorage.getItem('tvk_admin_user');
-            if (adminUser) {
-                const user = JSON.parse(adminUser);
-                registeredByEmployeeId = user.id;
-                console.log('Registered by employee ID:', registeredByEmployeeId);
+            // First check for BLA employee session
+            let userSession = sessionStorage.getItem('bla_employee_session');
+            if (userSession) {
+                const employee = JSON.parse(userSession);
+                registeredByEmployeeId = employee.employeeId || employee.id;
+                console.log('Registered by BLA employee ID:', registeredByEmployeeId);
+            } else {
+                // Fall back to admin session
+                const adminUser = sessionStorage.getItem('tvk_admin_user');
+                if (adminUser) {
+                    const user = JSON.parse(adminUser);
+                    registeredByEmployeeId = user.id;
+                    console.log('Registered by admin ID:', registeredByEmployeeId);
+                }
             }
         } catch (e) {
             console.warn('Could not get employee ID from session:', e);
