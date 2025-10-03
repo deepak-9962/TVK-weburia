@@ -317,6 +317,48 @@
             .btn {
                 width: 100%;
             }
+            
+            /* Mobile Photo Upload Improvements */
+            .photo-upload {
+                padding: 25px 15px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            
+            .photo-upload:active {
+                background: #f0f0f0;
+                border-color: var(--tvk-primary);
+            }
+            
+            .desktop-only {
+                display: none !important;
+            }
+            
+            .photo-upload-content {
+                pointer-events: none;
+            }
+            
+            .photo-upload-content i {
+                font-size: 2.5rem;
+            }
+            
+            .photo-upload-content p {
+                font-size: 0.95rem;
+            }
+            
+            .photo-preview {
+                max-width: 150px;
+                max-height: 150px;
+            }
+            
+            /* Better mobile input focus */
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
         }
 
         .section-divider {
@@ -503,11 +545,16 @@
             <div class="form-group full-width">
                 <label>உங்கள் புகைப்படம் (விருப்பம்)</label>
                 <div class="photo-upload" id="photoUpload">
-                    <input type="file" id="photoInput" name="photo" accept="image/*">
+                    <input type="file" 
+                           id="photoInput" 
+                           name="photo" 
+                           accept="image/*" 
+                           capture="environment"
+                           aria-label="புகைப்படத்தை தேர்ந்தெடுக்கவும்">
                     <div class="photo-upload-content">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><strong>புகைப்படத்தை பதிவேற்ற கிளிக் செய்யவும்</strong></p>
-                        <p>அல்லது இங்கே இழுத்து விடவும்</p>
+                        <i class="fas fa-camera"></i>
+                        <p><strong>புகைப்படத்தை பதிவேற்ற தொடவும்</strong></p>
+                        <p class="desktop-only">அல்லது இங்கே இழுத்து விடவும்</p>
                         <p><small>PNG, JPG, JPEG வடிவங்கள் மட்டுமே (அதிகபட்சம் 5MB)</small></p>
                     </div>
                     <img id="photoPreview" class="photo-preview" alt="Photo Preview">

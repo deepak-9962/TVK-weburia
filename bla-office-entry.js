@@ -141,47 +141,75 @@ function parseURLParameters() {
 
 // Setup photo upload functionality
 function setupPhotoUpload() {
-    // Click to upload
-    photoUpload.addEventListener('click', () => {
+    // Click/Touch to upload
+    photoUpload.addEventListener('click', (e) => {
+        // Prevent double-trigger on mobile
+        if (e.target === photoInput) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('Photo upload area clicked');
+        photoInput.click();
+    });
+    
+    // Touch support for mobile
+    photoUpload.addEventListener('touchend', (e) => {
+        if (e.target === photoInput) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('Photo upload area touched');
         photoInput.click();
     });
     
     // File input change
     photoInput.addEventListener('change', handlePhotoSelection);
     
-    // Drag and drop functionality
-    photoUpload.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        photoUpload.classList.add('dragover');
-    });
-    
-    photoUpload.addEventListener('dragleave', () => {
-        photoUpload.classList.remove('dragover');
-    });
-    
-    photoUpload.addEventListener('drop', (e) => {
-        e.preventDefault();
-        photoUpload.classList.remove('dragover');
+    // Drag and drop functionality (desktop only)
+    if (!('ontouchstart' in window)) {
+        photoUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            photoUpload.classList.add('dragover');
+        });
         
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handlePhotoFile(files[0]);
-        }
-    });
+        photoUpload.addEventListener('dragleave', () => {
+            photoUpload.classList.remove('dragover');
+        });
+        
+        photoUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            photoUpload.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handlePhotoFile(files[0]);
+            }
+        });
+    }
 }
 
 // Handle photo selection
 function handlePhotoSelection(e) {
+    console.log('Photo selection triggered');
+    console.log('Files selected:', e.target.files.length);
+    
     const file = e.target.files[0];
     if (file) {
+        console.log('File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
         handlePhotoFile(file);
+    } else {
+        console.warn('No file selected');
+        showStatusMessage('⚠️ எந்த படமும் தேர்ந்தெடுக்கப்படவில்லை', 'warning');
     }
 }
 
 // Handle photo file
 function handlePhotoFile(file) {
+    console.log('Processing photo file:', file.name);
+    
     // Validate file type
     if (!file.type.startsWith('image/')) {
+        console.error('Invalid file type:', file.type);
         showStatusMessage('⚠️ கிருபया செல்லுபடியாகும் படக் கோப்பை தேர்ந்தெடுக்கவும் (PNG, JPG, JPEG)', 'error');
         return;
     }
@@ -189,31 +217,56 @@ function handlePhotoFile(file) {
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
-        showStatusMessage('⚠️ படக் கோப்பு 5MB-க்கு அதிகமாக இருக்க கூடாது', 'error');
+        console.error('File too large:', file.size, 'bytes');
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        showStatusMessage(`⚠️ படக் கோப்பு ${sizeMB}MB. அதிகபட்சம் 5MB மட்டுமே அனுமதிக்கப்படும்`, 'error');
         return;
     }
     
+    // Show loading state
+    const uploadContent = photoUpload.querySelector('.photo-upload-content');
+    uploadContent.innerHTML = `
+        <i class="fas fa-spinner fa-spin" style="color: #DC143C;"></i>
+        <p><strong>படம் ஏற்றப்படுகிறது...</strong></p>
+    `;
+    
     // Create file reader for preview
     const reader = new FileReader();
+    
     reader.onload = function(e) {
+        console.log('Photo loaded successfully');
         photoPreview.src = e.target.result;
         photoPreview.style.display = 'block';
         
         // Update upload area to show selected file
-        const uploadContent = photoUpload.querySelector('.photo-upload-content');
+        const fileSizeKB = (file.size / 1024).toFixed(2);
         uploadContent.innerHTML = `
-            <i class="fas fa-check-circle" style="color: #28a745;"></i>
-            <p><strong>படம் தேர்ந்தெடுக்கப்பட்டது</strong></p>
-            <p>${file.name}</p>
-            <p><small>மாற்ற கிளிக் செய்யவும்</small></p>
+            <i class="fas fa-check-circle" style="color: #28a745; font-size: 2rem;"></i>
+            <p><strong>படம் தேர்ந்தெடுக்கப்பட்டது ✓</strong></p>
+            <p style="font-size: 0.9rem;">${file.name}</p>
+            <p><small>${fileSizeKB} KB</small></p>
+            <p><small>மாற்ற மீண்டும் தொடவும்</small></p>
         `;
+        
+        showStatusMessage('✅ படம் வெற்றிகரமாக தேர்ந்தெடுக்கப்பட்டது', 'success');
     };
+    
+    reader.onerror = function(error) {
+        console.error('Error reading file:', error);
+        uploadContent.innerHTML = `
+            <i class="fas fa-camera"></i>
+            <p><strong>புகைப்படத்தை பதிவேற்ற தொடவும்</strong></p>
+            <p class="desktop-only">அல்லது இங்கே இழுத்து விடவும்</p>
+            <p><small>PNG, JPG, JPEG வடிவங்கள் மட்டுமே (அதிகபட்சம் 5MB)</small></p>
+        `;
+        showStatusMessage('❌ படத்தை படிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்', 'error');
+    };
+    
     reader.readAsDataURL(file);
     
-    // Set the file input
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    photoInput.files = dataTransfer.files;
+    // Note: We don't manually set photoInput.files on mobile as it may cause issues
+    // The file is already in photoInput.files from the change event
+    console.log('Photo file processed, ready for upload');
 }
 
 // Setup input validation
@@ -445,6 +498,17 @@ function collectFormData() {
 // Upload photo to Supabase Storage
 async function uploadPhoto(file) {
     try {
+        console.log('=== PHOTO UPLOAD START ===');
+        console.log('File details:', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: new Date(file.lastModified)
+        });
+        
+        // Show upload progress message
+        showStatusMessage('📤 படம் பதிவேற்றப்படுகிறது...', 'loading');
+        
         // Option 1: Upload to Supabase Storage (if bucket exists)
         // First, try to upload to storage bucket
         try {
@@ -452,7 +516,9 @@ async function uploadPhoto(file) {
             const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const filePath = `member-photos/${fileName}`;
             
-            console.log('Uploading photo to Supabase storage...');
+            console.log('Attempting upload to Supabase storage...');
+            console.log('Storage path:', filePath);
+            
             const { data: uploadData, error: uploadError } = await supabaseClient.storage
                 .from('tvk-storage')
                 .upload(filePath, file, {
@@ -461,38 +527,79 @@ async function uploadPhoto(file) {
                 });
             
             if (uploadError) {
-                console.warn('Storage upload failed, using base64 fallback:', uploadError.message);
+                console.warn('Storage upload failed:', uploadError);
+                console.warn('Error details:', {
+                    message: uploadError.message,
+                    statusCode: uploadError.statusCode
+                });
                 throw uploadError;
             }
+            
+            console.log('Storage upload successful:', uploadData);
             
             // Get public URL
             const { data: urlData } = supabaseClient.storage
                 .from('tvk-storage')
                 .getPublicUrl(filePath);
             
-            console.log('Photo uploaded successfully to storage:', urlData.publicUrl);
+            console.log('Public URL obtained:', urlData.publicUrl);
+            console.log('=== PHOTO UPLOAD SUCCESS (STORAGE) ===');
+            
+            showStatusMessage('✅ படம் வெற்றிகரமாக பதிவேற்றப்பட்டது', 'success');
             return urlData.publicUrl;
             
         } catch (storageError) {
             // Option 2: Fallback to base64 if storage fails
-            console.log('Using base64 fallback for photo storage');
+            console.log('Storage failed, using base64 fallback');
+            console.log('Fallback reason:', storageError.message);
+            
+            showStatusMessage('⚠️ படம் base64 வடிவத்தில் சேமிக்கப்படுகிறது...', 'loading');
+            
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => {
-                    console.log('Photo converted to base64 successfully');
-                    resolve(reader.result);
+                
+                reader.onloadstart = () => {
+                    console.log('Starting base64 conversion...');
                 };
+                
+                reader.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        console.log(`Base64 conversion progress: ${percentComplete.toFixed(2)}%`);
+                    }
+                };
+                
+                reader.onload = () => {
+                    const base64String = reader.result;
+                    console.log('Base64 conversion successful');
+                    console.log('Base64 string length:', base64String.length);
+                    console.log('=== PHOTO UPLOAD SUCCESS (BASE64) ===');
+                    
+                    showStatusMessage('✅ படம் சேமிக்கப்பட்டது (base64)', 'success');
+                    resolve(base64String);
+                };
+                
                 reader.onerror = (error) => {
-                    console.error('Error reading photo:', error);
+                    console.error('Base64 conversion error:', error);
+                    console.error('FileReader error:', reader.error);
+                    
                     showStatusMessage('⚠️ படம் செயலாக்குவதில் பிழை. படம் இல்லாமல் தொடர்கிறது.', 'warning');
+                    
+                    // Don't reject, just return null to allow form submission without photo
                     resolve(null);
                 };
+                
+                // Start reading the file
+                console.log('Starting FileReader.readAsDataURL...');
                 reader.readAsDataURL(file);
             });
         }
         
     } catch (error) {
-        console.error('Error processing photo:', error);
+        console.error('=== PHOTO UPLOAD FAILED ===');
+        console.error('Unexpected error:', error);
+        console.error('Error stack:', error.stack);
+        
         showStatusMessage('⚠️ படம் செயலாக்குவதில் பிழை. படம் இல்லாமல் தொடர்கிறது.', 'warning');
         return null;
     }
