@@ -331,12 +331,25 @@
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
         
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+                
+                console.log('Password visibility toggled to:', type);
+            });
+        } else {
+            console.error('Toggle password elements not found');
+        }
 
         // Form submission
         const loginForm = document.getElementById('adminLoginForm');
@@ -425,44 +438,45 @@
                 }
 
                 if (!passwordMatch) {
+                    console.log('Password mismatch. Expected:', employee.password_hash, 'Got:', password);
                     showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
                     setLoading(false);
                     return;
                 }
 
-                // Dummy query to satisfy the old variable
-                const error = null;
-
-                // Dummy query to satisfy the old variable
-                const error = null;
-
-                if (error) {
-                    console.error('Login error:', error);
-                    showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
-                    setLoading(false);
-                    return;
-                }
-
+                console.log('Password matched successfully!');
                 console.log('Login successful for:', employee.username);
 
                 // Check if user is admin
+                console.log('Checking admin status. is_admin:', employee.is_admin);
                 if (!employee.is_admin) {
                     showError('நீங்கள் நிர்வாகி அல்ல. இந்தப் பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை (You are not an admin. Access denied)');
                     setLoading(false);
                     return;
                 }
 
+                console.log('Admin check passed. Storing session...');
+                
                 // Store admin session
-                sessionStorage.setItem('tvk_admin_user', JSON.stringify({
+                const sessionData = {
                     id: employee.id,
                     username: employee.username,
                     full_name: employee.full_name,
                     is_admin: employee.is_admin,
                     login_time: new Date().toISOString()
-                }));
+                };
+                
+                sessionStorage.setItem('tvk_admin_user', JSON.stringify(sessionData));
+                console.log('Session stored:', sessionData);
 
+                // Show success message briefly before redirect
+                showError('வெற்றிகரமாக உள்நுழைந்துள்ளீர்கள்! (Login successful!)');
+                
                 // Redirect to admin dashboard
-                window.location.href = 'admin-dashboard.html';
+                console.log('Redirecting to admin-dashboard.html...');
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 500);
 
             } catch (error) {
                 console.error('Login error:', error);
