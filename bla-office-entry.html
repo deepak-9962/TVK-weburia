@@ -111,6 +111,32 @@
             cursor: not-allowed;
         }
 
+        /* Part Number Input Styling */
+        #partNumberInput {
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: 2px solid #2196F3 !important;
+            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+        }
+
+        #partNumberInput:focus {
+            border-color: #1976D2 !important;
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2) !important;
+        }
+
+        /* Area Display Styling */
+        #areaDisplay {
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+
+        #areaDisplay::placeholder {
+            color: #888;
+            font-weight: normal;
+        }
+
         .form-group textarea {
             min-height: 100px;
             resize: vertical;
@@ -399,32 +425,69 @@
             </div>
 
             <div class="form-grid">
+                <!-- Part Number Input (User enters this FIRST) -->
+                <div class="form-group">
+                    <label for="partNumberInput">
+                        <i class="fas fa-list-ol"></i> பாகம் எண் <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="partNumberInput" 
+                        name="partNumber" 
+                        required 
+                        placeholder="பாகம் எண்ணை உள்ளிடவும் (எ.கா: 145)"
+                        min="1"
+                        max="475"
+                    >
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> பாகம் எண்ணை உள்ளிடவும் - மற்ற விவரங்கள் தானாக நிரப்பப்படும்
+                    </small>
+                </div>
+
+                <!-- Area Display (Auto-filled) -->
                 <div class="form-group">
                     <label for="area">
                         <i class="fas fa-map-marker-alt"></i> பகுதி / ஒன்றியம் / நகரம் <span class="required">*</span>
                     </label>
-                    <input type="text" id="area" name="area" required placeholder="உங்கள் பகுதியை உள்ளிடவும்">
+                    <input 
+                        type="text" 
+                        id="area" 
+                        name="area" 
+                        required 
+                        readonly
+                        placeholder="பாகம் எண் உள்ளிட்ட பிறகு தானாக நிரப்பப்படும்"
+                        style="background: #e8f5e9; border: 2px solid #4CAF50; font-weight: 600;"
+                    >
+                    <small style="color: #4CAF50; display: block; margin-top: 5px;">
+                        <i class="fas fa-check-circle"></i> தானாக நிரப்பப்படும்
+                    </small>
                 </div>
 
+                <!-- Ward/Circle Display (Auto-filled) -->
                 <div class="form-group">
                     <label for="ward">
                         <i class="fas fa-building"></i> வட்டம் / ஊராட்சி / வார்டு <span class="required">*</span>
                     </label>
-                    <input type="text" id="ward" name="ward" required placeholder="வட்டம்/ஊராட்சி/வார்டு">
+                    <input 
+                        type="text" 
+                        id="ward" 
+                        name="ward" 
+                        required 
+                        readonly
+                        placeholder="பாகம் எண் உள்ளிட்ட பிறகு தானாக நிரப்பப்படும்"
+                        style="background: #e8f5e9; border: 2px solid #4CAF50; font-weight: 600;"
+                    >
+                    <small style="color: #4CAF50; display: block; margin-top: 5px;">
+                        <i class="fas fa-check-circle"></i> தானாக நிரப்பப்படும்
+                    </small>
                 </div>
 
-                <div class="form-group">
-                    <label for="partNumber">
-                        <i class="fas fa-list-ol"></i> பாகம் எண் <span class="required">*</span>
-                    </label>
-                    <input type="text" id="partNumber" name="partNumber" required readonly>
-                </div>
-
+                <!-- Voter Number -->
                 <div class="form-group">
                     <label for="voterNumber">
                         <i class="fas fa-id-card"></i> வாக்காளர் எண் <span class="required">*</span>
                     </label>
-                    <input type="text" id="voterNumber" name="voterNumber" required readonly>
+                    <input type="text" id="voterNumber" name="voterNumber" required placeholder="எ.கா: ABC1234567" maxlength="20">
                 </div>
             </div>
 
@@ -475,29 +538,6 @@
                         <i class="fas fa-phone"></i> தொலைபேசி எண் <span class="required">*</span>
                     </label>
                     <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="உங்கள் மொபைல் எண்">
-                </div>
-
-                <div class="form-group">
-                    <label for="aadhaarNumber">
-                        <i class="fas fa-id-card-alt"></i> ஆதார் எண்
-                    </label>
-                    <input type="text" id="aadhaarNumber" name="aadhaarNumber" placeholder="ஆதார் எண் (விருப்பம்)" maxlength="12">
-                </div>
-
-                <div class="form-group">
-                    <label for="religion">
-                        <i class="fas fa-pray"></i> மதம்
-                    </label>
-                    <select id="religion" name="religion">
-                        <option value="">மதத்தை தேர்ந்தெடுக்கவும்</option>
-                        <option value="hindu">இந்து</option>
-                        <option value="muslim">முஸ்லிம்</option>
-                        <option value="christian">கிறிஸ்தவ</option>
-                        <option value="sikh">சீக்கியர்</option>
-                        <option value="buddhist">பௌத்தர்</option>
-                        <option value="jain">சமணர்</option>
-                        <option value="others">பிற</option>
-                    </select>
                 </div>
             </div>
 

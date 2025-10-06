@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ஊழியர் பணித்தளம் - Employee Dashboard | TVK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --tvk-primary: #DC143C;
+            --tvk-secondary: #FFD700;
+            --tvk-accent: #FFA500;
+            --tvk-dark: #2C1810;
+            --success-green: #4CAF50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            background: linear-gradient(135deg, var(--tvk-dark) 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-img {
+            width: 70px;
+            height: 70px;
+            filter: drop-shadow(0 2px 4px rgba(220, 20, 60, 0.3));
+        }
+
+        .header-title {
+            color: var(--tvk-primary);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 20, 60, 0.4);
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-title {
+            color: var(--tvk-primary);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--tvk-dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--success-green);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            color: #999;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--success-green), #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .continue-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .continue-btn:disabled {
+            background: linear-gradient(135deg, #ccc, #999);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c62828;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #0d47a1;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(76, 175, 80, 0.3);
+            border-top-color: var(--success-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+            }
+
+            .dashboard-card {
+                padding: 25px;
+            }
+
+            .card-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <img src="images/tvk-logo.svg" alt="TVK Logo" class="logo-img">
+                <div>
+                    <h1 class="header-title">ஊழியர் பணித்தளம்</h1>
+                    <p class="header-subtitle">Employee Data Entry Dashboard</p>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> வெளியேறு (Logout)
+            </button>
+        </div>
+
+        <!-- Main Dashboard Card -->
+        <div class="dashboard-card">
+            <h2 class="card-title">
+                <i class="fas fa-user-plus"></i>
+                புதிய BLA உறுப்பினர் பதிவு
+            </h2>
+            <p class="card-description">
+                New BLA Member Registration - Please enter voter details and select the appropriate area and part number before proceeding to the registration form.
+            </p>
+
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <strong>குறிப்பு:</strong> வாக்காளர் அடையாள எண், பகுதி மற்றும் பாகம் எண்ணை தேர்ந்தெடுத்த பிறகு மட்டுமே தொடர முடியும்.
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="voterSelectionForm">
+                <!-- Voter ID Input -->
+                <div class="form-group">
+                    <label for="voterId" class="form-label">
+                        <i class="fas fa-id-card"></i> வாக்காளர் அடையாள எண் (Voter ID) *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="voterId" 
+                        name="voterId" 
+                        class="form-input" 
+                        required 
+                        placeholder="எ.கா: ABC1234567"
+                        maxlength="20"
+                        pattern="[A-Z]{3}[0-9]{7}"
+                        title="வாக்காளர் அடையாள எண் ABC1234567 வடிவில் இருக்க வேண்டும்"
+                    >
+                </div>
+
+                <!-- Area Selection -->
+                <div class="form-group">
+                    <label for="areaSelect" class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> பகுதி / ஒன்றியம் / நகரம் (Area / Union / Town) *
+                    </label>
+                    <select 
+                        id="areaSelect" 
+                        name="area" 
+                        class="form-select" 
+                        required
+                    >
+                        <option value="">-- பகுதியைத் தேர்ந்தெடுக்கவும் (Select Area) --</option>
+                    </select>
+                </div>
+
+                <!-- Part Number Selection -->
+                <div class="form-group">
+                    <label for="partSelect" class="form-label">
+                        <i class="fas fa-list-ol"></i> பாகம் எண் (Part Number) *
+                    </label>
+                    <select 
+                        id="partSelect" 
+                        name="part" 
+                        class="form-select" 
+                        required
+                        disabled
+                    >
+                        <option value="">-- முதலில் பகுதியைத் தேர்ந்தெடுக்கவும் (Select Area First) --</option>
+                    </select>
+                </div>
+
+                <!-- Continue Button -->
+                <button type="submit" class="continue-btn" id="continueBtn" disabled>
+                    <i class="fas fa-arrow-right"></i> பதிவு படிவத்திற்குச் செல்லவும் (Continue to Registration Form)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>தயவுசெய்து காத்திருக்கவும்...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="employee-auth.js"></script>
+</body>
+</html>

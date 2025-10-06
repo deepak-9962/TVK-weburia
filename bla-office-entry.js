@@ -93,13 +93,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         resetBtn = document.getElementById('resetBtn');
         statusMessage = document.getElementById('statusMessage');
         voterNumberInput = document.getElementById('voterNumber');
-        partNumberInput = document.getElementById('partNumber');
+        partNumberInput = document.getElementById('partNumberInput'); // Fixed ID
         photoInput = document.getElementById('photoInput');
         photoPreview = document.getElementById('photoPreview');
         photoUpload = document.getElementById('photoUpload');
         
         // Parse URL parameters and prefill form
         parseURLParameters();
+        
+        // Setup part number to area lookup (NEW - Reverse workflow)
+        await setupPartNumberLookup();
         
         // Add event listeners
         form.addEventListener('submit', handleFormSubmission);
@@ -121,21 +124,225 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Parse URL parameters and prefill form
 function parseURLParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const voterId = urlParams.get('voterId');
-    const partNumber = urlParams.get('partNumber');
-    
-    if (voterId && partNumber) {
-        voterNumberInput.value = voterId;
-        partNumberInput.value = partNumber;
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const voterId = urlParams.get('voterId');
+        const partNumber = urlParams.get('partNumber');
+        const area = urlParams.get('area');
+        const ward = urlParams.get('ward');
         
-        // Make these fields read-only
-        voterNumberInput.readOnly = true;
-        partNumberInput.readOnly = true;
+        console.log('URL Parameters detected:', { voterId, partNumber, area, ward });
         
-        console.log('Pre-filled voter ID and part number from URL parameters');
-    } else {
-        console.warn('No URL parameters found for voter ID and part number');
+        // Pre-fill Voter ID
+        if (voterId && voterNumberInput) {
+            voterNumberInput.value = voterId.toUpperCase();
+            voterNumberInput.setAttribute('readonly', 'readonly');
+            voterNumberInput.style.backgroundColor = '#f0f8ff';
+            voterNumberInput.style.cursor = 'not-allowed';
+            console.log('Pre-filled Voter ID:', voterId);
+        }
+        
+        // Pre-fill Part Number (LOCKED like Voter ID)
+        if (partNumber && partNumberInput) {
+            partNumberInput.value = partNumber;
+            partNumberInput.setAttribute('readonly', 'readonly');
+            partNumberInput.style.backgroundColor = '#f0f8ff'; // Same as Voter ID (blue)
+            partNumberInput.style.cursor = 'not-allowed';
+            partNumberInput.style.border = '2px solid #2196F3';
+            partNumberInput.style.fontWeight = '600';
+            
+            // Hide the helper text since it's pre-filled
+            const helperText = partNumberInput.nextElementSibling;
+            if (helperText && helperText.tagName === 'SMALL') {
+                helperText.style.display = 'none';
+            }
+            
+            console.log('Pre-filled Part Number (LOCKED):', partNumber);
+        }
+        
+        // Pre-fill Area (from search page)
+        const areaInput = document.getElementById('area');
+        if (area && areaInput) {
+            areaInput.value = decodeURIComponent(area);
+            areaInput.setAttribute('readonly', 'readonly');
+            areaInput.style.backgroundColor = '#e8f5e9';
+            areaInput.style.cursor = 'not-allowed';
+            console.log('Pre-filled Area:', area);
+        }
+        
+        // Pre-fill Ward (from search page)
+        const wardInput = document.getElementById('ward');
+        if (ward && wardInput) {
+            wardInput.value = decodeURIComponent(ward);
+            wardInput.setAttribute('readonly', 'readonly');
+            wardInput.style.backgroundColor = '#e8f5e9';
+            wardInput.style.cursor = 'not-allowed';
+            console.log('Pre-filled Ward:', ward);
+        }
+        
+        // Show info message if fields were pre-filled from employee search
+        if ((voterId || partNumber || area || ward) && statusMessage) {
+            const infoMsg = document.createElement('div');
+            infoMsg.className = 'employee-prefill-info';
+            infoMsg.style.cssText = 'background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #0d47a1; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; border-left: 5px solid #2196F3; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2); font-size: 14px; line-height: 1.6;';
+            infoMsg.innerHTML = '<i class="fas fa-info-circle" style="margin-right: 8px;"></i><strong>ஊழியர் தரவு நுழைவு:</strong> வாக்காளர் எண், பாகம் எண், பகுதி மற்றும் வட்டம் ஆகியவை ஊழியர் தேர்விலிருந்து முன்பே நிரப்பப்பட்டுள்ளன. இந்த புலங்களை மாற்ற முடியாது. <i class="fas fa-lock" style="margin-left: 5px;"></i><br><small style="opacity: 0.9;"><i>Employee Data Entry: Voter ID, Part Number, Area and Ward have been pre-filled from employee search and are locked (cannot be modified).</i></small>';
+            
+            // Insert before the form
+            const formContainer = form.parentElement;
+            formContainer.insertBefore(infoMsg, form);
+            
+            console.log('Employee prefill info message added');
+        }
+    } catch (error) {
+        console.error('Error parsing URL parameters:', error);
+    }
+}
+
+// ============================================
+// PART NUMBER TO AREA AUTO-FILL FUNCTIONALITY
+// ============================================
+
+let areaDisplay, wardDisplay;
+
+// Setup part number input listener
+async function setupPartNumberLookup() {
+    try {
+        partNumberInput = document.getElementById('partNumberInput');
+        areaDisplay = document.getElementById('area');  // Changed from 'areaDisplay'
+        wardDisplay = document.getElementById('ward');
+        
+        if (!partNumberInput) {
+            console.warn('Part number input not found');
+            return;
+        }
+        
+        // Skip setup if part number is already pre-filled (readonly)
+        if (partNumberInput.hasAttribute('readonly')) {
+            console.log('Part number already pre-filled from search page - skipping lookup setup');
+            return;
+        }
+
+        console.log('Setting up part number lookup...');
+
+        // Add input event listener with debounce
+        let debounceTimer;
+        partNumberInput.addEventListener('input', function(e) {
+            clearTimeout(debounceTimer);
+            
+            const partNumber = e.target.value.trim();
+            
+            // Clear fields if part number is empty
+            if (!partNumber) {
+                if (areaDisplay) areaDisplay.value = '';
+                if (wardDisplay) wardDisplay.value = '';
+                return;
+            }
+
+            // Debounce to avoid too many requests
+            debounceTimer = setTimeout(() => {
+                lookupAreaByPartNumber(partNumber);
+            }, 500);
+        });
+
+        // Also trigger on blur (when user leaves the field)
+        partNumberInput.addEventListener('blur', function(e) {
+            const partNumber = e.target.value.trim();
+            if (partNumber) {
+                lookupAreaByPartNumber(partNumber);
+            }
+        });
+
+        console.log('Part number lookup initialized');
+
+    } catch (error) {
+        console.error('Error setting up part number lookup:', error);
+    }
+}
+
+// Lookup area by part number
+async function lookupAreaByPartNumber(partNumber) {
+    try {
+        console.log('Looking up details for part number:', partNumber);
+
+        // Show loading state
+        if (areaDisplay) {
+            areaDisplay.value = 'தேடுகிறது... (Searching...)';
+            areaDisplay.style.background = '#fff3cd';
+        }
+        if (wardDisplay) {
+            wardDisplay.value = 'தேடுகிறது...';
+            wardDisplay.style.background = '#fff3cd';
+        }
+
+        // Query database to find all details for this part number
+        const { data: parts, error } = await supabaseClient
+            .from('parts')
+            .select(`
+                part_number,
+                ward_circle,
+                serial_number,
+                area_id,
+                areas (
+                    id,
+                    name
+                )
+            `)
+            .eq('part_number', parseInt(partNumber))
+            .limit(1);
+
+        if (error) {
+            console.error('Error looking up part number:', error);
+            if (areaDisplay) {
+                areaDisplay.value = 'பிழை! (Error)';
+                areaDisplay.style.background = '#ffebee';
+            }
+            if (wardDisplay) {
+                wardDisplay.value = 'பிழை!';
+                wardDisplay.style.background = '#ffebee';
+            }
+            showStatus('பாகம் எண் தேடுவதில் பிழை (Error looking up part number)', 'error');
+            return;
+        }
+
+        if (!parts || parts.length === 0) {
+            console.warn('Part number not found:', partNumber);
+            if (areaDisplay) {
+                areaDisplay.value = `பாகம் எண் ${partNumber} கண்டறியப்படவில்லை`;
+                areaDisplay.style.background = '#ffebee';
+            }
+            if (wardDisplay) {
+                wardDisplay.value = 'கண்டறியப்படவில்லை';
+                wardDisplay.style.background = '#ffebee';
+            }
+            showStatus(`பாகம் எண் ${partNumber} தரவுத்தளத்தில் இல்லை`, 'error');
+            return;
+        }
+
+        // Get the details
+        const part = parts[0];
+        const areaName = part.areas?.name || 'Unknown Area';
+        const wardCircle = part.ward_circle || '';
+        
+        console.log('Details found:', { areaName, wardCircle });
+
+        // Auto-fill Area field (பகுதி / ஒன்றியம் / நகரம்)
+        if (areaDisplay) {
+            areaDisplay.value = areaName;
+            areaDisplay.style.background = '#e8f5e9';
+        }
+        
+        // Auto-fill Ward/Circle field (வட்டம் / ஊராட்சி / வார்டு)
+        if (wardDisplay) {
+            wardDisplay.value = wardCircle;
+            wardDisplay.style.background = '#e8f5e9';
+        }
+
+        // Show success message with all details
+        showStatus(`✓ பாகம் எண் ${partNumber} - ${areaName} ${wardCircle ? `(வட்டம்: ${wardCircle})` : ''}`, 'success');
+
+    } catch (error) {
+        console.error('Error in lookupAreaByPartNumber:', error);
+        showStatus('பாகம் எண் தேடுவதில் பிழை', 'error');
     }
 }
 
@@ -277,12 +484,6 @@ function setupInputValidation() {
         this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);
     });
     
-    // Aadhaar number validation
-    const aadhaarInput = document.getElementById('aadhaarNumber');
-    aadhaarInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '').substring(0, 12);
-    });
-    
     // Name validation (allow Tamil and English letters only)
     const nameInputs = ['fullName', 'fatherName'];
     nameInputs.forEach(inputId => {
@@ -353,15 +554,14 @@ async function handleFormSubmission(e) {
             address: formData.address,
             voter_id: formData.voterNumber,
             part_number: formData.partNumber,
-            aadhaar_number: formData.aadhaarNumber || null,
-            religion: formData.religion || null,
+            ward_circle: formData.ward, // Ward/Circle/Uraatchi information
             member_category: formData.memberCategories.join(', ') || null,
             photo_url: photoUrl,
             district: formData.area,
             pincode: '600000', // Default pincode for Madhavaram
-            gender: formData.gender, // Get gender from form
+            gender: formData.gender,
             occupation: 'Not specified', // Default
-            education: null, // Set to null instead of invalid value
+            education: null,
             status: 'active',
             registered_by_employee_id: registeredByEmployeeId // Add employee ID who registered this member
         };
@@ -417,7 +617,7 @@ function validateForm() {
     const requiredFields = [
         { id: 'area', name: 'பகுதி' },
         { id: 'ward', name: 'வட்டம்/ஊராட்சி/வார்டு' },
-        { id: 'partNumber', name: 'பாகம் எண்' },
+        { id: 'partNumberInput', name: 'பாகம் எண்' },
         { id: 'voterNumber', name: 'வாக்காளர் எண்' },
         { id: 'fullName', name: 'பெயர்' },
         { id: 'fatherName', name: 'தந்தை/கணவர் பெயர்' },
@@ -428,6 +628,10 @@ function validateForm() {
     
     for (const field of requiredFields) {
         const input = document.getElementById(field.id);
+        if (!input) {
+            console.warn(`Field ${field.id} not found in form`);
+            continue; // Skip if field doesn't exist
+        }
         if (!input.value.trim()) {
             showStatusMessage(`⚠️ ${field.name} கட்டாயமாக நிரப்ப வேண்டும்`, 'error');
             input.focus();
@@ -440,14 +644,6 @@ function validateForm() {
     if (phoneNumber.length !== 10 || !phoneNumber.startsWith('6') && !phoneNumber.startsWith('7') && !phoneNumber.startsWith('8') && !phoneNumber.startsWith('9')) {
         showStatusMessage('⚠️ செல்லுபடியாகும் மொபைல் எண்ணை உள்ளிடவும்', 'error');
         document.getElementById('phoneNumber').focus();
-        return false;
-    }
-    
-    // Validate Aadhaar number if provided
-    const aadhaarNumber = document.getElementById('aadhaarNumber').value;
-    if (aadhaarNumber && aadhaarNumber.length !== 12) {
-        showStatusMessage('⚠️ ஆதார் எண் 12 இலக்கங்கள் கொண்டதாக இருக்க வேண்டும்', 'error');
-        document.getElementById('aadhaarNumber').focus();
         return false;
     }
     
@@ -476,20 +672,21 @@ function collectFormData() {
     const memberCategories = [];
     document.querySelectorAll('input[name="memberCategory"]:checked').forEach(checkbox => {
         memberCategories.push(checkbox.value);
+        console.log('Checked category:', checkbox.value); // Debug log
     });
+    
+    console.log('All member categories collected:', memberCategories); // Debug log
     
     return {
         area: document.getElementById('area').value.trim(),
         ward: document.getElementById('ward').value.trim(),
-        partNumber: document.getElementById('partNumber').value.trim(),
+        partNumber: document.getElementById('partNumberInput').value.trim(),
         voterNumber: document.getElementById('voterNumber').value.trim(),
         fullName: document.getElementById('fullName').value.trim(),
         fatherName: document.getElementById('fatherName').value.trim(),
         dateOfBirth: document.getElementById('dateOfBirth').value,
-        gender: document.getElementById('gender').value, // Added gender field
+        gender: document.getElementById('gender').value,
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        aadhaarNumber: document.getElementById('aadhaarNumber').value.trim(),
-        religion: document.getElementById('religion').value,
         address: document.getElementById('address').value.trim(),
         memberCategories: memberCategories
     };

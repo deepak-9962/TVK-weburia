@@ -250,13 +250,53 @@
                     <i class="fas fa-list-ol"></i> பாகம் எண் *
                 </label>
                 <input 
-                    type="text" 
+                    type="number" 
                     id="partNumber" 
                     name="partNumber" 
-                    placeholder="பாகம் எண்ணை உள்ளிடவும் (எ.கா: 123)" 
+                    placeholder="பாகம் எண்ணை உள்ளிடவும் (எ.கா: 145)" 
                     required
-                    maxlength="10"
+                    min="1"
+                    max="475"
                 >
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> பாகம் எண் உள்ளிட்ட பிறகு பகுதி தானாக கண்டறியப்படும்
+                </small>
+            </div>
+
+            <!-- Auto-filled Area field -->
+            <div class="form-group" id="areaGroup" style="display: none;">
+                <label for="areaDisplay">
+                    <i class="fas fa-map-marker-alt"></i> பகுதி / ஒன்றியம் / நகரம்
+                </label>
+                <input 
+                    type="text" 
+                    id="areaDisplay" 
+                    name="areaDisplay" 
+                    readonly
+                    placeholder="பாகம் எண் உள்ளிட்ட பிறகு தானாக நிரப்பப்படும்"
+                    style="background: #e8f5e9; border: 2px solid #4CAF50; font-weight: 600;"
+                >
+                <small style="color: #4CAF50; display: block; margin-top: 5px;">
+                    <i class="fas fa-check-circle"></i> தானாக நிரப்பப்பட்டது
+                </small>
+            </div>
+
+            <!-- Auto-filled Ward field -->
+            <div class="form-group" id="wardGroup" style="display: none;">
+                <label for="wardDisplay">
+                    <i class="fas fa-building"></i> வட்டம் / ஊராட்சி / வார்டு
+                </label>
+                <input 
+                    type="text" 
+                    id="wardDisplay" 
+                    name="wardDisplay" 
+                    readonly
+                    placeholder="பாகம் எண் உள்ளிட்ட பிறகு தானாக நிரப்பப்படும்"
+                    style="background: #e8f5e9; border: 2px solid #4CAF50; font-weight: 600;"
+                >
+                <small style="color: #4CAF50; display: block; margin-top: 5px;">
+                    <i class="fas fa-check-circle"></i> தானாக நிரப்பப்பட்டது
+                </small>
             </div>
 
             <button type="button" id="checkBtn" class="btn btn-primary">

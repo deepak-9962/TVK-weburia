@@ -60,33 +60,50 @@
         }
 
         .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             margin-top: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .member-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            min-height: 240px;
+            border: 4px solid #333;
+        }
+
+        .member-card:nth-child(odd) {
+            background: #FFEB3B; /* Yellow background */
+        }
+
+        .member-card:nth-child(even) {
+            background: #f5f5f5; /* Light gray/white background */
         }
 
         .member-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
 
         .photo-container {
-            width: 100%;
-            height: 300px;
+            width: 220px;
+            min-width: 220px;
+            height: 100%;
             overflow: hidden;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            border-right: 4px solid #333;
         }
 
         .member-photo {
@@ -101,28 +118,108 @@
         }
 
         .member-info {
-            padding: 15px;
+            padding: 14px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: inherit;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 8px;
+        }
+
+        .info-column {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .member-name {
             font-size: 18px;
             font-weight: bold;
-            color: #333;
+            color: #DC143C;
             margin-bottom: 5px;
         }
 
         .member-details {
-            font-size: 14px;
-            color: #666;
-            margin: 3px 0;
+            font-size: 11.5px;
+            color: #2c3e50;
+            margin: 4px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .member-details strong {
+            color: #DC143C;
+            min-width: 95px;
+            max-width: 95px;
+            font-weight: 700;
+            font-size: 11.5px;
+            flex-shrink: 0;
+            word-wrap: break-word;
+        }
+
+        .member-details span {
+            flex: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+        }
+
+        .member-details span {
+            flex: 1;
+            word-wrap: break-word;
+        }
+
+        .voter-id-box {
+            background: white;
+            border: 3px solid #333;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 8px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .part-number-box {
+            background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+            color: white;
+            padding: 5px 12px;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 4px;
+            display: inline-block;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
         .member-id {
             font-size: 12px;
-            color: #999;
+            color: #555;
             margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
+            text-align: right;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .status-badge {
@@ -197,6 +294,81 @@
             outline: none;
             border-color: #DC143C;
         }
+
+        /* Print styles for PDF export */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .header, .filters, .refresh-btn, .export-btn {
+                display: none;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .gallery {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .member-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                margin-bottom: 10px;
+                height: 180px; /* Fixed height for consistency */
+            }
+
+            /* Force page break after every 5th card */
+            .member-card:nth-child(5n) {
+                page-break-after: always;
+                break-after: page;
+                margin-bottom: 0;
+            }
+
+            .member-card:nth-child(odd) {
+                background: #FFEB3B !important;
+            }
+
+            .member-card:nth-child(even) {
+                background: #f5f5f5 !important;
+            }
+
+            /* Adjust font sizes for print */
+            .member-details {
+                font-size: 12px !important;
+            }
+
+            .voter-id-box {
+                font-size: 11px !important;
+            }
+
+            .member-id {
+                font-size: 11px !important;
+            }
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+        }
     </style>
 </head>
 <body>
@@ -215,6 +387,7 @@
                 </div>
             </div>
             <button class="refresh-btn" onclick="loadMembers()">🔄 Refresh</button>
+            <button class="export-btn" onclick="exportToPDF()">📄 PDF ஏற்றுமதி</button>
         </div>
 
         <div class="filters">
@@ -342,25 +515,58 @@
                     img.alt = member.full_name;
                     img.onerror = function() {
                         this.parentElement.innerHTML = '<div class="no-photo">📷</div>';
+                        // Re-add part number badge after error
+                        if (member.part_number) {
+                            const partBadge = document.createElement('div');
+                            partBadge.className = 'part-number-box';
+                            partBadge.textContent = `பாகம் - ${member.part_number}`;
+                            this.parentElement.appendChild(partBadge);
+                        }
                     };
                     photoContainer.appendChild(img);
                 } else {
                     photoContainer.innerHTML = '<div class="no-photo">📷</div>';
                 }
                 
+                // Add part number badge if available (always show)
+                if (member.part_number) {
+                    const partBadge = document.createElement('div');
+                    partBadge.className = 'part-number-box';
+                    partBadge.textContent = `பாகம் - ${member.part_number}`;
+                    photoContainer.appendChild(partBadge);
+                }
+                
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'member-info';
+                
+                // Format date of birth
+                const dob = member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('ta-IN') : 'N/A';
+                
                 infoDiv.innerHTML = `
-                    <div class="member-name">${member.full_name || 'N/A'}</div>
-                    <div class="member-details">தந்தை: ${member.father_name || 'N/A'}</div>
-                    <div class="member-details">📱 ${member.mobile || 'N/A'}</div>
-                    <div class="member-details">📍 ${member.district || 'N/A'}</div>
-                    ${member.voter_id ? `<div class="member-details">🗳️ ${member.voter_id}</div>` : ''}
-                    ${member.registered_by ? `<div class="member-details" style="color: #666; font-size: 12px; margin-top: 8px;">✍️ பதிவு செய்தவர்: ${member.registered_by.full_name || member.registered_by.username}</div>` : ''}
-                    <span class="status-badge status-${member.status || 'pending'}">
-                        ${member.status || 'pending'}
-                    </span>
-                    <div class="member-id">ID: ${member.membership_number || member.id}</div>
+                    <div>
+                        <div class="info-row">
+                            <div class="info-column">
+                                <div class="member-details"><strong>பெயர் :</strong><span>${member.full_name || ''}</span></div>
+                                <div class="member-details"><strong>தந்தை / கணவர் பெயர் :</strong><span>${member.father_name || ''}</span></div>
+                                <div class="member-details"><strong>பிறந்த தேதி :</strong><span>${dob}</span></div>
+                                <div class="member-details"><strong>விலாசம் :</strong><span>${member.address || ''}</span></div>
+                            </div>
+                            <div class="info-column">
+                                <div class="member-details"><strong>தொலைபேசி எண் :</strong><span>${member.mobile || ''}</span></div>
+                                ${member.district ? `<div class="member-details"><strong>பகுதி / ஒன்றியம் / நகரம் :</strong><span>${member.district}</span></div>` : ''}
+                                ${member.ward_circle ? `<div class="member-details"><strong>வட்டம் / ஊராட்சி / வார்டு :</strong><span>${member.ward_circle}</span></div>` : ''}
+                            </div>
+                        </div>
+                        ${member.member_category ? `<div class="member-details"><strong>உறுப்பினர் :</strong><span>${member.member_category}</span></div>` : ''}
+                        <div class="member-details" style="color:#0d47a1;font-size:13px;margin-top:6px;">
+                            <strong>பதிவு செய்யப்பட்ட நாள் :</strong>
+                            <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN', {year:'numeric',month:'2-digit',day:'2-digit'}) + ' ' + new Date(member.created_at).toLocaleTimeString('ta-IN', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        ${member.voter_id ? `<div class="voter-id-box">${member.voter_id}</div>` : '<div></div>'}
+                        ${member.part_number ? `<div class="member-id">வட்டம் ${member.part_number}</div>` : '<div></div>'}
+                    </div>
                 `;
                 
                 card.appendChild(photoContainer);
@@ -392,6 +598,15 @@
             });
             
             displayMembers(filtered);
+        }
+
+        // Export to PDF function
+        function exportToPDF() {
+            // Show a confirmation
+            if (confirm('PDF ஏற்றுமதி செய்ய விரும்புகிறீர்களா?\n\nஇது உங்கள் உலாவியின் அச்சு செயல்பாட்டைத் திறக்கும். "PDF ஆக சேமி" விருப்பத்தைத் தேர்ந்தெடுக்கவும்.')) {
+                // Trigger browser print dialog
+                window.print();
+            }
         }
 
         // Load members on page load

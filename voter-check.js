@@ -42,6 +42,8 @@ function loadSupabaseLibrary() {
 
 // DOM elements
 let voterIdInput, partNumberInput, checkBtn, statusMessage, proceedBtn;
+let areaDisplay, wardDisplay, areaGroup, wardGroup;
+let currentPartData = null; // Store part number lookup data
 
 // Authentication Guard - Check if employee is logged in
 function checkAuthentication() {
@@ -83,6 +85,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         checkBtn = document.getElementById('checkBtn');
         statusMessage = document.getElementById('statusMessage');
         proceedBtn = document.getElementById('proceedBtn');
+        areaDisplay = document.getElementById('areaDisplay');
+        wardDisplay = document.getElementById('wardDisplay');
+        areaGroup = document.getElementById('areaGroup');
+        wardGroup = document.getElementById('wardGroup');
         
         // Add event listeners
         checkBtn.addEventListener('click', checkVoterAvailability);
@@ -92,6 +98,27 @@ document.addEventListener('DOMContentLoaded', async function() {
         voterIdInput.addEventListener('input', validateVoterId);
         partNumberInput.addEventListener('input', validatePartNumber);
         
+        // Add part number lookup on input
+        let partLookupTimer;
+        partNumberInput.addEventListener('input', function(e) {
+            clearTimeout(partLookupTimer);
+            const partNumber = e.target.value.trim();
+            
+            if (!partNumber) {
+                areaGroup.style.display = 'none';
+                wardGroup.style.display = 'none';
+                areaDisplay.value = '';
+                wardDisplay.value = '';
+                currentPartData = null;
+                return;
+            }
+            
+            // Debounce lookup
+            partLookupTimer = setTimeout(() => {
+                lookupPartNumber(partNumber);
+            }, 500);
+        });
+        
         console.log('Voter check page initialized successfully');
         
     } catch (error) {
@@ -99,6 +126,78 @@ document.addEventListener('DOMContentLoaded', async function() {
         showStatusMessage('பிழை: பயன்பாட்டை தொடங்க முடியவில்லை. பக்கத்தை மீண்டும் ஏற்றவும்.', 'error');
     }
 });
+
+// Lookup part number and auto-fill area/ward
+async function lookupPartNumber(partNumber) {
+    try {
+        console.log('Looking up part number:', partNumber);
+        
+        // Show loading state
+        areaDisplay.value = 'தேடுகிறது...';
+        wardDisplay.value = 'தேடுகிறது...';
+        areaDisplay.style.background = '#fff3cd';
+        wardDisplay.style.background = '#fff3cd';
+        areaGroup.style.display = 'block';
+        wardGroup.style.display = 'block';
+        
+        // Query database
+        const { data: parts, error } = await supabaseClient
+            .from('parts')
+            .select(`
+                part_number,
+                ward_circle,
+                areas (
+                    name
+                )
+            `)
+            .eq('part_number', parseInt(partNumber))
+            .limit(1);
+        
+        if (error) {
+            console.error('Error looking up part number:', error);
+            areaDisplay.value = 'பிழை!';
+            wardDisplay.value = 'பிழை!';
+            areaDisplay.style.background = '#ffebee';
+            wardDisplay.style.background = '#ffebee';
+            currentPartData = null;
+            return;
+        }
+        
+        if (!parts || parts.length === 0) {
+            console.warn('Part number not found:', partNumber);
+            areaDisplay.value = `பாகம் எண் ${partNumber} கண்டறியப்படவில்லை`;
+            wardDisplay.value = 'கண்டறியப்படவில்லை';
+            areaDisplay.style.background = '#ffebee';
+            wardDisplay.style.background = '#ffebee';
+            currentPartData = null;
+            return;
+        }
+        
+        // Success - store data
+        const part = parts[0];
+        currentPartData = {
+            partNumber: partNumber,
+            areaName: part.areas?.name || 'Unknown',
+            wardCircle: part.ward_circle || ''
+        };
+        
+        // Display data
+        areaDisplay.value = currentPartData.areaName;
+        wardDisplay.value = currentPartData.wardCircle;
+        areaDisplay.style.background = '#e8f5e9';
+        wardDisplay.style.background = '#e8f5e9';
+        
+        console.log('Part data found:', currentPartData);
+        
+    } catch (error) {
+        console.error('Error in lookupPartNumber:', error);
+        areaDisplay.value = 'பிழை ஏற்பட்டது';
+        wardDisplay.value = 'பிழை ஏற்பட்டது';
+        areaDisplay.style.background = '#ffebee';
+        wardDisplay.style.background = '#ffebee';
+        currentPartData = null;
+    }
+}
 
 // Validate voter ID format
 function validateVoterId() {
@@ -192,8 +291,14 @@ function proceedToRegistration() {
         return;
     }
     
-    // Create URL with query parameters
-    const registrationUrl = `bla-office-entry.html?voterId=${encodeURIComponent(voterId)}&partNumber=${encodeURIComponent(partNumber)}`;
+    // Check if part data is available
+    if (!currentPartData) {
+        showStatusMessage('⚠️ பாகம் எண் தகவல் கண்டறியப்படவில்லை. சரியான பாகம் எண்ணை உள்ளிடவும்', 'error');
+        return;
+    }
+    
+    // Create URL with ALL parameters (voterId, partNumber, area, ward)
+    const registrationUrl = `bla-office-entry.html?voterId=${encodeURIComponent(voterId)}&partNumber=${encodeURIComponent(partNumber)}&area=${encodeURIComponent(currentPartData.areaName)}&ward=${encodeURIComponent(currentPartData.wardCircle)}`;
     
     // Show loading state
     proceedBtn.disabled = true;
