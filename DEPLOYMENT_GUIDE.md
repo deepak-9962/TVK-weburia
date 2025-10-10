@@ -73,8 +73,8 @@ Your website is **ready to deploy** and all features will work perfectly when ho
 #### **Ensure Supabase Config:**
 Your Supabase credentials are already in the files:
 ```javascript
-const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const SUPABASE_URL = 'https://your-project-id.supabase.co';
+const SUPABASE_ANON_KEY = 'your-anon-key';
 ```
 
 ✅ These work from any domain (already configured)
@@ -165,7 +165,7 @@ vercel --prod
 Your website will have a new URL. Update Supabase to allow it:
 
 1. **Go to Supabase Dashboard:** https://app.supabase.com
-2. **Select your project:** cbcuhojwffwppocnoxel
+2. **Select your project:** your-project-id
 3. **Go to:** Settings → API
 4. **Scroll to:** "CORS Configuration"
 5. **Add your Vercel URL:**

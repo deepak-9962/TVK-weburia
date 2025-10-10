@@ -14,14 +14,14 @@
 
 1. **`admin-login.html`**
    ```javascript
-   const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-   const SUPABASE_ANON_KEY = 'eyJhbGci...';
+   const SUPABASE_URL = 'https://your-project-id.supabase.co';
+   const SUPABASE_ANON_KEY = 'your-anon-key';
    ```
 
 2. **`admin-dashboard.html`**
    ```javascript
-   const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-   const SUPABASE_ANON_KEY = 'eyJhbGci...';
+   const SUPABASE_URL = 'https://your-project-id.supabase.co';
+   const SUPABASE_ANON_KEY = 'your-anon-key';
    ```
 
 3. **`bla-office-entry.html`**
@@ -70,11 +70,11 @@ If you want cleaner code:
 1. Go to Vercel Dashboard
 2. Project Settings → Environment Variables
 3. Add:
-   - `VITE_SUPABASE_URL`: `https://cbcuhojwffwppocnoxel.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY`: `eyJhbGci...`
+   - `VITE_SUPABASE_URL`: `https://your-project-id.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY`: `your-anon-key`
 
 #### **Step 2: Update Your Code**
-This requires a build step with Vite/Webpack, which adds complexity.
+ This requires a build step with Vite/Webpack, which adds complexity. Run `npm run generate:env` to output `env.local.json`.
 
 **Not recommended for your current simple setup.**
 

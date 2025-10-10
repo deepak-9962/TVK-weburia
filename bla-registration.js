@@ -72,59 +72,41 @@ async function initializeBLARegistration() {
         
         // Try to initialize database connection (non-blocking)
         try {
-            // First check if initializeSupabase function exists from config
-            if (typeof initializeSupabase === 'function') {
-                await initializeSupabase();
-                console.log('Database initialized via config file');
-            } else {
-                // Direct Supabase initialization as fallback
-                if (!window.supabase) {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
-                    await new Promise((resolve, reject) => {
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    });
-                }
-                
-                window.supabaseClient = window.supabase.createClient(
-                    'https://cbcuhojwffwppocnoxel.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI'
-                );
-                
-                // Create a simple database wrapper
-                tvkDatabase = {
-                    createBLAMember: async (data) => {
-                        console.log('Inserting BLA member data:', data);
-                        
-                        // Clean data - remove any undefined values
-                        const cleanData = {};
-                        Object.keys(data).forEach(key => {
-                            if (data[key] !== undefined) {
-                                cleanData[key] = data[key];
-                            }
-                        });
-                        
-                        console.log('Clean data for insert:', cleanData);
-                        
-                        const { data: result, error } = await window.supabaseClient
-                            .from('bla_members')
-                            .insert([cleanData])
-                            .select();
-                        
-                        if (error) {
-                            console.error('Database insert error:', error);
-                            throw error;
-                        }
-                        
-                        console.log('Insert successful:', result);
-                        return { success: true, data: result };
-                    }
-                };
-                
-                console.log('Direct Supabase database initialized');
+            if (typeof initializeSupabase !== 'function') {
+                throw new Error('Supabase configuration script not loaded.');
             }
+
+            const supabaseClient = await initializeSupabase();
+
+            tvkDatabase = {
+                createBLAMember: async (data) => {
+                    console.log('Inserting BLA member data:', data);
+
+                    const cleanData = {};
+                    Object.keys(data).forEach(key => {
+                        if (data[key] !== undefined) {
+                            cleanData[key] = data[key];
+                        }
+                    });
+
+                    console.log('Clean data for insert:', cleanData);
+
+                    const { data: result, error } = await supabaseClient
+                        .from('bla_members')
+                        .insert([cleanData])
+                        .select();
+
+                    if (error) {
+                        console.error('Database insert error:', error);
+                        throw error;
+                    }
+
+                    console.log('Insert successful:', result);
+                    return { success: true, data: result };
+                }
+            };
+
+            console.log('Database initialized via shared configuration');
         } catch (dbError) {
             console.warn('Database initialization failed (will use localStorage):', dbError);
             tvkDatabase = null;

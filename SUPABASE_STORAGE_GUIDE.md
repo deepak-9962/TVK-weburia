@@ -6,7 +6,7 @@
 
 1. Go to https://supabase.com
 2. Sign in with your account
-3. Select your project: **cbcuhojwffwppocnoxel**
+3. Select your project: **your-project-id**
 
 ### Step 2: Create New Bucket
 

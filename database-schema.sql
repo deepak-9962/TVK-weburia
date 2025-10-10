@@ -24,6 +24,7 @@ CREATE TABLE public.bla_members (
     father_name VARCHAR(200) NOT NULL,
     date_of_birth DATE NOT NULL,
     gender VARCHAR(20) NOT NULL CHECK (gender IN ('male', 'female', 'other')),
+    religion VARCHAR(100), -- Religion: இந்து, இஸ்லாம், கிறிஸ்தவம், பௌத்தம், சமணம், சீக்கியம், மற்றவை
     occupation VARCHAR(100) NOT NULL,
     education VARCHAR(50) CHECK (education IN ('primary', 'secondary', 'higher-secondary', 'diploma', 'graduate', 'post-graduate', 'other')),
     
@@ -31,28 +32,34 @@ CREATE TABLE public.bla_members (
     mobile VARCHAR(15) NOT NULL,
     alt_mobile VARCHAR(15),
     email VARCHAR(255),
-    address TEXT NOT NULL,
+    address TEXT, -- Made nullable - not collected in current form
     district VARCHAR(100) NOT NULL,
     pincode VARCHAR(10) NOT NULL,
     
     -- Political Information
     voter_id VARCHAR(20),
     part_number VARCHAR(50),
+    ward_circle VARCHAR(200), -- Ward/Circle/Uraatchi information
     constituency VARCHAR(100),
     previous_party VARCHAR(200),
     interests JSONB,
     aadhaar_number VARCHAR(20),
-    religion VARCHAR(100),
     member_category VARCHAR(100),
     
     -- Documents
     photo_url TEXT,
     id_proof_url TEXT,
     
+    -- Tracking
+    registered_by_employee_id UUID, -- Employee who registered this member
+    
     -- Status and dates
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'suspended')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Foreign Key
+    CONSTRAINT fk_bla_members_employee FOREIGN KEY (registered_by_employee_id) REFERENCES public.employees(id)
 );
 
 -- Create Complaints table

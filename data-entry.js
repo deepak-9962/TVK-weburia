@@ -1,10 +1,5 @@
 // Data Entry JavaScript for TVK-weburia project
 
-// Supabase configuration
-const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-
-let supabaseClient;
 let currentEmployee = null;
 let currentVoterData = null;
 let currentStep = 1;
@@ -16,44 +11,24 @@ let memberRegistrationForm, memberName, memberAge, memberGender, memberPhone, me
 let backBtn, nextBtn, submitBtn;
 let step1, step2, voterLookupSection, memberRegistrationSection;
 
-// Initialize Supabase
-async function initializeSupabase() {
-    try {
-        // Load Supabase library if not already loaded
-        if (!window.supabase) {
-            await loadSupabaseLibrary();
-        }
-        
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase initialized successfully');
-        return supabaseClient;
-    } catch (error) {
-        console.error('Error initializing Supabase:', error);
-        throw error;
+async function getSupabaseClient() {
+    if (window.supabaseClient) {
+        return window.supabaseClient;
     }
-}
 
-// Load Supabase library from CDN
-function loadSupabaseLibrary() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            resolve();
-            return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Supabase library'));
-        document.head.appendChild(script);
-    });
+    if (typeof initializeSupabase !== 'function') {
+        throw new Error('Supabase configuration is not loaded. Include supabase-config.js before data-entry.js.');
+    }
+
+    window.supabaseClient = await initializeSupabase();
+    return window.supabaseClient;
 }
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Initialize Supabase
-        await initializeSupabase();
+    supabaseClient = await getSupabaseClient();
         
         // Check authentication
         if (!checkAuthentication()) {

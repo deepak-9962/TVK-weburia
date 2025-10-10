@@ -3,12 +3,20 @@
 // File: employee-auth.js
 // ============================================
 
-// Supabase Configuration
-const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+let supabaseInstance = null;
 
-// Initialize Supabase Client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+async function getSupabaseClient() {
+    if (supabaseInstance) {
+        return supabaseInstance;
+    }
+
+    if (typeof initializeSupabase !== 'function') {
+        throw new Error('Supabase configuration is not loaded. Include supabase-config.js before employee-auth.js.');
+    }
+
+    supabaseInstance = await initializeSupabase();
+    return supabaseInstance;
+}
 
 // ============================================
 // EMPLOYEE LOGIN PAGE LOGIC
@@ -70,6 +78,8 @@ if (document.getElementById('employeeLoginForm')) {
             console.log('Attempting employee login for:', email);
 
             // Sign in with Supabase Auth
+            const supabase = await getSupabaseClient();
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
@@ -203,6 +213,8 @@ if (document.getElementById('voterSelectionForm')) {
             setLoading(true);
             console.log('Loading areas from database...');
 
+            const supabase = await getSupabaseClient();
+
             const { data: areas, error } = await supabase
                 .from('areas')
                 .select('id, name')
@@ -240,6 +252,8 @@ if (document.getElementById('voterSelectionForm')) {
         try {
             setLoading(true);
             console.log('Loading parts for area:', areaId);
+
+            const supabase = await getSupabaseClient();
 
             const { data: parts, error } = await supabase
                 .from('parts')
@@ -332,6 +346,7 @@ if (document.getElementById('voterSelectionForm')) {
     logoutBtn.addEventListener('click', async function() {
         try {
             // Sign out from Supabase
+            const supabase = await getSupabaseClient();
             await supabase.auth.signOut();
             
             // Clear session

@@ -1,43 +1,16 @@
 // BLA Office Entry JavaScript for TVK-weburia project
 
-// Supabase configuration
-const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-
-let supabaseClient;
-
-// Initialize Supabase
-async function initializeSupabase() {
-    try {
-        // Load Supabase library from CDN
-        if (!window.supabase) {
-            await loadSupabaseLibrary();
-        }
-        
-        // Create Supabase client
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase initialized successfully');
-        return supabaseClient;
-    } catch (error) {
-        console.error('Error initializing Supabase:', error);
-        throw error;
+async function getSupabaseClient() {
+    if (window.supabaseClient) {
+        return window.supabaseClient;
     }
-}
 
-// Load Supabase library from CDN
-function loadSupabaseLibrary() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            resolve();
-            return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Supabase library'));
-        document.head.appendChild(script);
-    });
+    if (typeof initializeSupabase !== 'function') {
+        throw new Error('Supabase configuration is not loaded. Include supabase-config.js before bla-office-entry.js.');
+    }
+
+    window.supabaseClient = await initializeSupabase();
+    return window.supabaseClient;
 }
 
 // DOM elements
@@ -85,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         
         // Initialize Supabase
-        await initializeSupabase();
+    supabaseClient = await getSupabaseClient();
         
         // Get DOM elements
         form = document.getElementById('officeEntryForm');
@@ -551,7 +524,7 @@ async function handleFormSubmission(e) {
             father_name: formData.fatherName,
             date_of_birth: formData.dateOfBirth,
             mobile: formData.phoneNumber,
-            address: formData.address,
+            religion: formData.religion,
             voter_id: formData.voterNumber,
             part_number: formData.partNumber,
             ward_circle: formData.ward, // Ward/Circle/Uraatchi information
@@ -623,7 +596,7 @@ function validateForm() {
         { id: 'fatherName', name: 'தந்தை/கணவர் பெயர்' },
         { id: 'dateOfBirth', name: 'பிறந்த தேதி' },
         { id: 'phoneNumber', name: 'தொலைபேசி எண்' },
-        { id: 'address', name: 'விலாசம்' }
+        { id: 'religion', name: 'மதம்' }
     ];
     
     for (const field of requiredFields) {
@@ -687,7 +660,7 @@ function collectFormData() {
         dateOfBirth: document.getElementById('dateOfBirth').value,
         gender: document.getElementById('gender').value,
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        address: document.getElementById('address').value.trim(),
+        religion: document.getElementById('religion').value,
         memberCategories: memberCategories
     };
 }

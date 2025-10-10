@@ -1,0 +1,9 @@
+{
+  "name": "tvk-political-party-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static TVK political party web application",
+  "scripts": {
+    "generate:env": "node scripts/generate-env.js"
+  }
+}

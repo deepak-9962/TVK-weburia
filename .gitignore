@@ -12,7 +12,9 @@ build/
 # Env / secrets
 .env
 .env.*
-supabase-config.js
+!.env.example
+env.local.json
+env.js
 
 # Logs
 npm-debug.log*

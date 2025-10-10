@@ -1,43 +1,16 @@
 // BLA Office Login JavaScript for TVK
 
-// Supabase configuration
-const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-
-let supabaseClient;
-
-// Initialize Supabase
-async function initializeSupabase() {
-    try {
-        // Load Supabase library from CDN
-        if (!window.supabase) {
-            await loadSupabaseLibrary();
-        }
-        
-        // Create Supabase client
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase initialized successfully');
-        return supabaseClient;
-    } catch (error) {
-        console.error('Error initializing Supabase:', error);
-        throw error;
+async function getSupabaseClient() {
+    if (window.supabaseClient) {
+        return window.supabaseClient;
     }
-}
 
-// Load Supabase library from CDN
-function loadSupabaseLibrary() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            resolve();
-            return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Supabase library'));
-        document.head.appendChild(script);
-    });
+    if (typeof initializeSupabase !== 'function') {
+        throw new Error('Supabase configuration is not loaded. Include supabase-config.js before office-login.js.');
+    }
+
+    window.supabaseClient = await initializeSupabase();
+    return window.supabaseClient;
 }
 
 // DOM elements
@@ -47,7 +20,7 @@ let loginForm, usernameInput, passwordInput, loginBtn, statusMessage, passwordTo
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Initialize Supabase
-        await initializeSupabase();
+        window.supabaseClient = await getSupabaseClient();
         
         // Get DOM elements
         loginForm = document.getElementById('loginForm');
@@ -58,8 +31,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         passwordToggle = document.getElementById('passwordToggle');
         
         // Add event listeners
-        loginForm.addEventListener('submit', handleLogin);
-        passwordToggle.addEventListener('click', togglePasswordVisibility);
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLogin);
+        }
+        
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                togglePasswordVisibility();
+            });
+        }
         
         // Clear any existing session data
         sessionStorage.removeItem('bla_employee_session');
@@ -131,13 +113,10 @@ async function handleLogin(e) {
         loginBtn.innerHTML = '<div class="loading-spinner"></div> உள்நுழைகிறது...';
         
         // Test Supabase connection first
-        if (!supabaseClient) {
-            console.log('Reinitializing Supabase...');
-            await initializeSupabase();
-        }
-        
+        const client = await getSupabaseClient();
+
         // Test basic connection
-        const { data: testData, error: testError } = await supabaseClient
+        const { data: testData, error: testError } = await client
             .from('employees')
             .select('count')
             .limit(1);
@@ -151,7 +130,7 @@ async function handleLogin(e) {
         console.log('Supabase connection test successful');
         
         // Authenticate employee
-        const employee = await authenticateEmployee(username, password);
+    const employee = await authenticateEmployee(username, password);
         
         if (employee) {
             console.log('Employee authenticated:', employee.username);
@@ -206,7 +185,9 @@ async function authenticateEmployee(username, password) {
         console.log('Authenticating employee:', username);
         
         // First, check if employees table exists and has data
-        const { data: employees, error } = await supabaseClient
+        const client = await getSupabaseClient();
+
+        const { data: employees, error } = await client
             .from('employees')
             .select('*')
             .eq('username', username)
@@ -222,7 +203,7 @@ async function authenticateEmployee(username, password) {
                 await createSampleEmployees();
                 
                 // Try again after creating employees
-                const { data: retryEmployees, error: retryError } = await supabaseClient
+                const { data: retryEmployees, error: retryError } = await client
                     .from('employees')
                     .select('*')
                     .eq('username', username)
@@ -260,7 +241,7 @@ async function authenticateEmployee(username, password) {
                 await createSampleEmployees();
                 
                 // Try again
-                const { data: retryEmployees, error: retryError } = await supabaseClient
+                const { data: retryEmployees, error: retryError } = await client
                     .from('employees')
                     .select('*')
                     .eq('username', username)
@@ -339,7 +320,9 @@ async function verifyPassword(password, hash) {
 // Update last login time
 async function updateLastLogin(employeeId) {
     try {
-        const { error } = await supabaseClient
+        const client = await getSupabaseClient();
+
+        const { error } = await client
             .from('employees')
             .update({ 
                 last_login: new Date().toISOString(),
@@ -357,6 +340,11 @@ async function updateLastLogin(employeeId) {
 
 // Toggle password visibility
 function togglePasswordVisibility() {
+    if (!passwordInput || !passwordToggle) {
+        console.error('Password input or toggle button not found');
+        return;
+    }
+    
     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
     passwordInput.setAttribute('type', type);
     
@@ -426,10 +414,8 @@ async function createSampleEmployees() {
         console.log('Creating sample employees...');
         
         // Ensure we have a Supabase client
-        if (!supabaseClient) {
-            await initializeSupabase();
-        }
-        
+        const client = await getSupabaseClient();
+
         const sampleEmployees = [
             {
                 full_name: 'நிர்வாகி முருகன்',
@@ -460,7 +446,7 @@ async function createSampleEmployees() {
         for (const employee of sampleEmployees) {
             try {
                 // Check if employee already exists
-                const { data: existing, error: checkError } = await supabaseClient
+                const { data: existing, error: checkError } = await client
                     .from('employees')
                     .select('username')
                     .eq('username', employee.username)
@@ -472,7 +458,7 @@ async function createSampleEmployees() {
                 }
                 
                 if (!existing || existing.length === 0) {
-                    const { data, error } = await supabaseClient
+                    const { data, error } = await client
                         .from('employees')
                         .insert([employee])
                         .select();
@@ -514,12 +500,10 @@ async function testDatabaseConnection() {
     try {
         console.log('Testing database connection...');
         
-        if (!supabaseClient) {
-            await initializeSupabase();
-        }
-        
+        const client = await getSupabaseClient();
+
         // Test 1: Check if employees table exists and has data
-        const { data: employees, error: empError } = await supabaseClient
+        const { data: employees, error: empError } = await client
             .from('employees')
             .select('*')
             .limit(5);
@@ -533,7 +517,7 @@ async function testDatabaseConnection() {
         console.log(`📊 Found ${employees.length} employees in database`);
         
         // Test 2: Check if bla_members table exists
-        const { data: members, error: memberError } = await supabaseClient
+        const { data: members, error: memberError } = await client
             .from('bla_members')
             .select('count')
             .limit(1);

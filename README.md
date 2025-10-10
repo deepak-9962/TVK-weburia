@@ -44,10 +44,10 @@ A comprehensive political party website for **TVK தமிழ் வெற்�
 - **Automatic backups** and scaling
 - **Row-level security** for data protection
 
-### API Keys Configured
-- **Anon Key**: For client-side operations
-- **Service Key**: For admin operations
-- **Project URL**: `https://cbcuhojwffwppocnoxel.supabase.co`
+### API Keys Configuration
+- **Anon Key**: For client-side operations (stored in `.env`)
+- **Service Key**: Keep server-side only if required for privileged tasks
+- **Project URL**: Configure via environment variables
 
 ### Tables Structure
 - `bla_members` - Member registration data
@@ -103,9 +103,11 @@ tvk/
 3. Create storage buckets for file uploads
 
 ### 2. Local Development
-1. Open `index.html` in a modern web browser
-2. No server setup required - runs locally
-3. Database will auto-connect on page load
+1. Copy `.env.example` to `.env` and fill in your Supabase URL and anon key
+2. Generate the runtime config with `npm run generate:env`
+3. Open `index.html` in a modern web browser
+4. No server setup required - runs locally
+5. Database will auto-connect on page load
 
 ### 3. Testing
 - Click "Demo Data" button to load sample data

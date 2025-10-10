@@ -36,10 +36,10 @@ The SQL script already enables RLS policies, but you can modify them:
    - `office_tasks`
 
 ### Step 5: Get API Keys
-Your API keys are already configured in `supabase-config.js`:
-- **Project URL**: `https://cbcuhojwffwppocnoxel.supabase.co`
-- **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (already added)
-- **Service Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (already added)
+1. Copy `.env.example` to `.env`
+2. Fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY` with the values from your Supabase dashboard
+3. Never commit `.env` or any generated environment files to source control
+4. Keep the **service key** off the frontend—use it only in a secure server environment if needed
 
 ---
 

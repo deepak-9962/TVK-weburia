@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+</head>
+<body>
+    <h1>Testing Supabase Connection</h1>
+    <button id="testBtn">Test Database Connection</button>
+    <div id="result"></div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Initialize and test
+                const client = await initializeSupabase();
+                
+                resultDiv.innerHTML = '✅ Supabase client initialized successfully!<br>';
+                resultDiv.innerHTML += 'Client object: ' + (client ? 'Available' : 'Undefined');
+                
+                // Try a simple query
+                const { data, error } = await client
+                    .from('employees')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    resultDiv.innerHTML += '<br>⚠️ Query error: ' + error.message;
+                } else {
+                    resultDiv.innerHTML += '<br>✅ Query successful!';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = '❌ Error: ' + error.message;
+                console.error('Test error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
