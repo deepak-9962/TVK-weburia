@@ -132,6 +132,7 @@
             cursor: pointer;
             font-size: 18px;
             padding: 5px;
+            z-index: 10;
         }
 
         .toggle-password:hover {
@@ -320,65 +321,92 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
-        // Initialize Supabase
-        const SUPABASE_URL = 'https://your-project-id.supabase.co';
-        const SUPABASE_ANON_KEY = 'your-anon-key';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Supabase - will be loaded from supabase-config.js
+        let supabase;
+
+        // Wait for DOM and Supabase to be ready
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Initialize Supabase client
+                supabase = await getSupabaseClient();
+                console.log('Supabase client initialized successfully');
+                
+                // Initialize password toggle and form after Supabase is ready
+                initializePasswordToggle();
+                initializeLoginForm();
+            } catch (error) {
+                console.error('Error initializing:', error);
+                showError('Error initializing application. Please refresh the page.');
+            }
+        });
 
         // Password toggle functionality
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const type = passwordInput.type === 'password' ? 'text' : 'password';
-                passwordInput.type = type;
-                
-                const icon = this.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
-                }
-                
-                console.log('Password visibility toggled to:', type);
-            });
-        } else {
-            console.error('Toggle password elements not found');
-        }
-
-        // Form submission
-        const loginForm = document.getElementById('adminLoginForm');
-        const errorMessage = document.getElementById('errorMessage');
-        const loginBtn = document.getElementById('loginBtn');
-        const btnText = document.getElementById('btnText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            setTimeout(() => {
-                errorMessage.classList.remove('show');
-            }, 5000);
-        }
-
-        function setLoading(isLoading) {
-            loginBtn.disabled = isLoading;
-            if (isLoading) {
-                btnText.style.display = 'none';
-                loadingSpinner.style.display = 'block';
+        function initializePasswordToggle() {
+            console.log('Initializing password toggle...');
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            console.log('Toggle button found:', !!togglePassword);
+            console.log('Password input found:', !!passwordInput);
+            
+            if (togglePassword && passwordInput) {
+                console.log('Adding click listener to toggle button');
+                togglePassword.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Toggle button clicked!');
+                    const type = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = type;
+                    
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-eye');
+                        icon.classList.toggle('fa-eye-slash');
+                        console.log('Icon classes toggled');
+                    }
+                    
+                    console.log('Password visibility toggled to:', type);
+                });
+                console.log('Password toggle initialized successfully');
             } else {
-                btnText.style.display = 'block';
-                loadingSpinner.style.display = 'none';
+                console.error('Toggle password elements not found');
+                console.error('togglePassword:', togglePassword);
+                console.error('passwordInput:', passwordInput);
             }
         }
 
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Form initialization
+        function initializeLoginForm() {
+            const loginForm = document.getElementById('adminLoginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            }
+
+            function setLoading(isLoading) {
+                loginBtn.disabled = isLoading;
+                if (isLoading) {
+                    btnText.style.display = 'none';
+                    loadingSpinner.style.display = 'block';
+                } else {
+                    btnText.style.display = 'block';
+                    loadingSpinner.style.display = 'none';
+                }
+            }
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
@@ -483,22 +511,20 @@
                 showError('உள்நுழைவில் பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும் (Login error occurred. Please try again)');
                 setLoading(false);
             }
-        });
+            });
+        }
 
-        // Check if already logged in as admin
-        window.addEventListener('DOMContentLoaded', function() {
-            const adminUser = sessionStorage.getItem('tvk_admin_user');
-            if (adminUser) {
-                try {
-                    const user = JSON.parse(adminUser);
-                    if (user.is_admin) {
-                        window.location.href = 'admin-dashboard.html';
-                    }
-                } catch (e) {
-                    sessionStorage.removeItem('tvk_admin_user');
-                }
+        // Helper function for showing errors (available globally)
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
             }
-        });
+        }
     </script>
 </body>
 </html>

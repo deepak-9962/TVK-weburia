@@ -726,110 +726,19 @@
                 <i class="fas fa-chevron-right"></i>
             </div>
         </div>
-
-        <!-- Export Section -->
-        <h2 class="section-title">தரவு ஏற்றுமதி (Data Export)</h2>
-        
-        <!-- Export Filters -->
-        <div class="export-filters">
-            <h3 class="filter-title">
-                <i class="fas fa-filter"></i> வடிகட்டி விருப்பங்கள் (Filter Options)
-            </h3>
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <label for="exportDistrictFilter">
-                        <i class="fas fa-map-marker-alt"></i> மாவட்டம் (District)
-                    </label>
-                    <select class="filter-input" id="exportDistrictFilter">
-                        <option value="">அனைத்து மாவட்டங்கள்</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label for="exportGenderFilter">
-                        <i class="fas fa-venus-mars"></i> பாலினம் (Gender)
-                    </label>
-                    <select class="filter-input" id="exportGenderFilter">
-                        <option value="">அனைத்து பாலினம்</option>
-                        <option value="male">ஆண் (Male)</option>
-                        <option value="female">பெண் (Female)</option>
-                        <option value="other">மற்றவை (Other)</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label for="exportCategoryFilter">
-                        <i class="fas fa-users"></i> வகை (Category)
-                    </label>
-                    <select class="filter-input" id="exportCategoryFilter">
-                        <option value="">அனைத்து வகைகள்</option>
-                        <option value="மாற்றுத்திறனாளி">மாற்றுத்திறனாளி</option>
-                        <option value="முதியோர்">முதியோர்</option>
-                        <option value="மூன்றாம் பாலினம்">மூன்றாம் பாலினம்</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label for="exportStatusFilter">
-                        <i class="fas fa-check-circle"></i> நிலை (Status)
-                    </label>
-                    <select class="filter-input" id="exportStatusFilter">
-                        <option value="">அனைத்து நிலைகள்</option>
-                        <option value="active">Active</option>
-                        <option value="pending">Pending</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-            <div class="filter-info">
-                <i class="fas fa-info-circle"></i>
-                <span id="filterCount">அனைத்து உறுப்பினர்கள் தேர்ந்தெடுக்கப்பட்டுள்ளனர்</span>
-            </div>
-        </div>
-
-        <!-- Export Buttons -->
-        <div class="export-section">
-            <div class="export-card">
-                <div class="export-icon pdf-icon">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <div class="export-content">
-                    <h3>PDF அறிக்கை</h3>
-                    <p>அனைத்து உறுப்பினர் தகவல்களையும் PDF வடிவத்தில் பதிவிறக்கவும்</p>
-                    <button class="export-btn pdf-btn" onclick="exportToPDF()">
-                        <i class="fas fa-download"></i> PDF பதிவிறக்கம்
-                    </button>
-                </div>
-            </div>
-
-            <div class="export-card">
-                <div class="export-icon excel-icon">
-                    <i class="fas fa-file-excel"></i>
-                </div>
-                <div class="export-content">
-                    <h3>Excel தாள்</h3>
-                    <p>அனைத்து உறுப்பினர் தகவல்களையும் Excel வடிவத்தில் பதிவிறக்கவும்</p>
-                    <button class="export-btn excel-btn" onclick="exportToExcel()">
-                        <i class="fas fa-download"></i> Excel பதிவிறக்கம்
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <!-- jsPDF and jsPDF-AutoTable for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- SheetJS for Excel export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script>
-        // Initialize Supabase
-    const SUPABASE_URL = 'https://your-project-id.supabase.co';
-    const SUPABASE_ANON_KEY = 'your-anon-key';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Supabase - will be loaded from supabase-config.js
+        let supabase;
 
-        // Check authentication on page load
+        // Check authentication and initialize on page load
         window.addEventListener('DOMContentLoaded', async function() {
             const adminUser = sessionStorage.getItem('tvk_admin_user');
             
@@ -848,6 +757,10 @@
                     window.location.href = 'admin-login.html';
                     return;
                 }
+                
+                // Initialize Supabase client
+                supabase = await getSupabaseClient();
+                console.log('Supabase client initialized successfully');
 
                 // Update UI with user info
                 document.getElementById('userName').textContent = user.full_name || user.username;
@@ -1104,136 +1017,161 @@
 
                 // Initialize jsPDF
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4'); // Portrait orientation for better photo display
+                const doc = new jsPDF('p', 'mm', 'a4');
 
                 let pageNumber = 1;
                 const pageHeight = doc.internal.pageSize.height;
                 const pageWidth = doc.internal.pageSize.width;
-                const margin = 15;
-                const cardWidth = (pageWidth - margin * 3) / 2; // 2 cards per row
-                const cardHeight = 80;
-                const photoSize = 25;
-                let xPos = margin;
-                let yPos = 40;
+                const margin = 8;
+                const cardWidth = pageWidth - (margin * 2);
+                const cardHeight = 30; // Height for each horizontal card
+                const photoWidth = 28;
+                const photoHeight = 28;
+                let yPos = 10;
+                const cardsPerPage = 9;
 
                 // Add header on first page
                 function addHeader() {
-                    doc.setFontSize(20);
+                    doc.setFontSize(14);
                     doc.setTextColor(220, 20, 60);
-                    doc.text('TVK - BLA Members Photo Report', pageWidth / 2, 15, { align: 'center' });
+                    doc.text('BLA Members Photo Gallery - TVK', pageWidth / 2, 5, { align: 'center' });
                     
-                    doc.setFontSize(9);
+                    doc.setFontSize(7);
                     doc.setTextColor(100);
-                    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 25);
-                    doc.text(`Total: ${members.length} Members`, pageWidth - margin, 25, { align: 'right' });
-                    
-                    doc.setFontSize(8);
-                    doc.setTextColor(150);
-                    doc.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    doc.text(`${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 3);
+                    doc.text(`${pageWidth - margin}`, pageWidth - margin, pageHeight - 3, { align: 'right' });
                 }
 
                 addHeader();
 
-                // Draw each member card
+                // Draw each member card (9 per page)
                 membersWithImages.forEach((member, index) => {
-                    // Check if we need a new row
-                    if (index % 2 === 0 && index !== 0) {
-                        xPos = margin;
-                        yPos += cardHeight + 5;
-                    } else if (index % 2 === 1) {
-                        xPos = margin + cardWidth + margin;
-                    }
-
-                    // Check if we need a new page
-                    if (yPos + cardHeight > pageHeight - 20) {
+                    // Check if we need a new page (9 cards per page)
+                    if (index > 0 && index % cardsPerPage === 0) {
                         doc.addPage();
                         pageNumber++;
-                        yPos = 40;
-                        xPos = margin;
+                        yPos = 10;
                         addHeader();
                     }
 
+                    // Alternate background colors
+                    if (index % 2 === 0) {
+                        doc.setFillColor(255, 235, 59); // Yellow
+                    } else {
+                        doc.setFillColor(245, 245, 245); // Light gray
+                    }
+                    doc.rect(margin, yPos, cardWidth, cardHeight, 'F');
+
                     // Draw card border
-                    doc.setDrawColor(220, 20, 60);
-                    doc.setLineWidth(0.5);
-                    doc.rect(xPos, yPos, cardWidth, cardHeight);
+                    doc.setDrawColor(51, 51, 51);
+                    doc.setLineWidth(1);
+                    doc.rect(margin, yPos, cardWidth, cardHeight);
+
+                    // Photo container border
+                    doc.setLineWidth(1);
+                    doc.line(margin + photoWidth, yPos, margin + photoWidth, yPos + cardHeight);
 
                     // Add photo or placeholder
                     if (member.imageData) {
                         try {
-                            doc.addImage(member.imageData, 'JPEG', xPos + 5, yPos + 5, photoSize, photoSize);
+                            doc.addImage(member.imageData, 'JPEG', margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2);
                         } catch (e) {
                             // Draw placeholder if image fails
-                            doc.setFillColor(240, 240, 240);
-                            doc.rect(xPos + 5, yPos + 5, photoSize, photoSize, 'F');
-                            doc.setFontSize(10);
+                            doc.setFillColor(230, 230, 230);
+                            doc.rect(margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2, 'F');
+                            doc.setFontSize(16);
                             doc.setTextColor(150);
-                            doc.text('📷', xPos + 5 + photoSize/2, yPos + 5 + photoSize/2, { align: 'center' });
+                            doc.text('📷', margin + photoWidth/2, yPos + cardHeight/2, { align: 'center' });
                         }
                     } else {
                         // Draw placeholder
-                        doc.setFillColor(240, 240, 240);
-                        doc.rect(xPos + 5, yPos + 5, photoSize, photoSize, 'F');
-                        doc.setFontSize(10);
+                        doc.setFillColor(230, 230, 230);
+                        doc.rect(margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2, 'F');
+                        doc.setFontSize(16);
                         doc.setTextColor(150);
-                        doc.text('📷', xPos + 5 + photoSize/2, yPos + 5 + photoSize/2, { align: 'center' });
+                        doc.text('📷', margin + photoWidth/2, yPos + cardHeight/2, { align: 'center' });
                     }
 
-                    // Add member details
-                    const textX = xPos + photoSize + 10;
-                    let textY = yPos + 10;
+                    // Add voter ID overlay on photo
+                    if (member.voter_id) {
+                        doc.setFillColor(0, 0, 0);
+                        doc.rect(margin + 1, yPos + cardHeight - 7, photoWidth - 2, 6, 'F');
+                        doc.setFontSize(7);
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(member.voter_id, margin + photoWidth/2, yPos + cardHeight - 2.5, { align: 'center' });
+                    }
+
+                    // Add part number badge on photo
+                    if (member.part_number) {
+                        doc.setFillColor(51, 51, 51);
+                        doc.roundedRect(margin + 2, yPos + cardHeight - 9, 15, 4, 0.5, 0.5, 'F');
+                        doc.setFontSize(6);
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`Part - ${member.part_number}`, margin + 9.5, yPos + cardHeight - 6.5, { align: 'center' });
+                    }
+
+                    // Add member details on right side
+                    const textX = margin + photoWidth + 3;
+                    let textY = yPos + 4;
+                    const maxTextWidth = cardWidth - photoWidth - 6;
                     
-                    doc.setFontSize(11);
+                    // Name (bold, red)
+                    doc.setFontSize(9);
+                    doc.setTextColor(220, 20, 60);
+                    doc.setFont(undefined, 'bold');
+                    const nameLines = doc.splitTextToSize(member.full_name || 'N/A', maxTextWidth);
+                    doc.text(nameLines[0], textX, textY);
+                    
+                    textY += 4;
+                    doc.setFontSize(7);
                     doc.setTextColor(0, 0, 0);
                     doc.setFont(undefined, 'bold');
-                    doc.text(member.full_name || 'N/A', textX, textY, { maxWidth: cardWidth - photoSize - 20 });
                     
-                    textY += 6;
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'normal');
-                    doc.setTextColor(80);
-                    
-                    doc.text(`Father: ${member.father_name || 'N/A'}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
-                    textY += 5;
-                    doc.text(`ID: ${member.membership_number || member.id?.substring(0, 8) || 'N/A'}`, textX, textY);
-                    textY += 5;
-                    doc.text(`Mobile: ${member.mobile || 'N/A'}`, textX, textY);
-                    textY += 5;
-                    doc.text(`Gender: ${member.gender || 'N/A'}`, textX, textY);
-                    textY += 5;
-                    doc.text(`District: ${member.district || 'N/A'}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
-                    textY += 5;
-                    
-                    if (member.voter_id) {
-                        doc.text(`Voter ID: ${member.voter_id}`, textX, textY);
-                        textY += 5;
+                    // Details with labels and values (using English labels for PDF compatibility)
+                    const details = [
+                        { label: 'Father/Husband:', value: member.father_name || '' },
+                        { label: 'DOB:', value: member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('en-IN') : '' },
+                        { label: 'Address:', value: member.address || '' },
+                        { label: 'Mobile:', value: member.mobile || '' },
+                        { label: 'District:', value: member.district || '' }
+                    ];
+
+                    details.forEach(detail => {
+                        if (detail.value) {
+                            doc.setFont(undefined, 'bold');
+                            doc.text(detail.label, textX, textY);
+                            doc.setFont(undefined, 'normal');
+                            const valueX = textX + 25;
+                            const valueLines = doc.splitTextToSize(detail.value, maxTextWidth - 25);
+                            doc.text(valueLines[0], valueX, textY);
+                            textY += 3.5;
+                        }
+                    });
+
+                    // Registration date (blue)
+                    if (member.created_at) {
+                        doc.setFontSize(6.5);
+                        doc.setTextColor(13, 71, 161);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('Registered:', textX, textY);
+                        doc.setFont(undefined, 'normal');
+                        const regDate = new Date(member.created_at).toLocaleDateString('en-IN') + ' ' + 
+                                       new Date(member.created_at).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+                        doc.text(regDate, textX + 18, textY);
                     }
-                    
-                    if (member.registered_by) {
-                        doc.setFontSize(7);
-                        doc.setTextColor(100);
-                        doc.text(`Registered by: ${member.registered_by.full_name || member.registered_by.username}`, textX, textY, { maxWidth: cardWidth - photoSize - 20 });
-                        textY += 4;
-                    }
-                    
-                    // Status badge
-                    doc.setFontSize(7);
-                    const status = member.status || 'pending';
-                    if (status === 'active') {
-                        doc.setTextColor(0, 128, 0);
-                    } else {
-                        doc.setTextColor(255, 140, 0);
-                    }
-                    doc.text(`Status: ${status.toUpperCase()}`, textX, textY);
+
+                    yPos += cardHeight + 1;
                 });
 
-                // Save PDF
-                const fileName = `TVK_BLA_Members_Photos_${new Date().toISOString().split('T')[0]}.pdf`;
-                doc.save(fileName);
+                // Open PDF in new tab for preview
+                const pdfBlob = doc.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                window.open(pdfUrl, '_blank');
 
                 exportBtn.disabled = false;
                 exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
-                alert(`PDF வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!\n${members.length} உறுப்பினர்கள், ${pageNumber} பக்கங்கள்\n(PDF downloaded successfully!)`);
 
             } catch (error) {
                 console.error('PDF Export Error:', error);

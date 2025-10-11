@@ -360,10 +360,17 @@ async function initializeDatabase() {
     }
 }
 
+// Alias for getting Supabase client (for compatibility)
+async function getSupabaseClient() {
+    return await initializeSupabase();
+}
+
 // Export for use in other files
 if (typeof window !== 'undefined') {
     window.TVKDatabase = TVKDatabase;
     window.initializeDatabase = initializeDatabase;
     window.getSupabaseCredentials = getSupabaseCredentials;
+    window.getSupabaseClient = getSupabaseClient;
+    window.initializeSupabase = initializeSupabase;
     window.tvkDB = null; // Will be set after initialization
 }

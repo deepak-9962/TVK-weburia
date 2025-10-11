@@ -120,8 +120,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
-            min-height: 240px;
+            min-height: 120px;
+            max-height: 120px;
             border: 4px solid #333;
+            position: relative;
         }
 
         .member-card:nth-child(odd) {
@@ -187,9 +189,10 @@
         }
 
         .photo-container {
-            width: 220px;
-            min-width: 220px;
-            height: 100%;
+            width: 110px;
+            min-width: 110px;
+            max-width: 110px;
+            height: 112px;
             overflow: hidden;
             background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
             display: flex;
@@ -197,21 +200,23 @@
             justify-content: center;
             position: relative;
             border-right: 4px solid #333;
+            flex-shrink: 0;
         }
 
         .member-photo {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center;
         }
 
         .no-photo {
             color: #999;
-            font-size: 48px;
+            font-size: 28px;
         }
 
         .member-info {
-            padding: 14px 18px;
+            padding: 6px 10px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -219,14 +224,16 @@
             background: inherit;
             overflow: hidden;
             min-width: 0;
+            max-width: calc(100% - 110px);
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 18px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 2px;
+            overflow: hidden;
         }
 
         .info-column {
@@ -236,56 +243,59 @@
         }
 
         .member-name {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 900;
             color: #DC143C;
-            margin-bottom: 5px;
+            margin-bottom: 1px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .member-details {
-            font-size: 11.5px;
+            font-size: 10px;
             color: #2c3e50;
-            margin: 4px 0;
+            margin: 1px 0;
             display: flex;
             align-items: flex-start;
-            gap: 6px;
-            line-height: 1.4;
+            gap: 3px;
+            line-height: 1.2;
+            overflow: hidden;
         }
 
         .member-details strong {
-            color: #DC143C;
-            min-width: 95px;
-            max-width: 95px;
-            font-weight: 700;
-            font-size: 11.5px;
+            color: #000;
+            min-width: 70px;
+            max-width: 70px;
+            font-weight: 900;
+            font-size: 10px;
             flex-shrink: 0;
-            word-wrap: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .member-details span {
             flex: 1;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            hyphens: auto;
-        }
-
-        .member-details span {
-            flex: 1;
-            word-wrap: break-word;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
         }
 
         .voter-id-box {
             background: white;
-            border: 3px solid #333;
-            padding: 4px 10px;
-            font-weight: bold;
-            font-size: 12px;
+            border: 2px solid #333;
+            padding: 2px 6px;
+            font-weight: 900;
+            font-size: 9px;
             display: inline-block;
-            margin-top: 8px;
+            margin-top: 2px;
             letter-spacing: 0.3px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 200px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 140px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -294,25 +304,47 @@
         .part-number-box {
             background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
             color: white;
-            padding: 5px 12px;
-            font-weight: bold;
-            font-size: 13px;
-            border-radius: 4px;
+            padding: 2px 6px;
+            font-weight: 900;
+            font-size: 10px;
+            border-radius: 3px;
             display: inline-block;
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.2);
+            bottom: 4px;
+            left: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            letter-spacing: 0.3px;
+            z-index: 10;
+        }
+
+        .voter-id-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            color: white;
+            padding: 4px 6px;
+            font-weight: 900;
+            font-size: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .member-id {
-            font-size: 12px;
-            color: #555;
-            margin-top: 10px;
+            font-size: 9px;
+            color: #333;
+            margin-top: 2px;
             text-align: right;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .status-badge {
@@ -414,6 +446,11 @@
                 print-color-adjust: exact !important;
             }
 
+            @page {
+                size: A4;
+                margin: 10mm 8mm;
+            }
+
             body {
                 background: white;
                 padding: 0;
@@ -433,29 +470,46 @@
             .gallery {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 4px;
             }
 
-            /* Desktop PDF styles */
+            /* Optimized PDF styles for maximum cards per page */
             .member-card {
                 page-break-inside: avoid;
                 break-inside: avoid;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
-                margin-bottom: 8px;
-                height: 180px;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+                margin-bottom: 4px;
+                height: 120px !important;
+                min-height: 120px !important;
+                max-height: 120px !important;
                 flex-direction: row !important;
             }
 
             .photo-container {
-                width: 180px !important;
-                min-width: 180px !important;
-                height: 100% !important;
-                border-right: 3px solid #333 !important;
+                width: 110px !important;
+                min-width: 110px !important;
+                max-width: 110px !important;
+                height: 112px !important;
+                border-right: 4px solid #333 !important;
                 border-bottom: none !important;
+                position: relative !important;
             }
 
-            /* Force page break after every 5th card */
-            .member-card:nth-child(5n) {
+            .member-photo {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center !important;
+            }
+
+            .voter-id-overlay {
+                font-size: 9px !important;
+                padding: 3px 4px !important;
+                letter-spacing: 0.4px !important;
+            }
+
+            /* Force page break after every 9th card (9 cards per page for A4) */
+            .member-card:nth-child(9n) {
                 page-break-after: always;
                 break-after: page;
                 margin-bottom: 0;
@@ -469,64 +523,63 @@
                 background: #f5f5f5 !important;
             }
 
+            .member-info {
+                padding: 6px 10px !important;
+            }
+
+            .member-name {
+                font-size: 14px !important;
+                margin-bottom: 1px !important;
+            }
+
             .member-details {
-                font-size: 11px !important;
+                font-size: 10px !important;
                 margin: 1px 0 !important;
+                gap: 3px !important;
             }
 
             .member-details strong {
-                font-size: 11px !important;
+                font-size: 10px !important;
+                min-width: 70px !important;
+                max-width: 70px !important;
             }
 
             .info-row {
                 flex-direction: row !important;
-                gap: 15px !important;
+                gap: 8px !important;
+                margin-bottom: 2px !important;
             }
 
             .voter-id-box {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                border: 2px solid #333 !important;
+            }
+
+            .member-id {
+                font-size: 9px !important;
+            }
+
+            .part-number-box {
                 font-size: 10px !important;
                 padding: 2px 6px !important;
             }
 
-            .member-id {
-                font-size: 10px !important;
-            }
-
-            .part-number-box {
-                font-size: 11px !important;
-                padding: 3px 8px !important;
-            }
-
-            /* Mobile print styles - maintain horizontal layout for consistency */
+            /* Mobile print styles */
             @media (max-width: 768px) {
                 .member-card {
-                    height: 165px !important;
+                    height: 120px !important;
                 }
 
                 .photo-container {
-                    width: 150px !important;
-                    min-width: 150px !important;
+                    width: 110px !important;
+                    min-width: 110px !important;
                 }
 
-                .member-info {
-                    padding: 8px !important;
-                }
-
-                .member-details {
-                    font-size: 9px !important;
-                }
-
-                .member-details strong {
-                    font-size: 9px !important;
-                    min-width: 55px !important;
-                }
-
-                .voter-id-box {
-                    font-size: 9px !important;
-                }
-
-                .member-id {
-                    font-size: 8px !important;
+                /* 9 cards per page on mobile too */
+                .member-card:nth-child(9n) {
+                    page-break-after: always;
+                    break-after: page;
                 }
             }
         }
@@ -564,6 +617,7 @@
             </div>
             <button class="refresh-btn" onclick="loadMembers()">🔄 Refresh</button>
             <button class="export-btn" onclick="exportToPDF()">📄 PDF ஏற்றுமதி</button>
+            <button class="export-btn" onclick="exportToExcel()" style="background: #28a745;">📊 Excel ஏற்றுமதி</button>
         </div>
 
         <div class="filters">
@@ -595,15 +649,30 @@
         <div id="gallery" class="gallery"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="supabase-config.js"></script>
     <script>
-        // Supabase configuration
-    const SUPABASE_URL = 'https://your-project-id.supabase.co';
-    const SUPABASE_ANON_KEY = 'your-anon-key';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+        // Supabase configuration - will be loaded from supabase-config.js
+        let supabase;
         let allMembers = [];
+
+        // Initialize the page
+        async function initializePage() {
+            try {
+                // Initialize Supabase client
+                supabase = await getSupabaseClient();
+                console.log('Supabase client initialized successfully');
+                
+                // Load members after Supabase is ready
+                await loadMembers();
+            } catch (error) {
+                console.error('Error initializing:', error);
+                const errorDiv = document.getElementById('error');
+                if (errorDiv) {
+                    errorDiv.textContent = 'Error initializing application. Please refresh the page.';
+                    errorDiv.style.display = 'block';
+                }
+            }
+        }
 
         async function loadMembers() {
             const loadingDiv = document.getElementById('loading');
@@ -691,12 +760,12 @@
                     img.alt = member.full_name;
                     img.onerror = function() {
                         this.parentElement.innerHTML = '<div class="no-photo">📷</div>';
-                        // Re-add part number badge after error
-                        if (member.part_number) {
-                            const partBadge = document.createElement('div');
-                            partBadge.className = 'part-number-box';
-                            partBadge.textContent = `பாகம் - ${member.part_number}`;
-                            this.parentElement.appendChild(partBadge);
+                        // Re-add voter ID overlay after error
+                        if (member.voter_id) {
+                            const voterOverlay = document.createElement('div');
+                            voterOverlay.className = 'voter-id-overlay';
+                            voterOverlay.textContent = member.voter_id;
+                            this.parentElement.appendChild(voterOverlay);
                         }
                     };
                     photoContainer.appendChild(img);
@@ -704,12 +773,12 @@
                     photoContainer.innerHTML = '<div class="no-photo">📷</div>';
                 }
                 
-                // Add part number badge if available (always show)
-                if (member.part_number) {
-                    const partBadge = document.createElement('div');
-                    partBadge.className = 'part-number-box';
-                    partBadge.textContent = `பாகம் - ${member.part_number}`;
-                    photoContainer.appendChild(partBadge);
+                // Add voter ID overlay at bottom of photo if available
+                if (member.voter_id) {
+                    const voterOverlay = document.createElement('div');
+                    voterOverlay.className = 'voter-id-overlay';
+                    voterOverlay.textContent = member.voter_id;
+                    photoContainer.appendChild(voterOverlay);
                 }
                 
                 const infoDiv = document.createElement('div');
@@ -734,14 +803,13 @@
                             </div>
                         </div>
                         ${member.member_category ? `<div class="member-details"><strong>உறுப்பினர் :</strong><span>${member.member_category}</span></div>` : ''}
-                        <div class="member-details" style="color:#0d47a1;font-size:13px;margin-top:6px;">
+                        <div class="member-details" style="color:#0d47a1;margin-top:2px;">
                             <strong>பதிவு செய்யப்பட்ட நாள் :</strong>
                             <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN', {year:'numeric',month:'2-digit',day:'2-digit'}) + ' ' + new Date(member.created_at).toLocaleTimeString('ta-IN', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        ${member.voter_id ? `<div class="voter-id-box">${member.voter_id}</div>` : '<div></div>'}
-                        ${member.part_number ? `<div class="member-id">வட்டம் ${member.part_number}</div>` : '<div></div>'}
+                        ${member.part_number ? `<div class="voter-id-box">பாகம் - ${member.part_number}</div>` : '<div></div>'}
                     </div>
                 `;
                 
@@ -785,8 +853,114 @@
             }
         }
 
-        // Load members on page load
-        window.addEventListener('load', loadMembers);
+        // Export to Excel function
+        async function exportToExcel() {
+            try {
+                if (!allMembers || allMembers.length === 0) {
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No data to export)');
+                    return;
+                }
+
+                // Get currently filtered members by re-applying filters
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const districtFilter = document.getElementById('districtFilter').value;
+                const genderFilter = document.getElementById('genderFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                
+                const membersToExport = allMembers.filter(member => {
+                    const matchesSearch = !searchTerm || 
+                        (member.full_name && member.full_name.toLowerCase().includes(searchTerm)) ||
+                        (member.father_name && member.father_name.toLowerCase().includes(searchTerm)) ||
+                        (member.mobile && member.mobile.includes(searchTerm));
+                    
+                    const matchesDistrict = !districtFilter || member.district === districtFilter;
+                    const matchesGender = !genderFilter || member.gender === genderFilter;
+                    const matchesCategory = !categoryFilter || 
+                        (member.member_category && member.member_category.includes(categoryFilter));
+                    const matchesStatus = !statusFilter || member.status === statusFilter;
+                    
+                    return matchesSearch && matchesDistrict && matchesGender && matchesCategory && matchesStatus;
+                });
+
+                if (membersToExport.length === 0) {
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No matching members to export)');
+                    return;
+                }
+
+                // Create CSV content
+                const headers = [
+                    'பெயர் (Name)',
+                    'தந்தை/கணவர் (Father/Husband)',
+                    'பிறந்த தேதி (DOB)',
+                    'பாலினம் (Gender)',
+                    'தொலைபேசி (Mobile)',
+                    'வாக்காளர் அடையாள எண் (Voter ID)',
+                    'விலாசம் (Address)',
+                    'மாவட்டம் (District)',
+                    'வட்டம்/ஊராட்சி/வார்டு (Ward/Circle)',
+                    'உறுப்பினர் வகை (Category)',
+                    'பாகம் எண் (Part Number)',
+                    'உறுப்பினர் எண் (Member ID)',
+                    'பதிவு தேதி (Registration Date)'
+                ];
+
+                let csvContent = '\uFEFF'; // UTF-8 BOM for Excel compatibility
+                csvContent += headers.join(',') + '\n';
+
+                // Add member data
+                membersToExport.forEach(member => {
+                    const row = [
+                        escapeCSV(member.full_name || ''),
+                        escapeCSV(member.father_name || ''),
+                        member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('en-IN') : '',
+                        member.gender || '',
+                        member.mobile || '',
+                        member.voter_id || '',
+                        escapeCSV(member.address || ''),
+                        escapeCSV(member.district || ''),
+                        escapeCSV(member.ward_circle || ''),
+                        escapeCSV(member.member_category || ''),
+                        member.part_number || '',
+                        member.membership_number || member.id?.substring(0, 8) || '',
+                        member.created_at ? new Date(member.created_at).toLocaleString('en-IN') : ''
+                    ];
+                    csvContent += row.join(',') + '\n';
+                });
+
+                // Create blob and download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `BLA_Members_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                alert(`Excel வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!\n${membersToExport.length} உறுப்பினர்கள்\n(Excel downloaded successfully!)`);
+
+            } catch (error) {
+                console.error('Excel Export Error:', error);
+                alert('Excel ஏற்றுமதியில் பிழை (Error exporting to Excel): ' + error.message);
+            }
+        }
+
+        // Helper function to escape CSV fields
+        function escapeCSV(field) {
+            if (field == null) return '';
+            field = String(field);
+            if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+                return '"' + field.replace(/"/g, '""') + '"';
+            }
+            return field;
+        }
+
+        // Initialize page on load
+        window.addEventListener('load', initializePage);
     </script>
 </body>
 </html>
