@@ -24,15 +24,39 @@ async function loadEnvConfig() {
                 return;
             }
 
-            const response = await fetch('env.local.json', { cache: 'no-store' });
-
-            if (!response.ok) {
-                throw new Error('Environment file env.local.json not found. Run `npm run generate:env`.');
+            // Try to load from local env.local.json first (for local development)
+            try {
+                const response = await fetch('env.local.json', { cache: 'no-store' });
+                if (response.ok) {
+                    envConfig = await response.json();
+                    window.__TVK_ENV__ = envConfig;
+                    resolve(envConfig);
+                    return;
+                }
+            } catch (localError) {
+                console.log('env.local.json not found, trying API endpoint...');
             }
 
-            envConfig = await response.json();
-            window.__TVK_ENV__ = envConfig;
-            resolve(envConfig);
+            // If local file not found, try Vercel API endpoint (for production)
+            try {
+                const apiResponse = await fetch('/api/config', { cache: 'no-store' });
+                if (apiResponse.ok) {
+                    const apiConfig = await apiResponse.json();
+                    envConfig = {
+                        SUPABASE_URL: apiConfig.supabaseUrl,
+                        SUPABASE_ANON_KEY: apiConfig.supabaseAnonKey
+                    };
+                    window.__TVK_ENV__ = envConfig;
+                    resolve(envConfig);
+                    return;
+                }
+            } catch (apiError) {
+                console.error('API config endpoint failed:', apiError);
+            }
+
+            // If both methods fail
+            throw new Error('Could not load configuration. Please check env.local.json or Vercel environment variables.');
+
         } catch (error) {
             envConfigPromise = undefined;
             reject(error);

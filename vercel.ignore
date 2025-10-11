@@ -1,0 +1,23 @@
+# Don't deploy local environment file
+env.local.json
+
+# Node modules
+node_modules
+
+# Git files
+.git
+.gitignore
+
+# Editor files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation that's not needed in production
+*.md
+!README.md
