@@ -1,5 +1,5 @@
 // Vercel Serverless Function to serve Supabase configuration
-export default function handler(req, res) {
+module.exports = async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -22,4 +22,4 @@ export default function handler(req, res) {
         supabaseUrl: process.env.SUPABASE_URL || '',
         supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
     });
-}
+};
