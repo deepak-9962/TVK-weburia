@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Performance Report - TVK Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header h1 i {
+            font-size: 36px;
+        }
+
+        .header p {
+            position: relative;
+            z-index: 1;
+            margin: 10px 0 0 0;
+            opacity: 0.95;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 35px 30px 50px 30px;
+            background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #DC143C;
+        }
+
+        .stat-card i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #DC143C;
+            margin: 15px 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Filters Section */
+        .filters {
+            padding: 35px 30px;
+            background: white;
+            border-bottom: 3px solid #f0f0f0;
+            margin-top: 20px;
+            clear: both;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .filter-group label i {
+            color: #DC143C;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            min-height: 48px;
+            box-sizing: border-box;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #DC143C;
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .filter-btn {
+            width: 100%;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            min-height: 48px;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .filter-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Employees Section */
+        .employees-section {
+            padding: 35px 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #DC143C;
+        }
+
+        .section-title i {
+            color: #DC143C;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .employee-card {
+            background: white;
+            border: 2px solid #e8e8e8;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .employee-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            transition: width 0.3s;
+        }
+
+        .employee-card:hover {
+            border-color: #DC143C;
+            box-shadow: 0 10px 30px rgba(220, 20, 60, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .employee-card:hover::before {
+            width: 100%;
+            opacity: 0.05;
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .employee-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-info h3 {
+            margin: 0 0 6px 0;
+            color: #333;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .employee-id {
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .employee-email {
+            color: #999;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .employee-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .employee-stat {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .employee-stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #DC143C;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .employee-stat-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Members Table */
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .members-table thead {
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+        }
+
+        .members-table th {
+            color: white;
+            padding: 16px 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .members-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .members-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .members-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .members-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Export Buttons */
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .export-pdf {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .export-excel {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #6c757d, #545b62);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .export-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading i {
+            font-size: 56px;
+            color: #DC143C;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading p {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 15px;
+                padding: 20px 15px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card i {
+                font-size: 32px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .employee-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .export-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .members-table {
+                font-size: 12px;
+            }
+
+            .members-table th,
+            .members-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .employees-section {
+                padding: 20px 15px;
+            }
+
+            .filters {
+                padding: 20px 15px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-users-cog"></i> ஊழியர் செயல்திறன் அறிக்கை</h1>
+            <p>Employee Performance Report & Analytics</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users" style="color: #3498db;"></i>
+                <div class="stat-number" id="totalEmployees">0</div>
+                <div class="stat-label">மொத்த ஊழியர்கள் (Total Employees)</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-user-check" style="color: #27ae60;"></i>
+                <div class="stat-number" id="activeEmployees">0</div>
+                <div class="stat-label">செயலில் உள்ள ஊழியர்கள் (Active)</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-address-card" style="color: #e74c3c;"></i>
+                <div class="stat-number" id="totalMembers">0</div>
+                <div class="stat-label">மொத்த உறுப்பினர்கள் (Total Members)</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line" style="color: #f39c12;"></i>
+                <div class="stat-number" id="avgPerEmployee">0</div>
+                <div class="stat-label">சராசரி / ஊழியர் (Avg per Employee)</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> தொடக்க தேதி (From Date)</label>
+                    <input type="date" id="fromDate">
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> முடிவு தேதி (To Date)</label>
+                    <input type="date" id="toDate">
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-user"></i> ஊழியர் (Employee)</label>
+                    <select id="employeeFilter">
+                        <option value="">அனைத்தும் (All)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label style="visibility: hidden;">.</label>
+                    <button class="filter-btn" onclick="loadEmployeeData()">
+                        <i class="fas fa-search"></i> வடிகட்டு (Filter)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="employees-section">
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i> ஊழியர் செயல்திறன் (Employee Performance)
+            </div>
+
+            <div class="export-buttons">
+                <button class="export-btn back-btn" onclick="window.location.href='admin-dashboard.html'">
+                    <i class="fas fa-arrow-left"></i> திரும்பு (Back to Dashboard)
+                </button>
+                <button class="export-btn export-excel" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> Excel ஏற்றுமதி (Export Excel)
+                </button>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>தரவு ஏற்றுகிறது... (Loading data...)</p>
+            </div>
+
+            <div id="employeeGrid" class="employee-grid"></div>
+
+            <div id="detailsSection" style="display: none;">
+                <div class="section-title">
+                    <i class="fas fa-list"></i> பதிவு செய்யப்பட்ட உறுப்பினர்கள் (Registered Members)
+                </div>
+                <table class="members-table" id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>பெயர் (Name)</th>
+                            <th>தந்தை பெயர் (Father Name)</th>
+                            <th>மொபைல் (Mobile)</th>
+                            <th>வாக்காளர் ஐடி (Voter ID)</th>
+                            <th>நிலை (Status)</th>
+                            <th>தேதி (Date)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script>
+        let supabase;
+        let employeesData = [];
+        let membersData = [];
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Check admin authentication
+            const adminUser = sessionStorage.getItem('tvk_admin_user');
+            if (!adminUser) {
+                alert('நீங்கள் நிர்வாகி அல்ல. அணுகல் மறுக்கப்பட்டது (You are not an admin)');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            try {
+                supabase = await getSupabaseClient();
+                console.log('Supabase initialized');
+                await loadEmployeeData();
+            } catch (error) {
+                console.error('Init error:', error);
+                alert('Error initializing: ' + error.message);
+            }
+        });
+
+        async function loadEmployeeData() {
+            const loading = document.getElementById('loading');
+            if (loading) loading.style.display = 'block';
+
+            try {
+                // Get date filters
+                const fromDateEl = document.getElementById('fromDate');
+                const toDateEl = document.getElementById('toDate');
+                const employeeFilterEl = document.getElementById('employeeFilter');
+                
+                const fromDate = fromDateEl ? fromDateEl.value : '';
+                const toDate = toDateEl ? toDateEl.value : '';
+                const employeeFilter = employeeFilterEl ? employeeFilterEl.value : '';
+
+                // Fetch all employees
+                const { data: employees, error: empError } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .order('full_name');
+
+                if (empError) throw empError;
+
+                // Fetch all members with employee info
+                let membersQuery = supabase
+                    .from('bla_members')
+                    .select('*, registered_by_employee_id');
+
+                if (fromDate) {
+                    membersQuery = membersQuery.gte('created_at', fromDate + 'T00:00:00');
+                }
+                if (toDate) {
+                    membersQuery = membersQuery.lte('created_at', toDate + 'T23:59:59');
+                }
+
+                const { data: members, error: memError } = await membersQuery;
+
+                if (memError) throw memError;
+
+                employeesData = employees || [];
+                membersData = members || [];
+
+                // Calculate statistics
+                const stats = calculateStats(employeesData, membersData);
+                updateStats(stats);
+
+                // Populate employee filter
+                populateEmployeeFilter(employeesData);
+
+                // Display employee cards
+                displayEmployeeCards(employeesData, membersData, employeeFilter);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading employee data: ' + error.message);
+            } finally {
+                if (loading) loading.style.display = 'none';
+            }
+        }
+
+        function calculateStats(employees, members) {
+            const activeEmployees = employees.filter(e => e.status === 'active').length;
+            const totalMembers = members.length;
+            const avgPerEmployee = employees.length > 0 ? (totalMembers / employees.length).toFixed(1) : 0;
+
+            return {
+                totalEmployees: employees.length,
+                activeEmployees,
+                totalMembers,
+                avgPerEmployee
+            };
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalEmployees').textContent = stats.totalEmployees;
+            document.getElementById('activeEmployees').textContent = stats.activeEmployees;
+            document.getElementById('totalMembers').textContent = stats.totalMembers;
+            document.getElementById('avgPerEmployee').textContent = stats.avgPerEmployee;
+        }
+
+        function populateEmployeeFilter(employees) {
+            const filter = document.getElementById('employeeFilter');
+            filter.innerHTML = '<option value="">அனைத்தும் (All)</option>';
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = `${emp.full_name} (${emp.employee_id || 'N/A'})`;
+                filter.appendChild(option);
+            });
+        }
+
+        function displayEmployeeCards(employees, members, filterEmployeeId) {
+            const grid = document.getElementById('employeeGrid');
+            grid.innerHTML = '';
+
+            // Filter employees if needed
+            let displayEmployees = employees;
+            if (filterEmployeeId) {
+                displayEmployees = employees.filter(e => e.id === filterEmployeeId);
+            }
+
+            displayEmployees.forEach(employee => {
+                const empMembers = members.filter(m => m.registered_by_employee_id === employee.id);
+                const activeMembers = empMembers.filter(m => m.status === 'active').length;
+                const todayMembers = empMembers.filter(m => {
+                    const created = new Date(m.created_at);
+                    const today = new Date();
+                    return created.toDateString() === today.toDateString();
+                }).length;
+
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+                card.onclick = () => showEmployeeDetails(employee, empMembers);
+                
+                const initials = employee.full_name ? employee.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'EMP';
+
+                card.innerHTML = `
+                    <div class="employee-header">
+                        <div class="employee-avatar">${initials}</div>
+                        <div class="employee-info">
+                            <h3>${employee.full_name || 'Unknown'}</h3>
+                            <div class="employee-id">${employee.employee_id || 'N/A'} | ${employee.email || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="employee-stats">
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${empMembers.length}</div>
+                            <div class="employee-stat-label">மொத்தம் (Total)</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${activeMembers}</div>
+                            <div class="employee-stat-label">செயலில் (Active)</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${todayMembers}</div>
+                            <div class="employee-stat-label">இன்று (Today)</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="employee-stat-number">${empMembers.length > 0 ? new Date(empMembers[empMembers.length - 1].created_at).toLocaleDateString('ta-IN') : 'N/A'}</div>
+                            <div class="employee-stat-label">கடைசி (Last)</div>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function showEmployeeDetails(employee, members) {
+            const detailsSection = document.getElementById('detailsSection');
+            const tableBody = document.getElementById('membersTableBody');
+
+            tableBody.innerHTML = '';
+            members.forEach((member, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member.full_name || '-'}</td>
+                    <td>${member.father_name || '-'}</td>
+                    <td>${member.mobile || '-'}</td>
+                    <td>${member.voter_id || '-'}</td>
+                    <td><span class="status-badge status-${member.status || 'pending'}">${member.status || 'pending'}</span></td>
+                    <td>${member.created_at ? new Date(member.created_at).toLocaleString('ta-IN') : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            detailsSection.style.display = 'block';
+            detailsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function exportToExcel() {
+            const exportData = [];
+
+            employeesData.forEach(employee => {
+                const empMembers = membersData.filter(m => m.registered_by_employee_id === employee.id);
+                
+                exportData.push({
+                    'Employee ID': employee.employee_id || 'N/A',
+                    'Employee Name': employee.full_name || 'Unknown',
+                    'Email': employee.email || 'N/A',
+                    'Mobile': employee.mobile || 'N/A',
+                    'Total Members Registered': empMembers.length,
+                    'Active Members': empMembers.filter(m => m.status === 'active').length,
+                    'Pending Members': empMembers.filter(m => m.status === 'pending').length,
+                    'Status': employee.status || 'unknown'
+                });
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(exportData);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 15 }, { wch: 25 }, { wch: 30 }, { wch: 15 },
+                { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 10 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Employee Performance');
+            XLSX.writeFile(wb, `Employee_Performance_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+            alert('Excel வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது! (Excel downloaded successfully!)');
+        }
+    </script>
+</body>
+</html>

@@ -530,7 +530,8 @@ async function handleFormSubmission(e) {
             ward_circle: formData.ward, // Ward/Circle/Uraatchi information
             member_category: formData.memberCategories.join(', ') || null,
             photo_url: photoUrl,
-            district: formData.area,
+            town: formData.area, // Changed from 'district' to 'town'
+            address: null, // Address not collected in form
             pincode: '600000', // Default pincode for Madhavaram
             gender: formData.gender,
             occupation: 'Not specified', // Default

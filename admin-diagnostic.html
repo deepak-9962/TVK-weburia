@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Diagnostic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #DC143C; }
+        h2 { color: #333; margin-top: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+        }
+        button {
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #B01030; }
+        .log-entry {
+            padding: 5px;
+            margin: 5px 0;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Admin Dashboard Diagnostic</h1>
+    
+    <div class="diagnostic-box">
+        <h2>1. Session Storage Check</h2>
+        <div id="sessionCheck"></div>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>2. Supabase Configuration Check</h2>
+        <div id="supabaseCheck"></div>
+        <button onclick="testSupabase()">Test Supabase Connection</button>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>3. Admin User Data</h2>
+        <div id="userData"></div>
+    </div>
+
+    <div class="diagnostic-box">
+        <h2>4. Console Logs</h2>
+        <div id="consoleLogs"></div>
+    </div>
+
+    <div class="diagnostic-box">
+        <button onclick="tryAdminDashboard()">Try Opening Admin Dashboard</button>
+        <button onclick="clearSession()">Clear Session</button>
+        <button onclick="goToLogin()">Go to Login</button>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        const logs = [];
+        
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            logs.push({ type: 'log', message: args.join(' '), time: new Date().toLocaleTimeString() });
+            updateConsoleLogs();
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            logs.push({ type: 'error', message: args.join(' '), time: new Date().toLocaleTimeString() });
+            updateConsoleLogs();
+            originalError.apply(console, args);
+        };
+
+        function updateConsoleLogs() {
+            const container = document.getElementById('consoleLogs');
+            container.innerHTML = logs.map(log => 
+                `<div class="log-entry" style="border-left-color: ${log.type === 'error' ? '#dc3545' : '#28a745'}">
+                    <small>${log.time}</small> [${log.type.toUpperCase()}]: ${log.message}
+                </div>`
+            ).join('');
+        }
+
+        // 1. Check Session Storage
+        function checkSession() {
+            const sessionCheck = document.getElementById('sessionCheck');
+            const adminUser = sessionStorage.getItem('tvk_admin_user');
+            
+            if (!adminUser) {
+                sessionCheck.innerHTML = `
+                    <div class="status error">
+                        ❌ No admin session found in sessionStorage
+                        <br><small>Key: 'tvk_admin_user' is empty or missing</small>
+                    </div>
+                `;
+                return false;
+            }
+
+            try {
+                const user = JSON.parse(adminUser);
+                sessionCheck.innerHTML = `
+                    <div class="status success">
+                        ✅ Admin session found!
+                    </div>
+                    <pre>${JSON.stringify(user, null, 2)}</pre>
+                    <div class="status ${user.is_admin ? 'success' : 'error'}">
+                        ${user.is_admin ? '✅' : '❌'} is_admin: ${user.is_admin}
+                    </div>
+                `;
+                
+                // Check user data
+                const userData = document.getElementById('userData');
+                userData.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Username:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${user.username || 'N/A'}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Full Name:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${user.full_name || 'N/A'}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Email:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${user.email || 'N/A'}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Role:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${user.role || 'N/A'}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Is Admin:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><strong>${user.is_admin}</strong></td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Login Time:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${user.login_time || 'N/A'}</td></tr>
+                    </table>
+                `;
+                
+                return true;
+            } catch (e) {
+                sessionCheck.innerHTML = `
+                    <div class="status error">
+                        ❌ Error parsing session data: ${e.message}
+                    </div>
+                    <pre>${adminUser}</pre>
+                `;
+                return false;
+            }
+        }
+
+        // 2. Check Supabase
+        async function testSupabase() {
+            const supabaseCheck = document.getElementById('supabaseCheck');
+            supabaseCheck.innerHTML = '<div class="status info">⏳ Testing Supabase connection...</div>';
+            
+            try {
+                console.log('Starting Supabase test...');
+                
+                // Check if env.local.json exists
+                try {
+                    const envResponse = await fetch('env.local.json');
+                    if (envResponse.ok) {
+                        const envData = await envResponse.json();
+                        supabaseCheck.innerHTML += `
+                            <div class="status success">
+                                ✅ env.local.json found
+                            </div>
+                            <pre>${JSON.stringify(envData, null, 2)}</pre>
+                        `;
+                    }
+                } catch (envError) {
+                    supabaseCheck.innerHTML += `
+                        <div class="status error">
+                            ❌ env.local.json not found: ${envError.message}
+                        </div>
+                    `;
+                }
+
+                // Try to initialize Supabase
+                console.log('Initializing Supabase...');
+                const supabase = await getSupabaseClient();
+                
+                supabaseCheck.innerHTML += `
+                    <div class="status success">
+                        ✅ Supabase client initialized successfully!
+                    </div>
+                `;
+                
+                // Try a test query
+                console.log('Testing query...');
+                const { count, error } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (error) {
+                    supabaseCheck.innerHTML += `
+                        <div class="status error">
+                            ❌ Query error: ${error.message}
+                        </div>
+                    `;
+                } else {
+                    supabaseCheck.innerHTML += `
+                        <div class="status success">
+                            ✅ Test query successful! Found ${count} members.
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                supabaseCheck.innerHTML += `
+                    <div class="status error">
+                        ❌ Supabase error: ${error.message}
+                    </div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+
+        // Helper functions
+        function tryAdminDashboard() {
+            if (checkSession()) {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                alert('Cannot open dashboard - no valid session found. Please login first.');
+            }
+        }
+
+        function clearSession() {
+            sessionStorage.removeItem('tvk_admin_user');
+            alert('Session cleared!');
+            checkSession();
+        }
+
+        function goToLogin() {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Run checks on load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Diagnostic page loaded');
+            checkSession();
+        });
+    </script>
+</body>
+</html>

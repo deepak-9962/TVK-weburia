@@ -190,8 +190,8 @@ async function authenticateEmployee(username, password) {
         const { data: employees, error } = await client
             .from('employees')
             .select('*')
-            .eq('username', username)
-            .eq('is_active', true)
+            .eq('email', username)
+            .eq('status', 'active')
             .limit(1);
         
         if (error) {
@@ -206,8 +206,8 @@ async function authenticateEmployee(username, password) {
                 const { data: retryEmployees, error: retryError } = await client
                     .from('employees')
                     .select('*')
-                    .eq('username', username)
-                    .eq('is_active', true)
+                    .eq('email', username)
+                    .eq('status', 'active')
                     .limit(1);
                 
                 if (retryError) {
@@ -220,9 +220,9 @@ async function authenticateEmployee(username, password) {
                 }
                 
                 const employee = retryEmployees[0];
-                console.log('Found employee after retry:', employee.username);
+                console.log('Found employee after retry:', employee.email);
                 
-                if (employee.password_hash === password || await verifyPassword(password, employee.password_hash)) {
+                if (employee.password === password) {
                     return employee;
                 }
                 
@@ -244,13 +244,13 @@ async function authenticateEmployee(username, password) {
                 const { data: retryEmployees, error: retryError } = await client
                     .from('employees')
                     .select('*')
-                    .eq('username', username)
-                    .eq('is_active', true)
+                    .eq('email', username)
+                    .eq('status', 'active')
                     .limit(1);
                 
                 if (!retryError && retryEmployees && retryEmployees.length > 0) {
                     const employee = retryEmployees[0];
-                    if (employee.password_hash === password || await verifyPassword(password, employee.password_hash)) {
+                    if (employee.password === password) {
                         return employee;
                     }
                 }
@@ -260,11 +260,10 @@ async function authenticateEmployee(username, password) {
         }
         
         const employee = employees[0];
-        console.log('Found employee:', employee.username);
+        console.log('Found employee:', employee.email);
         
-        // For demo purposes, we'll use simple password comparison
-        // In production, use proper password hashing (bcrypt)
-        if (employee.password_hash === password || await verifyPassword(password, employee.password_hash)) {
+        // Simple password comparison (plain text passwords in setup-employees.sql)
+        if (employee.password === password) {
             return employee;
         }
         

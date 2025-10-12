@@ -59,8 +59,12 @@
         .logo-img {
             width: 100px;
             height: 100px;
-            margin-bottom: 15px;
+            margin: 0 auto 15px auto;
             filter: drop-shadow(0 4px 8px rgba(220, 20, 60, 0.3));
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--tvk-accent);
+            display: block;
         }
 
         .login-title {
@@ -76,6 +80,7 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 14px;
+            font-weight: 700;
         }
 
         .admin-badge {
@@ -254,14 +259,15 @@
 <body>
     <div class="login-container">
         <div class="logo-container">
-            <img src="images/tvk-logo.svg" alt="TVK Logo" class="logo-img">
+            <img src="images/mad-anna-removebg.png" alt="TVK Leader" class="logo-img">
             <div class="admin-badge">
                 <i class="fas fa-shield-alt"></i> நிர்வாக உள்நுழைவு
             </div>
         </div>
 
-        <h1 class="login-title">நிர்வாக பேனல்</h1>
-        <p class="login-subtitle">Admin Panel Access</p>
+        <h1 class="login-title">உறுப்பினர் சேர்க்கை அணி</h1>
+        <p class="login-subtitle">திருவள்ளூர் தென்மேற்கு மாவட்டம்</p>
+        <p class="login-subtitle" style="margin-top: -20px;">மாதவரம் தொகுதி</p>
 
         <div id="errorMessage" class="error-message"></div>
 
@@ -323,6 +329,7 @@
 
     <script src="supabase-config.js"></script>
     <script>
+        // Admin Login Script - Version 2.0 - Updated for admins table
         // Initialize Supabase - will be loaded from supabase-config.js
         let supabase;
 
@@ -421,76 +428,32 @@
             try {
                 console.log('Login attempt for username:', username);
 
-                // First try to find user by username only
-                const { data: employees, error: fetchError } = await supabase
-                    .from('employees')
+                // Query admins table for username and password match
+                const { data: admin, error: fetchError } = await supabase
+                    .from('admins')
                     .select('*')
                     .eq('username', username)
-                    .eq('is_active', true);
+                    .eq('password', password)
+                    .eq('status', 'active')
+                    .single();
 
-                if (fetchError) {
-                    console.error('Fetch error:', fetchError);
+                if (fetchError || !admin) {
+                    console.error('Login error:', fetchError);
                     showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
                     setLoading(false);
                     return;
                 }
 
-                if (!employees || employees.length === 0) {
-                    showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
-                    setLoading(false);
-                    return;
-                }
-
-                const employee = employees[0];
-                console.log('Employee found:', employee.username);
-
-                // Check password - support both plain text and hashed
-                let passwordMatch = false;
-                
-                // Check if password is stored as plain text
-                if (employee.password_hash === password) {
-                    passwordMatch = true;
-                    console.log('Plain text password match');
-                } else {
-                    // Try SHA-256 hash
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(password);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                    
-                    if (employee.password_hash === passwordHash) {
-                        passwordMatch = true;
-                        console.log('Hashed password match');
-                    }
-                }
-
-                if (!passwordMatch) {
-                    console.log('Password mismatch. Expected:', employee.password_hash, 'Got:', password);
-                    showError('தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid username or password)');
-                    setLoading(false);
-                    return;
-                }
-
-                console.log('Password matched successfully!');
-                console.log('Login successful for:', employee.username);
-
-                // Check if user is admin
-                console.log('Checking admin status. is_admin:', employee.is_admin);
-                if (!employee.is_admin) {
-                    showError('நீங்கள் நிர்வாகி அல்ல. இந்தப் பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை (You are not an admin. Access denied)');
-                    setLoading(false);
-                    return;
-                }
-
-                console.log('Admin check passed. Storing session...');
+                console.log('Admin login successful:', admin.username);
                 
                 // Store admin session
                 const sessionData = {
-                    id: employee.id,
-                    username: employee.username,
-                    full_name: employee.full_name,
-                    is_admin: employee.is_admin,
+                    id: admin.id,
+                    username: admin.username,
+                    full_name: admin.full_name,
+                    email: admin.email,
+                    role: admin.role,
+                    is_admin: true,
                     login_time: new Date().toISOString()
                 };
                 

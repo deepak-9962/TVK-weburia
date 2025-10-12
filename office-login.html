@@ -44,9 +44,9 @@
         }
 
         .login-header .logo {
-            width: 80px;
-            height: 80px;
-            background: var(--tvk-primary);
+            width: 100px;
+            height: 100px;
+            background: white;
             border-radius: 50%;
             margin: 0 auto 20px;
             display: flex;
@@ -54,6 +54,15 @@
             justify-content: center;
             color: white;
             font-size: 2rem;
+            overflow: hidden;
+            border: 3px solid var(--tvk-secondary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .login-header .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .login-header h1 {
@@ -67,6 +76,7 @@
             color: #666;
             font-size: 1rem;
             margin-bottom: 20px;
+            font-weight: 700;
         }
 
         .form-group {
@@ -94,6 +104,7 @@
             font-family: 'Noto Sans Tamil', sans-serif;
             transition: all 0.3s ease;
             background: #fafafa;
+            box-sizing: border-box;
         }
 
         .form-group input:focus {
@@ -139,6 +150,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            box-sizing: border-box;
         }
 
         .btn-primary {
@@ -278,10 +290,11 @@
     <div class="login-container">
         <div class="login-header">
             <div class="logo">
-                <i class="fas fa-users"></i>
+                <img src="images/mad-anna-removebg.png" alt="TVK Leader">
             </div>
-            <h1>BLA அலுவலக உள்நுழைவு</h1>
-            <p>TVK அலுவலக செயல்பாடுகளுக்கான பணியாளர் அங்கீகாரம்</p>
+            <h1>உறுப்பினர் சேர்க்கை அணி</h1>
+            <p>திருவள்ளூர் தென்மேற்கு மாவட்டம்</p>
+            <p style="margin-top: -10px; font-weight: 700;">மாதவரம் தொகுதி</p>
         </div>
 
         <div class="security-info">

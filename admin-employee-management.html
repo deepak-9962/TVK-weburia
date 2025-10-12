@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - TVK Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #DC143C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8B0000;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #DC143C;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #fee;
+            color: #DC143C;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #DC143C;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .employees-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .employees-table th {
+            background: #DC143C;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .employees-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .employees-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.3s;
+        }
+
+        .icon-btn.edit {
+            color: #007bff;
+        }
+
+        .icon-btn.delete {
+            color: #dc3545;
+        }
+
+        .icon-btn.view {
+            color: #28a745;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 48px;
+            color: #DC143C;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .password-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .password-info strong {
+            display: block;
+            color: #0066cc;
+            margin-bottom: 8px;
+        }
+
+        .password-info code {
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #DC143C;
+            display: inline-block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-users-cog"></i>
+                ஊழியர் மேலாண்மை (Employee Management)
+            </h1>
+            <p>Add, Edit, and Manage Employee Accounts</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> முக்கிய குறிப்பு (Important Note)</h3>
+                <ol>
+                    <li>Employees must be created in <strong>Supabase Authentication</strong> first</li>
+                    <li>Go to: Supabase Dashboard → Authentication → Users → Add User</li>
+                    <li>Enter email and password for each employee</li>
+                    <li>Then click "Add New Employee" here to create employee record</li>
+                    <li>Use suggested password format: <code>TVK@2025!EmpXXX</code></li>
+                </ol>
+            </div>
+
+            <div id="alertBox" class="alert"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-user-plus"></i> புதிய ஊழியர் சேர் (Add New Employee)
+                </button>
+                <button class="btn btn-success" onclick="loadEmployees()">
+                    <i class="fas fa-sync-alt"></i> புதுப்பிக்க (Refresh)
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
+                    <i class="fas fa-arrow-left"></i> திரும்பு (Back)
+                </button>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>ஊழியர்களை ஏற்றுகிறது... (Loading employees...)</p>
+            </div>
+
+            <table class="employees-table" id="employeesTable">
+                <thead>
+                    <tr>
+                        <th>ஊழியர் ஐடி (Employee ID)</th>
+                        <th>முழு பெயர் (Full Name)</th>
+                        <th>மின்னஞ்சல் (Email)</th>
+                        <th>மொபைல் (Mobile)</th>
+                        <th>நிலை (Status)</th>
+                        <th>பங்கு (Role)</th>
+                        <th>செயல்கள் (Actions)</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            தரவு இல்லை (No employees found)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">புதிய ஊழியர் சேர்</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+
+            <form id="employeeForm" onsubmit="saveEmployee(event)">
+                <input type="hidden" id="employeeIdHidden">
+
+                <div class="form-group">
+                    <label for="employeeId">
+                        <i class="fas fa-id-badge"></i> ஊழியர் ஐடி (Employee ID) *
+                    </label>
+                    <input type="text" id="employeeId" required placeholder="EMP001, EMP002, etc.">
+                    <small>Format: EMP001, EMP002, EMP003...</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">
+                        <i class="fas fa-user"></i> முழு பெயர் (Full Name) *
+                    </label>
+                    <input type="text" id="fullName" required placeholder="Rajesh Kumar">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> மின்னஞ்சல் (Email) *
+                    </label>
+                    <input type="email" id="email" required placeholder="emp001@tvk.com">
+                    <small>This email must match the Supabase Auth user</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobile">
+                        <i class="fas fa-phone"></i> மொபைல் (Mobile)
+                    </label>
+                    <input type="tel" id="mobile" placeholder="9876543210" pattern="[0-9]{10}">
+                </div>
+
+                <div class="form-group">
+                    <label for="role">
+                        <i class="fas fa-user-tag"></i> பங்கு (Role)
+                    </label>
+                    <select id="role">
+                        <option value="data_entry">Data Entry</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">
+                        <i class="fas fa-toggle-on"></i> நிலை (Status)
+                    </label>
+                    <select id="status">
+                        <option value="active">Active (செயலில்)</option>
+                        <option value="inactive">Inactive (செயலற்ற)</option>
+                    </select>
+                </div>
+
+                <div class="password-info">
+                    <strong><i class="fas fa-key"></i> Password Information:</strong>
+                    <p>Remember to set the password in Supabase Auth when creating the user.</p>
+                    <p>Suggested format: <code>TVK@2025!Emp001</code></p>
+                    <p>Where 001 matches the Employee ID number</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-save"></i> சேமிக்க (Save Employee)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        let supabase;
+        let currentEmployeeId = null;
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Check admin auth
+            const adminUser = sessionStorage.getItem('tvk_admin_user');
+            if (!adminUser) {
+                alert('நீங்கள் நிர்வாகி அல்ல (You are not an admin)');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            try {
+                supabase = await getSupabaseClient();
+                console.log('Supabase initialized');
+                await loadEmployees();
+            } catch (error) {
+                console.error('Init error:', error);
+                showAlert('Error initializing: ' + error.message, 'error');
+            }
+        });
+
+        async function loadEmployees() {
+            const loading = document.getElementById('loading');
+            const tbody = document.getElementById('employeesTableBody');
+            
+            loading.style.display = 'block';
+            tbody.innerHTML = '';
+
+            try {
+                const { data: employees, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!employees || employees.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #999;">தரவு இல்லை (No employees found)</td></tr>';
+                    return;
+                }
+
+                employees.forEach(emp => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${emp.employee_id || 'N/A'}</strong></td>
+                        <td>${emp.full_name || 'Unknown'}</td>
+                        <td>${emp.email || 'N/A'}</td>
+                        <td>${emp.mobile || 'N/A'}</td>
+                        <td><span class="status-badge status-${emp.status || 'active'}">${emp.status || 'active'}</span></td>
+                        <td>${emp.role || 'data_entry'}</td>
+                        <td>
+                            <div class="action-icons">
+                                <button class="icon-btn edit" onclick="editEmployee('${emp.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="icon-btn delete" onclick="deleteEmployee('${emp.id}', '${emp.full_name}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="icon-btn view" onclick="viewEmployeePerformance('${emp.id}')" title="View Performance">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                showAlert('Error loading employees: ' + error.message, 'error');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #dc3545;">பிழை ஏற்பட்டது (Error occurred)</td></tr>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function openAddModal() {
+            currentEmployeeId = null;
+            document.getElementById('modalTitle').textContent = 'புதிய ஊழியர் சேர் (Add New Employee)';
+            document.getElementById('employeeForm').reset();
+            document.getElementById('employeeIdHidden').value = '';
+            document.getElementById('employeeModal').classList.add('active');
+        }
+
+        async function editEmployee(id) {
+            try {
+                const { data: employee, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                currentEmployeeId = id;
+                document.getElementById('modalTitle').textContent = 'ஊழியரை திருத்து (Edit Employee)';
+                document.getElementById('employeeIdHidden').value = id;
+                document.getElementById('employeeId').value = employee.employee_id || '';
+                document.getElementById('fullName').value = employee.full_name || '';
+                document.getElementById('email').value = employee.email || '';
+                document.getElementById('mobile').value = employee.mobile || '';
+                document.getElementById('role').value = employee.role || 'data_entry';
+                document.getElementById('status').value = employee.status || 'active';
+                document.getElementById('employeeModal').classList.add('active');
+
+            } catch (error) {
+                console.error('Error loading employee:', error);
+                showAlert('Error loading employee details: ' + error.message, 'error');
+            }
+        }
+
+        async function saveEmployee(event) {
+            event.preventDefault();
+
+            const employeeData = {
+                employee_id: document.getElementById('employeeId').value.trim(),
+                full_name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim().toLowerCase(),
+                mobile: document.getElementById('mobile').value.trim(),
+                role: document.getElementById('role').value,
+                status: document.getElementById('status').value,
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                if (currentEmployeeId) {
+                    // Update existing employee
+                    const { error } = await supabase
+                        .from('employees')
+                        .update(employeeData)
+                        .eq('id', currentEmployeeId);
+
+                    if (error) throw error;
+                    showAlert('ஊழியர் வெற்றிகரமாக புதுப்பிக்கப்பட்டது (Employee updated successfully)', 'success');
+                } else {
+                    // Add new employee
+                    const { error } = await supabase
+                        .from('employees')
+                        .insert([employeeData]);
+
+                    if (error) throw error;
+                    showAlert('ஊழியர் வெற்றிகரமாக சேர்க்கப்பட்டது (Employee added successfully)', 'success');
+                }
+
+                closeModal();
+                await loadEmployees();
+
+            } catch (error) {
+                console.error('Error saving employee:', error);
+                showAlert('Error saving employee: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteEmployee(id, name) {
+            if (!confirm(`நீங்கள் "${name}" ஐ நீக்க விரும்புகிறீர்களா?\n\nAre you sure you want to delete "${name}"?`)) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('employees')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showAlert('ஊழியர் வெற்றிகரமாக நீக்கப்பட்டது (Employee deleted successfully)', 'success');
+                await loadEmployees();
+
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+                showAlert('Error deleting employee: ' + error.message, 'error');
+            }
+        }
+
+        function viewEmployeePerformance(id) {
+            window.location.href = `admin-employee-report.html?employee=${id}`;
+        }
+
+        function closeModal() {
+            document.getElementById('employeeModal').classList.remove('active');
+            document.getElementById('employeeForm').reset();
+            currentEmployeeId = null;
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} active`;
+            
+            setTimeout(() => {
+                alertBox.classList.remove('active');
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('employeeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

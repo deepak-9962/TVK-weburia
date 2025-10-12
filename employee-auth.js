@@ -77,34 +77,46 @@ if (document.getElementById('employeeLoginForm')) {
             setLoading(true);
             console.log('Attempting employee login for:', email);
 
-            // Sign in with Supabase Auth
+            // Get Supabase client
             const supabase = await getSupabaseClient();
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            // Query employees table directly for email and password match
+            const { data: employee, error } = await supabase
+                .from('employees')
+                .select('*')
+                .eq('email', email.toLowerCase())
+                .eq('password', password)
+                .eq('status', 'active')
+                .single();
 
-            if (error) {
+            if (error || !employee) {
                 console.error('Login error:', error);
                 showError('தவறான மின்னஞ்சல் அல்லது கடவுச்சொல் (Invalid email or password)');
                 setLoading(false);
                 return;
             }
 
-            if (!data.user) {
-                showError('உள்நுழைவு தோல்வியடைந்தது (Login failed)');
-                setLoading(false);
-                return;
-            }
+            console.log('Employee login successful:', employee.employee_id);
 
-            console.log('Login successful:', data.user.email);
+            console.log('Employee login successful:', employee.employee_id);
 
-            // Store user session
+            // Store employee session
             sessionStorage.setItem('tvk_employee_session', JSON.stringify({
-                user_id: data.user.id,
-                email: data.user.email,
+                employeeId: employee.id,
+                employee_id: employee.employee_id,
+                email: employee.email,
+                full_name: employee.full_name,
+                role: employee.role,
                 login_time: new Date().toISOString()
+            }));
+
+            // Also store for BLA office entry compatibility
+            sessionStorage.setItem('bla_employee_session', JSON.stringify({
+                employeeId: employee.id,
+                id: employee.id,
+                employee_id: employee.employee_id,
+                email: employee.email,
+                full_name: employee.full_name
             }));
 
             // Redirect to employee dashboard
@@ -138,12 +150,13 @@ if (document.getElementById('employeeLoginForm')) {
         if (employeeSession) {
             try {
                 const session = JSON.parse(employeeSession);
-                if (session.user_id) {
+                if (session.employeeId || session.employee_id) {
                     // Already logged in, redirect to dashboard
                     window.location.href = 'employee-dashboard.html';
                 }
             } catch (e) {
                 sessionStorage.removeItem('tvk_employee_session');
+                sessionStorage.removeItem('bla_employee_session');
             }
         }
     });

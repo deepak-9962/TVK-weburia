@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>நிர்வாக டாஷ்போர்டு - TVK Admin Dashboard</title>
+    <title>உறுப்பினர் சேர்க்கை அணி - TVK Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -59,7 +59,7 @@
         .header-title {
             color: white;
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .admin-badge {
@@ -134,10 +134,53 @@
             font-size: 16px;
         }
 
+        /* Live Dashboard Header */
+        .live-dashboard-header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ff0000, #ff4444);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .live-indicator i {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .last-update {
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -151,6 +194,19 @@
             align-items: center;
             gap: 20px;
             transition: all 0.3s;
+        }
+
+        .stat-card.total-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card.total-card .stat-content h3 {
+            color: white;
+        }
+
+        .stat-card.total-card .stat-content p {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .stat-card:hover {
@@ -169,6 +225,10 @@
             color: white;
         }
 
+        .stat-icon.total {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .stat-icon.members {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
@@ -185,6 +245,10 @@
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
+        .stat-content {
+            flex: 1;
+        }
+
         .stat-content h3 {
             color: #333;
             font-size: 32px;
@@ -192,9 +256,164 @@
             margin-bottom: 5px;
         }
 
+        .stat-number {
+            font-size: 48px !important;
+            font-weight: 800 !important;
+        }
+
         .stat-content p {
             color: #666;
             font-size: 14px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .stat-change.neutral {
+            color: #6b7280;
+            background: rgba(107, 114, 128, 0.1);
+        }
+
+        /* Union Stats Grid */
+        .union-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .union-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border-left: 5px solid transparent;
+        }
+
+        .union-card:nth-child(1) {
+            border-left-color: #3b82f6;
+        }
+
+        .union-card:nth-child(2) {
+            border-left-color: #8b5cf6;
+        }
+
+        .union-card:nth-child(3) {
+            border-left-color: #ec4899;
+        }
+
+        .union-card:nth-child(4) {
+            border-left-color: #f59e0b;
+        }
+
+        .union-card:nth-child(5) {
+            border-left-color: #10b981;
+        }
+
+        .union-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .union-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .union-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .union-card:nth-child(1) .union-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .union-card:nth-child(2) .union-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .union-card:nth-child(3) .union-icon {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .union-card:nth-child(4) .union-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .union-card:nth-child(5) .union-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .union-name h4 {
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .union-name p {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .union-stats {
+            text-align: center;
+        }
+
+        .union-count {
+            margin-bottom: 10px;
+        }
+
+        .count-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .union-percentage {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .union-percentage span {
+            font-weight: 700;
+            font-size: 16px;
+            color: #3b82f6;
+        }
+
+        /* Additional Stats Grid */
+        .additional-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         /* Action Cards */
@@ -510,7 +729,441 @@
             box-shadow: 0 4px 15px rgba(33, 115, 70, 0.3);
         }
 
+        /* PDF Export Modal */
+        .pdf-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pdf-modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pdf-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pdf-modal-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .pdf-modal-header h2 {
+            color: var(--tvk-primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .pdf-modal-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .pdf-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pdf-option-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .pdf-option-card:hover {
+            border-color: var(--tvk-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(220, 20, 60, 0.15);
+        }
+
+        .pdf-option-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .pdf-option-card.with-images .pdf-option-icon {
+            color: var(--tvk-primary);
+        }
+
+        .pdf-option-card.data-only .pdf-option-icon {
+            color: #217346;
+        }
+
+        .pdf-option-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .pdf-option-card p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .pdf-modal-footer {
+            text-align: center;
+        }
+
+        .pdf-modal-close {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .pdf-modal-close:hover {
+            background: #ccc;
+        }
+
+        /* PDF Export Section */
+        .pdf-export-section {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 30px 0;
+            text-align: center;
+            border: 2px solid #ffccd5;
+        }
+
+        .pdf-export-section h2 {
+            color: var(--tvk-primary);
+            font-size: 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .pdf-export-section p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+
+        .pdf-export-btn {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pdf-export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 20, 60, 0.4);
+        }
+
+        .pdf-export-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Report Tabs */
+        .report-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .report-tab {
+            flex: 1;
+            padding: 15px 25px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #666;
+        }
+
+        .report-tab:hover {
+            border-color: var(--tvk-primary);
+            color: var(--tvk-primary);
+            transform: translateY(-2px);
+        }
+
+        .report-tab.active {
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            border-color: var(--tvk-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .report-tab i {
+            font-size: 20px;
+        }
+
+        /* Export Section Container */
+        .export-section-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            margin-bottom: 30px;
+        }
+
+        .filter-panel-title {
+            color: var(--tvk-primary);
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .filter-grid-advanced {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--tvk-primary);
+        }
+
+        .filter-summary i {
+            color: var(--tvk-primary);
+            font-size: 20px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .preview-header h3 {
+            color: var(--tvk-dark);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-count {
+            background: var(--tvk-primary);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .preview-table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-table thead {
+            background: linear-gradient(135deg, var(--tvk-primary), var(--tvk-accent));
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .preview-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .preview-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s;
+        }
+
+        .preview-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .preview-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .preview-table td {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-in-progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-resolved {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .priority-urgent {
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .priority-high {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-medium {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .priority-low {
+            background: #e7e7e7;
+            color: #383d41;
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding-top: 100px;
+            }
+
             .header-title {
                 font-size: 18px;
             }
@@ -519,12 +1172,67 @@
                 display: none;
             }
 
+            .live-dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
 
+            .union-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .additional-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .union-card {
+                padding: 20px;
+            }
+
+            .count-number {
+                font-size: 36px;
+            }
+
+            .stat-number {
+                font-size: 40px !important;
+            }
+
             .action-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .pdf-options {
+                grid-template-columns: 1fr;
+            }
+
+            .pdf-modal {
+                padding: 24px;
+            }
+
+            .report-tabs {
+                flex-direction: column;
+            }
+
+            .filter-grid-advanced {
+                grid-template-columns: 1fr;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .export-buttons .export-btn {
+                width: 100%;
+            }
+
+            .preview-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
         }
     </style>
@@ -535,7 +1243,7 @@
         <div class="header-left">
             <img src="images/tvk-logo.svg" alt="TVK Logo" class="logo-img">
             <div>
-                <div class="header-title">நிர்வாக டாஷ்போர்டு</div>
+                <div class="header-title">உறுப்பினர் சேர்க்கை அணி</div>
                 <div class="admin-badge">
                     <i class="fas fa-shield-alt"></i> Admin Panel
                 </div>
@@ -560,18 +1268,149 @@
             <p class="welcome-subtitle">BLA (பூத் முகவர்கள்) நிர்வாக பேனலுக்கு வரவேற்கிறோம். இங்கு அனைத்து அலுவலக செயல்பாடுகளையும் நிர்வகிக்கலாம்.</p>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Live Dashboard Header -->
+        <div class="live-dashboard-header">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i> நேரடி புள்ளிவிவரங்கள் (Live Statistics)
+                <span class="live-indicator">
+                    <i class="fas fa-circle"></i> LIVE
+                </span>
+            </h2>
+            <p class="last-update">கடைசி புதுப்பிப்பு: <span id="lastUpdate">--</span></p>
+        </div>
+
+        <!-- Main Stats Grid -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon members">
+            <div class="stat-card total-card">
+                <div class="stat-icon total">
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 id="totalMembers">0</h3>
-                    <p>மொத்த உறுப்பினர்கள்</p>
+                    <h3 id="totalMembers" class="stat-number">0</h3>
+                    <p>மொத்த உறுப்பினர்கள் (Total Members)</p>
+                    <div class="stat-change" id="totalChange"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Union-wise Stats -->
+        <h2 class="section-title">
+            <i class="fas fa-map-marked-alt"></i> ஒன்றிய வாரியாக உறுப்பினர்கள் (Union-wise Members)
+        </h2>
+        <div class="union-stats-grid">
+            <!-- Madhavaram Union -->
+            <div class="union-card">
+                <div class="union-header">
+                    <div class="union-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="union-name">
+                        <h4>மாதவரம் ஒன்றியம்</h4>
+                        <p>Madhavaram Union</p>
+                    </div>
+                </div>
+                <div class="union-stats">
+                    <div class="union-count">
+                        <h2 id="madhavaramCount" class="count-number">0</h2>
+                        <div class="stat-change" id="madhavaramChange"></div>
+                    </div>
+                    <div class="union-percentage">
+                        <span id="madhavaramPercent">0%</span> மொத்தத்தில்
+                    </div>
                 </div>
             </div>
 
+            <!-- Puzhal Union -->
+            <div class="union-card">
+                <div class="union-header">
+                    <div class="union-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="union-name">
+                        <h4>புழல் ஒன்றியம்</h4>
+                        <p>Puzhal Union</p>
+                    </div>
+                </div>
+                <div class="union-stats">
+                    <div class="union-count">
+                        <h2 id="puzhalCount" class="count-number">0</h2>
+                        <div class="stat-change" id="puzhalChange"></div>
+                    </div>
+                    <div class="union-percentage">
+                        <span id="puzhalPercent">0%</span> மொத்தத்தில்
+                    </div>
+                </div>
+            </div>
+
+            <!-- Villivakkam Union -->
+            <div class="union-card">
+                <div class="union-header">
+                    <div class="union-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="union-name">
+                        <h4>வில்லிவாக்கம் ஒன்றியம்</h4>
+                        <p>Villivakkam Union</p>
+                    </div>
+                </div>
+                <div class="union-stats">
+                    <div class="union-count">
+                        <h2 id="villivakkamCount" class="count-number">0</h2>
+                        <div class="stat-change" id="villivakkamChange"></div>
+                    </div>
+                    <div class="union-percentage">
+                        <span id="villivakkamPercent">0%</span> மொத்தத்தில்
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sholavaram Union -->
+            <div class="union-card">
+                <div class="union-header">
+                    <div class="union-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="union-name">
+                        <h4>சோழவரம் ஒன்றியம்</h4>
+                        <p>Sholavaram Union</p>
+                    </div>
+                </div>
+                <div class="union-stats">
+                    <div class="union-count">
+                        <h2 id="sholavaramCount" class="count-number">0</h2>
+                        <div class="stat-change" id="sholavaramChange"></div>
+                    </div>
+                    <div class="union-percentage">
+                        <span id="sholavaramPercent">0%</span> மொத்தத்தில்
+                    </div>
+                </div>
+            </div>
+
+            <!-- Senguntram Town -->
+            <div class="union-card">
+                <div class="union-header">
+                    <div class="union-icon">
+                        <i class="fas fa-city"></i>
+                    </div>
+                    <div class="union-name">
+                        <h4>செங்குன்றம் நகரம்</h4>
+                        <p>Senguntram Town</p>
+                    </div>
+                </div>
+                <div class="union-stats">
+                    <div class="union-count">
+                        <h2 id="senguntramCount" class="count-number">0</h2>
+                        <div class="stat-change" id="senguntramChange"></div>
+                    </div>
+                    <div class="union-percentage">
+                        <span id="senguntramPercent">0%</span> மொத்தத்தில்
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="additional-stats-grid">
             <div class="stat-card">
                 <div class="stat-icon activities">
                     <i class="fas fa-clipboard-list"></i>
@@ -642,6 +1481,42 @@
                 </div>
             </div>
 
+            <!-- Employee Performance Report -->
+            <div class="action-card" onclick="window.location.href='admin-employee-report.html'">
+                <div class="action-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="action-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div class="action-title">ஊழியர் செயல்திறன்</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        ஊழியர்களின் செயல்திறனை பார்க்கவும். ஒவ்வொரு ஊழியரும் சேர்த்த உறுப்பினர்களின் எண்ணிக்கை மற்றும் விவரங்கள்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> அறிக்கை பார்க்க
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Management -->
+            <div class="action-card" onclick="window.location.href='admin-employee-management.html'">
+                <div class="action-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="action-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="action-title">ஊழியர் மேலாண்மை</div>
+                </div>
+                <div class="action-body">
+                    <p class="action-description">
+                        ஊழியர் கணக்குகளை சேர், திருத்த, நீக்க. ஊழியர் விவரங்களை மேலாண்மை செய்யவும்.
+                    </p>
+                    <button class="action-btn">
+                        <i class="fas fa-arrow-right"></i> மேலாண்மை
+                    </button>
+                </div>
+            </div>
+
             <!-- Member List -->
             <div class="action-card" onclick="alert('இந்த அம்சம் விரைவில் வரும் (Coming soon)')">
                 <div class="action-header tertiary">
@@ -670,7 +1545,7 @@
                 </div>
                 <div class="action-body">
                     <p class="action-description">
-                        மாவட்டம், தொகுதி மற்றும் செயல்பாடுகள் வாரியாக விரிவான அறிக்கைகளை உருவாக்கவும்.
+                        நகரம், தொகுதி மற்றும் செயல்பாடுகள் வாரியாக விரிவான அறிக்கைகளை உருவாக்கவும்.
                     </p>
                     <button class="action-btn">
                         <i class="fas fa-arrow-right"></i> அறிக்கைகளை காண
@@ -727,16 +1602,22 @@
             </div>
         </div>
     </div>
+</div>
+    </div>
 
     <script src="supabase-config.js"></script>
-    <!-- jsPDF and jsPDF-AutoTable for PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- SheetJS for Excel export -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script>
-        // Initialize Supabase - will be loaded from supabase-config.js
-        let supabase;
+        // Global variables - must be declared before use
+        let previousStats = {
+            total: 0,
+            madhavaram: 0,
+            puzhal: 0,
+            villivakkam: 0,
+            sholavaram: 0,
+            senguntram: 0
+        };
+
+        let refreshInterval;
 
         // Check authentication and initialize on page load
         window.addEventListener('DOMContentLoaded', async function() {
@@ -749,33 +1630,56 @@
 
             try {
                 const user = JSON.parse(adminUser);
+                console.log('Parsed admin user:', user);
                 
                 // Verify admin status
                 if (!user.is_admin) {
+                    console.error('User is not admin:', user);
                     sessionStorage.removeItem('tvk_admin_user');
                     alert('நீங்கள் நிர்வாகி அல்ல. அணுகல் மறுக்கப்பட்டது (You are not an admin. Access denied)');
                     window.location.href = 'admin-login.html';
                     return;
                 }
                 
+                console.log('Admin status verified, initializing Supabase...');
+                
                 // Initialize Supabase client
                 supabase = await getSupabaseClient();
                 console.log('Supabase client initialized successfully');
 
                 // Update UI with user info
-                document.getElementById('userName').textContent = user.full_name || user.username;
-                document.getElementById('welcomeName').textContent = user.full_name || user.username;
+                const userNameEl = document.getElementById('userName');
+                const welcomeNameEl = document.getElementById('welcomeName');
+                if (userNameEl) userNameEl.textContent = user.full_name || user.username;
+                if (welcomeNameEl) welcomeNameEl.textContent = user.full_name || user.username;
 
-                // Load statistics
-                await loadStatistics();
+                console.log('Loading statistics...');
+                
+                // Load statistics with error handling
+                try {
+                    await loadStatistics();
+                    console.log('Statistics loaded successfully');
+                } catch (statsError) {
+                    console.error('Error loading statistics (non-fatal):', statsError);
+                    // Don't logout for stats errors
+                }
 
-                // Load districts for export filter
-                await loadExportFilters();
+                // Start auto-refresh for real-time updates
+                try {
+                    startAutoRefresh();
+                    console.log('Live statistics auto-refresh started (every 10 seconds)');
+                } catch (refreshError) {
+                    console.error('Error starting auto-refresh (non-fatal):', refreshError);
+                    // Don't logout for refresh errors
+                }
 
             } catch (e) {
-                console.error('Session error:', e);
-                sessionStorage.removeItem('tvk_admin_user');
-                window.location.href = 'admin-login.html';
+                console.error('Critical session error:', e);
+                console.error('Error stack:', e.stack);
+                alert('Error initializing dashboard: ' + e.message + '. Check console for details.');
+                // Don't auto-logout on errors - let admin see what's wrong
+                // sessionStorage.removeItem('tvk_admin_user');
+                // window.location.href = 'admin-login.html';
             }
         });
 
@@ -796,8 +1700,12 @@
                     .select('*', { count: 'exact', head: true });
 
                 if (!membersError && membersCount !== null) {
-                    document.getElementById('totalMembers').textContent = membersCount;
+                    updateStatWithAnimation('totalMembers', membersCount, previousStats.total);
+                    previousStats.total = membersCount;
                 }
+
+                // Get union-wise counts
+                await loadUnionStats(membersCount || 0);
 
                 // Get total activities
                 const { count: activitiesCount, error: activitiesError } = await supabase
@@ -805,7 +1713,8 @@
                     .select('*', { count: 'exact', head: true });
 
                 if (!activitiesError && activitiesCount !== null) {
-                    document.getElementById('totalActivities').textContent = activitiesCount;
+                    const activitiesEl = document.getElementById('totalActivities');
+                    if (activitiesEl) activitiesEl.textContent = activitiesCount;
                 }
 
                 // Get total complaints
@@ -814,7 +1723,8 @@
                     .select('*', { count: 'exact', head: true });
 
                 if (!complaintsError && complaintsCount !== null) {
-                    document.getElementById('totalComplaints').textContent = complaintsCount;
+                    const complaintsEl = document.getElementById('totalComplaints');
+                    if (complaintsEl) complaintsEl.textContent = complaintsCount;
                 }
 
                 // Get pending tasks
@@ -824,453 +1734,183 @@
                     .eq('status', 'pending');
 
                 if (!tasksError && tasksCount !== null) {
-                    document.getElementById('pendingTasks').textContent = tasksCount;
+                    const tasksEl = document.getElementById('pendingTasks');
+                    if (tasksEl) tasksEl.textContent = tasksCount;
                 }
+
+                // Update last update time
+                updateLastUpdateTime();
 
             } catch (error) {
                 console.error('Error loading statistics:', error);
             }
         }
 
-        // Refresh statistics every 30 seconds
-        setInterval(loadStatistics, 30000);
-
-        // Load export filters (districts from database)
-        async function loadExportFilters() {
+        // Load union-wise statistics
+        async function loadUnionStats(totalMembers) {
             try {
-                const { data: members, error } = await supabase
+                // Madhavaram Union
+                const { count: madhavaramCount } = await supabase
                     .from('bla_members')
-                    .select('district');
+                    .select('*', { count: 'exact', head: true })
+                    .or('town.ilike.%madhavaram%,town.ilike.%மாதவரம்%');
 
-                if (!error && members) {
-                    const districts = [...new Set(members.map(m => m.district).filter(Boolean))];
-                    const districtFilter = document.getElementById('exportDistrictFilter');
-                    
-                    districts.sort().forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district;
-                        option.textContent = district;
-                        districtFilter.appendChild(option);
-                    });
+                if (madhavaramCount !== null) {
+                    updateStatWithAnimation('madhavaramCount', madhavaramCount, previousStats.madhavaram);
+                    updatePercentage('madhavaramPercent', madhavaramCount, totalMembers);
+                    previousStats.madhavaram = madhavaramCount;
                 }
 
-                // Add event listeners to filters
-                document.getElementById('exportDistrictFilter').addEventListener('change', updateFilterCount);
-                document.getElementById('exportGenderFilter').addEventListener('change', updateFilterCount);
-                document.getElementById('exportCategoryFilter').addEventListener('change', updateFilterCount);
-                document.getElementById('exportStatusFilter').addEventListener('change', updateFilterCount);
+                // Puzhal Union
+                const { count: puzhalCount } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true })
+                    .or('town.ilike.%puzhal%,town.ilike.%புழல்%');
+
+                if (puzhalCount !== null) {
+                    updateStatWithAnimation('puzhalCount', puzhalCount, previousStats.puzhal);
+                    updatePercentage('puzhalPercent', puzhalCount, totalMembers);
+                    previousStats.puzhal = puzhalCount;
+                }
+
+                // Villivakkam Union
+                const { count: villivakkamCount } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true })
+                    .or('town.ilike.%villivakkam%,town.ilike.%வில்லிவாக்கம்%');
+
+                if (villivakkamCount !== null) {
+                    updateStatWithAnimation('villivakkamCount', villivakkamCount, previousStats.villivakkam);
+                    updatePercentage('villivakkamPercent', villivakkamCount, totalMembers);
+                    previousStats.villivakkam = villivakkamCount;
+                }
+
+                // Sholavaram Union
+                const { count: sholavaramCount } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true })
+                    .or('town.ilike.%sholavaram%,town.ilike.%சோழவரம்%');
+
+                if (sholavaramCount !== null) {
+                    updateStatWithAnimation('sholavaramCount', sholavaramCount, previousStats.sholavaram);
+                    updatePercentage('sholavaramPercent', sholavaramCount, totalMembers);
+                    previousStats.sholavaram = sholavaramCount;
+                }
+
+                // Senguntram Town
+                const { count: senguntramCount } = await supabase
+                    .from('bla_members')
+                    .select('*', { count: 'exact', head: true })
+                    .or('town.ilike.%senguntram%,town.ilike.%sengunram%,town.ilike.%செங்குன்றம்%');
+
+                if (senguntramCount !== null) {
+                    updateStatWithAnimation('senguntramCount', senguntramCount, previousStats.senguntram);
+                    updatePercentage('senguntramPercent', senguntramCount, totalMembers);
+                    previousStats.senguntram = senguntramCount;
+                }
 
             } catch (error) {
-                console.error('Error loading export filters:', error);
+                console.error('Error loading union stats:', error);
             }
         }
 
-        // Update filter count when filters change
-        async function updateFilterCount() {
-            try {
-                const districtFilter = document.getElementById('exportDistrictFilter').value;
-                const genderFilter = document.getElementById('exportGenderFilter').value;
-                const categoryFilter = document.getElementById('exportCategoryFilter').value;
-                const statusFilter = document.getElementById('exportStatusFilter').value;
+        // Update stat with animation and change indicator
+        function updateStatWithAnimation(elementId, newValue, oldValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
 
-                // Fetch all members
-                const { data: members, error } = await supabase
-                    .from('bla_members')
-                    .select('*');
+            // Animate number change
+            animateValue(element, parseInt(element.textContent) || 0, newValue, 800);
 
-                if (error) throw error;
-
-                // Apply filters
-                const filtered = members.filter(member => {
-                    const matchesDistrict = !districtFilter || member.district === districtFilter;
-                    const matchesGender = !genderFilter || member.gender === genderFilter;
-                    const matchesCategory = !categoryFilter || 
-                        (member.member_category && member.member_category.includes(categoryFilter));
-                    const matchesStatus = !statusFilter || member.status === statusFilter;
-
-                    return matchesDistrict && matchesGender && matchesCategory && matchesStatus;
-                });
-
-                const filterInfoSpan = document.getElementById('filterCount');
-                if (filtered.length === members.length) {
-                    filterInfoSpan.textContent = `அனைத்து உறுப்பினர்கள் தேர்ந்தெடுக்கப்பட்டுள்ளனர் (${members.length} உறுப்பினர்கள்)`;
+            // Show change indicator
+            const changeElement = document.getElementById(elementId.replace('Count', 'Change'));
+            if (changeElement && oldValue !== undefined) {
+                const diff = newValue - oldValue;
+                if (diff > 0) {
+                    changeElement.className = 'stat-change positive';
+                    changeElement.innerHTML = `<i class="fas fa-arrow-up"></i> +${diff}`;
+                    changeElement.style.display = 'inline-flex';
+                } else if (diff === 0) {
+                    changeElement.className = 'stat-change neutral';
+                    changeElement.innerHTML = '<i class="fas fa-minus"></i> 0';
+                    changeElement.style.display = 'inline-flex';
                 } else {
-                    filterInfoSpan.textContent = `${filtered.length} உறுப்பினர்கள் வடிகட்டப்பட்டனர் (மொத்தம்: ${members.length})`;
+                    changeElement.style.display = 'none';
                 }
-
-            } catch (error) {
-                console.error('Error updating filter count:', error);
             }
         }
 
-        // Get filtered members based on export filters
-        async function getFilteredMembers() {
-            const districtFilter = document.getElementById('exportDistrictFilter').value;
-            const genderFilter = document.getElementById('exportGenderFilter').value;
-            const categoryFilter = document.getElementById('exportCategoryFilter').value;
-            const statusFilter = document.getElementById('exportStatusFilter').value;
-
-            // Fetch all members
-            const { data: membersData, error: membersError } = await supabase
-                .from('bla_members')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (membersError) throw membersError;
-
-            // Fetch all employees
-            const { data: employeesData, error: employeesError } = await supabase
-                .from('employees')
-                .select('id, full_name, username');
-
-            if (employeesError) throw employeesError;
-
-            // Create employee lookup map
-            const employeeMap = {};
-            (employeesData || []).forEach(emp => {
-                employeeMap[emp.id] = emp;
-            });
-
-            // Attach employee data and filter
-            const allMembers = (membersData || []).map(member => ({
-                ...member,
-                registered_by: member.registered_by_employee_id ? employeeMap[member.registered_by_employee_id] : null
-            }));
-
-            // Apply filters
-            const filtered = allMembers.filter(member => {
-                const matchesDistrict = !districtFilter || member.district === districtFilter;
-                const matchesGender = !genderFilter || member.gender === genderFilter;
-                const matchesCategory = !categoryFilter || 
-                    (member.member_category && member.member_category.includes(categoryFilter));
-                const matchesStatus = !statusFilter || member.status === statusFilter;
-
-                return matchesDistrict && matchesGender && matchesCategory && matchesStatus;
-            });
-
-            return filtered;
+        // Animate number counting
+        function animateValue(element, start, end, duration) {
+            if (!element || start === end) return;
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    element.textContent = end;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 16);
         }
 
-        // Helper function to load image as base64
-        function loadImageAsBase64(url) {
-            return new Promise((resolve, reject) => {
-                if (!url) {
-                    resolve(null);
-                    return;
-                }
-
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
-                
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    try {
-                        const base64 = canvas.toDataURL('image/jpeg', 0.7);
-                        resolve(base64);
-                    } catch (e) {
-                        resolve(null);
-                    }
-                };
-                
-                img.onerror = function() {
-                    resolve(null);
-                };
-                
-                img.src = url;
-            });
+        // Update percentage
+        function updatePercentage(elementId, count, total) {
+            const element = document.getElementById(elementId);
+            if (!element || total === 0) return;
+            
+            const percentage = ((count / total) * 100).toFixed(1);
+            element.textContent = percentage + '%';
         }
 
-        // Export to PDF function with photos
-        async function exportToPDF() {
-            try {
-                const exportBtn = event.target;
-                exportBtn.disabled = true;
-                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது...';
-
-                // Get filtered members
-                const members = await getFilteredMembers();
-
-                if (!members || members.length === 0) {
-                    alert('தரவு இல்லை (No data to export with current filters)');
-                    exportBtn.disabled = false;
-                    exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
-                    return;
-                }
-
-                // Update button text to show progress
-                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> புகைப்படங்களை ஏற்றுகிறது...';
-
-                // Load all images
-                const membersWithImages = await Promise.all(
-                    members.map(async (member, index) => {
-                        exportBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது... ${index + 1}/${members.length}`;
-                        const imageData = await loadImageAsBase64(member.photo_url);
-                        return { ...member, imageData };
-                    })
-                );
-
-                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PDF உருவாக்குகிறது...';
-
-                // Initialize jsPDF
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4');
-
-                let pageNumber = 1;
-                const pageHeight = doc.internal.pageSize.height;
-                const pageWidth = doc.internal.pageSize.width;
-                const margin = 8;
-                const cardWidth = pageWidth - (margin * 2);
-                const cardHeight = 30; // Height for each horizontal card
-                const photoWidth = 28;
-                const photoHeight = 28;
-                let yPos = 10;
-                const cardsPerPage = 9;
-
-                // Add header on first page
-                function addHeader() {
-                    doc.setFontSize(14);
-                    doc.setTextColor(220, 20, 60);
-                    doc.text('BLA Members Photo Gallery - TVK', pageWidth / 2, 5, { align: 'center' });
-                    
-                    doc.setFontSize(7);
-                    doc.setTextColor(100);
-                    doc.text(`${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 3);
-                    doc.text(`${pageWidth - margin}`, pageWidth - margin, pageHeight - 3, { align: 'right' });
-                }
-
-                addHeader();
-
-                // Draw each member card (9 per page)
-                membersWithImages.forEach((member, index) => {
-                    // Check if we need a new page (9 cards per page)
-                    if (index > 0 && index % cardsPerPage === 0) {
-                        doc.addPage();
-                        pageNumber++;
-                        yPos = 10;
-                        addHeader();
-                    }
-
-                    // Alternate background colors
-                    if (index % 2 === 0) {
-                        doc.setFillColor(255, 235, 59); // Yellow
-                    } else {
-                        doc.setFillColor(245, 245, 245); // Light gray
-                    }
-                    doc.rect(margin, yPos, cardWidth, cardHeight, 'F');
-
-                    // Draw card border
-                    doc.setDrawColor(51, 51, 51);
-                    doc.setLineWidth(1);
-                    doc.rect(margin, yPos, cardWidth, cardHeight);
-
-                    // Photo container border
-                    doc.setLineWidth(1);
-                    doc.line(margin + photoWidth, yPos, margin + photoWidth, yPos + cardHeight);
-
-                    // Add photo or placeholder
-                    if (member.imageData) {
-                        try {
-                            doc.addImage(member.imageData, 'JPEG', margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2);
-                        } catch (e) {
-                            // Draw placeholder if image fails
-                            doc.setFillColor(230, 230, 230);
-                            doc.rect(margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2, 'F');
-                            doc.setFontSize(16);
-                            doc.setTextColor(150);
-                            doc.text('📷', margin + photoWidth/2, yPos + cardHeight/2, { align: 'center' });
-                        }
-                    } else {
-                        // Draw placeholder
-                        doc.setFillColor(230, 230, 230);
-                        doc.rect(margin + 1, yPos + 1, photoWidth - 2, photoHeight - 2, 'F');
-                        doc.setFontSize(16);
-                        doc.setTextColor(150);
-                        doc.text('📷', margin + photoWidth/2, yPos + cardHeight/2, { align: 'center' });
-                    }
-
-                    // Add voter ID overlay on photo
-                    if (member.voter_id) {
-                        doc.setFillColor(0, 0, 0);
-                        doc.rect(margin + 1, yPos + cardHeight - 7, photoWidth - 2, 6, 'F');
-                        doc.setFontSize(7);
-                        doc.setTextColor(255, 255, 255);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(member.voter_id, margin + photoWidth/2, yPos + cardHeight - 2.5, { align: 'center' });
-                    }
-
-                    // Add part number badge on photo
-                    if (member.part_number) {
-                        doc.setFillColor(51, 51, 51);
-                        doc.roundedRect(margin + 2, yPos + cardHeight - 9, 15, 4, 0.5, 0.5, 'F');
-                        doc.setFontSize(6);
-                        doc.setTextColor(255, 255, 255);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(`Part - ${member.part_number}`, margin + 9.5, yPos + cardHeight - 6.5, { align: 'center' });
-                    }
-
-                    // Add member details on right side
-                    const textX = margin + photoWidth + 3;
-                    let textY = yPos + 4;
-                    const maxTextWidth = cardWidth - photoWidth - 6;
-                    
-                    // Name (bold, red)
-                    doc.setFontSize(9);
-                    doc.setTextColor(220, 20, 60);
-                    doc.setFont(undefined, 'bold');
-                    const nameLines = doc.splitTextToSize(member.full_name || 'N/A', maxTextWidth);
-                    doc.text(nameLines[0], textX, textY);
-                    
-                    textY += 4;
-                    doc.setFontSize(7);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont(undefined, 'bold');
-                    
-                    // Details with labels and values (using English labels for PDF compatibility)
-                    const details = [
-                        { label: 'Father/Husband:', value: member.father_name || '' },
-                        { label: 'DOB:', value: member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('en-IN') : '' },
-                        { label: 'Address:', value: member.address || '' },
-                        { label: 'Mobile:', value: member.mobile || '' },
-                        { label: 'District:', value: member.district || '' }
-                    ];
-
-                    details.forEach(detail => {
-                        if (detail.value) {
-                            doc.setFont(undefined, 'bold');
-                            doc.text(detail.label, textX, textY);
-                            doc.setFont(undefined, 'normal');
-                            const valueX = textX + 25;
-                            const valueLines = doc.splitTextToSize(detail.value, maxTextWidth - 25);
-                            doc.text(valueLines[0], valueX, textY);
-                            textY += 3.5;
-                        }
-                    });
-
-                    // Registration date (blue)
-                    if (member.created_at) {
-                        doc.setFontSize(6.5);
-                        doc.setTextColor(13, 71, 161);
-                        doc.setFont(undefined, 'bold');
-                        doc.text('Registered:', textX, textY);
-                        doc.setFont(undefined, 'normal');
-                        const regDate = new Date(member.created_at).toLocaleDateString('en-IN') + ' ' + 
-                                       new Date(member.created_at).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
-                        doc.text(regDate, textX + 18, textY);
-                    }
-
-                    yPos += cardHeight + 1;
-                });
-
-                // Open PDF in new tab for preview
-                const pdfBlob = doc.output('blob');
-                const pdfUrl = URL.createObjectURL(pdfBlob);
-                window.open(pdfUrl, '_blank');
-
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
-
-            } catch (error) {
-                console.error('PDF Export Error:', error);
-                alert('PDF ஏற்றுமதியில் பிழை (Error exporting PDF): ' + error.message);
-                const exportBtn = event.target;
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="fas fa-download"></i> PDF பதிவிறக்கம்';
+        // Update last update time
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ta-IN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('ta-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+            
+            const lastUpdateElement = document.getElementById('lastUpdate');
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = `${dateString} ${timeString}`;
             }
         }
 
-        // Export to Excel function
-        async function exportToExcel() {
-            try {
-                const exportBtn = event.target;
-                exportBtn.disabled = true;
-                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ஏற்றுகிறது...';
+        // Auto-refresh statistics every 10 seconds
+        function startAutoRefresh() {
+            // Clear any existing interval
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            
+            // Refresh every 10 seconds
+            refreshInterval = setInterval(() => {
+                console.log('Auto-refreshing statistics...');
+                loadStatistics();
+            }, 10000); // 10 seconds
+        }
 
-                // Get filtered members
-                const members = await getFilteredMembers();
-
-                if (!members || members.length === 0) {
-                    alert('தரவு இல்லை (No data to export with current filters)');
-                    exportBtn.disabled = false;
-                    exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
-                    return;
-                }
-
-                // Prepare Excel data with all fields
-                const excelData = members.map((member, index) => ({
-                    'S.No': index + 1,
-                    'Membership ID': member.membership_number || member.id.substring(0, 8),
-                    'Full Name': member.full_name || '',
-                    'Father Name': member.father_name || '',
-                    'Gender': member.gender || '',
-                    'Date of Birth': member.date_of_birth || '',
-                    'Mobile': member.mobile || '',
-                    'Email': member.email || '',
-                    'Address': member.address || '',
-                    'District': member.district || '',
-                    'Assembly Constituency': member.assembly_constituency || '',
-                    'Voter ID': member.voter_id || '',
-                    'Aadhaar': member.aadhaar || '',
-                    'Member Category': member.member_category || '',
-                    'Education': member.education || '',
-                    'Occupation': member.occupation || '',
-                    'Blood Group': member.blood_group || '',
-                    'Registered By': member.registered_by ? (member.registered_by.full_name || member.registered_by.username) : '',
-                    'Status': member.status || 'pending',
-                    'Created At': member.created_at ? new Date(member.created_at).toLocaleString() : ''
-                }));
-
-                // Create workbook and worksheet
-                const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(excelData);
-
-                // Set column widths
-                const colWidths = [
-                    { wch: 6 },  // S.No
-                    { wch: 15 }, // Membership ID
-                    { wch: 25 }, // Full Name
-                    { wch: 25 }, // Father Name
-                    { wch: 10 }, // Gender
-                    { wch: 12 }, // DOB
-                    { wch: 15 }, // Mobile
-                    { wch: 25 }, // Email
-                    { wch: 35 }, // Address
-                    { wch: 20 }, // District
-                    { wch: 25 }, // Assembly
-                    { wch: 15 }, // Voter ID
-                    { wch: 15 }, // Aadhaar
-                    { wch: 20 }, // Category
-                    { wch: 15 }, // Education
-                    { wch: 20 }, // Occupation
-                    { wch: 12 }, // Blood Group
-                    { wch: 20 }, // Registered By
-                    { wch: 12 }, // Status
-                    { wch: 20 }  // Created At
-                ];
-                ws['!cols'] = colWidths;
-
-                // Add worksheet to workbook
-                XLSX.utils.book_append_sheet(wb, ws, 'BLA Members');
-
-                // Save Excel file
-                const fileName = `TVK_BLA_Members_${new Date().toISOString().split('T')[0]}.xlsx`;
-                XLSX.writeFile(wb, fileName);
-
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
-                alert('Excel வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது! (Excel downloaded successfully!)');
-
-            } catch (error) {
-                console.error('Excel Export Error:', error);
-                alert('Excel ஏற்றுமதியில் பிழை (Error exporting Excel): ' + error.message);
-                const exportBtn = event.target;
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="fas fa-download"></i> Excel பதிவிறக்கம்';
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
             }
         }
+
+        // Stop auto-refresh when user leaves the page
+        window.addEventListener('beforeunload', stopAutoRefresh);
+
     </script>
 </body>
 </html>

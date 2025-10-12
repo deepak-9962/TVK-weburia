@@ -33,7 +33,7 @@ CREATE TABLE public.bla_members (
     alt_mobile VARCHAR(15),
     email VARCHAR(255),
     address TEXT, -- Made nullable - not collected in current form
-    district VARCHAR(100) NOT NULL,
+    town VARCHAR(100) NOT NULL,
     pincode VARCHAR(10) NOT NULL,
     
     -- Political Information
@@ -380,7 +380,7 @@ CREATE TRIGGER trigger_update_employees_updated_at
 -- Sample BLA Member
 INSERT INTO public.bla_members (
     membership_number, full_name, father_name, date_of_birth, gender, 
-    occupation, education, mobile, email, address, district, pincode,
+    occupation, education, mobile, email, address, town, pincode,
     voter_id, constituency, previous_party, interests
 ) VALUES (
     'TVK2025001', 'முருகன் சௌந்தர்ராஜன்', 'சௌந்தர்ராஜன்', '1985-06-15', 'male',
