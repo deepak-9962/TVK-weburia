@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Logout & Clear Session</title>
+    <style>
+        body {
+            font-family: 'Noto Sans Tamil', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #DC143C 0%, #2C1810 100%);
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 {
+            color: #DC143C;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+        .session-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+        .big-button {
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 10px;
+            box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
+            transition: all 0.3s ease;
+        }
+        .big-button:hover {
+            background: #b00f2f;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 20, 60, 0.6);
+        }
+        .success {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            color: #155724;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            display: none;
+        }
+        .countdown {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #DC143C;
+            margin: 20px 0;
+        }
+        .step {
+            background: #e3f2fd;
+            border-left: 5px solid #2196F3;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 உறுப்பினர் சேர்க்கை அணி</h1>
+        <h2>Force Session Refresh</h2>
+
+        <div class="warning">
+            <strong>⚠️ உங்கள் பழைய session இன்னும் active ஆக உள்ளது!</strong><br><br>
+            Database-ல் சரியான UUID உள்ளது, ஆனால் உங்கள் browser-ல் பழைய data உள்ளது.
+        </div>
+
+        <div class="session-info" id="sessionInfo">
+            <strong>Current Session Data:</strong><br>
+            <div id="sessionContent">Loading...</div>
+        </div>
+
+        <button class="big-button" onclick="forceLogout()">
+            🚪 FORCE LOGOUT & CLEAR ALL DATA
+        </button>
+
+        <div id="success" class="success">
+            <h2>✅ Session Cleared Successfully!</h2>
+            <p>Redirecting to login in...</p>
+            <div class="countdown" id="countdown">3</div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: left;">
+            <h3>📋 What This Does:</h3>
+            <div class="step">
+                <strong>Step 1:</strong> Clears sessionStorage (removes EMP042 data)
+            </div>
+            <div class="step">
+                <strong>Step 2:</strong> Clears localStorage (removes any cached data)
+            </div>
+            <div class="step">
+                <strong>Step 3:</strong> Clears all cookies
+            </div>
+            <div class="step">
+                <strong>Step 4:</strong> Forces browser cache clear
+            </div>
+            <div class="step">
+                <strong>Step 5:</strong> Redirects to login page
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show current session on load
+        window.onload = function() {
+            showSession();
+        };
+
+        function showSession() {
+            const sessionContent = document.getElementById('sessionContent');
+            
+            const blaSession = sessionStorage.getItem('bla_employee_session');
+            const tvkSession = sessionStorage.getItem('tvk_employee_session');
+
+            let html = '';
+
+            if (blaSession) {
+                try {
+                    const data = JSON.parse(blaSession);
+                    html += '<strong>BLA Employee Session:</strong><br>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                    if (data.id) {
+                        if (uuidPattern.test(data.id)) {
+                            html += '<span style="color: green; font-weight: bold;">✅ ID is valid UUID</span><br>';
+                        } else {
+                            html += '<span style="color: red; font-weight: bold;">❌ ID is NOT a valid UUID: ' + data.id + '</span><br>';
+                            html += '<span style="color: orange; font-weight: bold;">⚠️ This is why registered_by_employee_id is NULL!</span><br>';
+                        }
+                    }
+                } catch (e) {
+                    html += 'Error parsing session<br>';
+                }
+            } else {
+                html += '<em style="color: green;">No session found - You are logged out ✅</em>';
+            }
+
+            sessionContent.innerHTML = html;
+        }
+
+        function forceLogout() {
+            console.log('🔥 FORCE LOGOUT INITIATED...');
+            
+            // Step 1: Clear all sessionStorage
+            console.log('Step 1: Clearing sessionStorage...');
+            sessionStorage.clear();
+            
+            // Step 2: Clear all localStorage
+            console.log('Step 2: Clearing localStorage...');
+            localStorage.clear();
+            
+            // Step 3: Clear all cookies
+            console.log('Step 3: Clearing cookies...');
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Step 4: Clear any Supabase auth tokens
+            console.log('Step 4: Clearing Supabase tokens...');
+            localStorage.removeItem('supabase.auth.token');
+            sessionStorage.removeItem('supabase.auth.token');
+            
+            // Step 5: Clear any other TVK related data
+            console.log('Step 5: Clearing TVK data...');
+            const allKeys = Object.keys(sessionStorage);
+            allKeys.forEach(key => {
+                if (key.toLowerCase().includes('tvk') || 
+                    key.toLowerCase().includes('bla') || 
+                    key.toLowerCase().includes('employee') ||
+                    key.toLowerCase().includes('admin')) {
+                    sessionStorage.removeItem(key);
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            console.log('✅ ALL DATA CLEARED!');
+            
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+            document.querySelector('.session-info').style.display = 'none';
+            document.querySelector('.big-button').style.display = 'none';
+            
+            // Countdown and redirect
+            let count = 3;
+            const countdownEl = document.getElementById('countdown');
+            const countdown = setInterval(() => {
+                count--;
+                countdownEl.textContent = count;
+                if (count <= 0) {
+                    clearInterval(countdown);
+                    // Force redirect with cache bust
+                    window.location.href = 'employee-login.html?t=' + Date.now();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

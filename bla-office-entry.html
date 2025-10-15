@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLA அலુவலக பதிவு படிவம் - TVK</title>
+    <title>BLA அலுவலக பதிவு படிவம் - TVK</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Cropper.js for image cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link rel="stylesheet" href="bla-styles.css">
     <style>
         :root {
@@ -211,6 +213,173 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* Upload Progress Bar */
+        .upload-progress {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+            border: 2px solid #e9ecef;
+        }
+
+        .upload-progress.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 35px;
+            background: #e9ecef;
+            border-radius: 17.5px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #DC143C 0%, #FFD700 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 4px rgba(220, 20, 60, 0.3);
+        }
+
+        .progress-bar-fill.complete {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #495057;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .progress-text i {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Photo Crop Modal */
+        .crop-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .crop-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .crop-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+        }
+
+        .crop-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .crop-header h3 {
+            color: var(--tvk-primary);
+            margin: 0 0 10px 0;
+        }
+
+        .crop-image-container {
+            max-width: 100%;
+            max-height: 60vh;
+            margin: 20px 0;
+        }
+
+        .crop-image-container img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .crop-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .crop-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans Tamil', sans-serif;
+        }
+
+        .crop-btn-primary {
+            background: var(--tvk-primary);
+            color: white;
+        }
+
+        .crop-btn-primary:hover {
+            background: #b00;
+        }
+
+        .crop-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .crop-btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .crop-container {
+                max-width: 95%;
+                padding: 15px;
+            }
+
+            .crop-image-container {
+                max-height: 50vh;
+            }
+
+            .crop-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
         .btn {
             padding: 15px 30px;
             border: none;
@@ -274,6 +443,8 @@
             font-weight: 600;
             text-align: center;
             display: none;
+            white-space: pre-line; /* Preserve line breaks */
+            line-height: 1.6; /* Better spacing for multi-line messages */
         }
 
         .status-message.success {
@@ -612,6 +783,19 @@
                 </div>
             </div>
 
+            <!-- Upload Progress Indicator -->
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressFill" style="width: 0%">
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+                <p class="progress-text" id="progressText">
+                    <i class="fas fa-upload"></i>
+                    <span>படம் பதிவேற்றப்படுகிறது...</span>
+                </p>
+            </div>
+
             <!-- Status Message -->
             <div id="statusMessage" class="status-message"></div>
 
@@ -629,6 +813,28 @@
         </form>
     </div>
 
+    <!-- Photo Crop Modal -->
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-container">
+            <div class="crop-header">
+                <h3><i class="fas fa-crop"></i> படத்தை வெட்டி எடுக்கவும்</h3>
+                <p style="color: #666;">உங்கள் புகைப்படத்தை சரிசெய்யவும்</p>
+            </div>
+            <div class="crop-image-container">
+                <img id="cropImage" alt="Crop preview">
+            </div>
+            <div class="crop-actions">
+                <button type="button" class="crop-btn crop-btn-secondary" onclick="cancelCrop()">
+                    <i class="fas fa-times"></i> ரத்து செய்
+                </button>
+                <button type="button" class="crop-btn crop-btn-primary" onclick="applyCrop()">
+                    <i class="fas fa-check"></i> பயன்படுத்து
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script src="supabase-config.js"></script>
     <script src="bla-office-entry.js"></script>
 </body>

@@ -16,6 +16,8 @@ async function getSupabaseClient() {
 // DOM elements
 let form, submitBtn, resetBtn, statusMessage;
 let voterNumberInput, partNumberInput, photoInput, photoPreview, photoUpload;
+let cropper = null;  // Cropper.js instance
+let croppedFile = null;  // Store cropped file for upload
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
@@ -403,50 +405,120 @@ function handlePhotoFile(file) {
         return;
     }
     
-    // Show loading state
-    const uploadContent = photoUpload.querySelector('.photo-upload-content');
-    uploadContent.innerHTML = `
-        <i class="fas fa-spinner fa-spin" style="color: #DC143C;"></i>
-        <p><strong>படம் ஏற்றப்படுகிறது...</strong></p>
-    `;
+    // Show photo crop modal
+    showCropModal(file);
+}
+
+// Show photo crop modal
+function showCropModal(file) {
+    const cropModal = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
     
-    // Create file reader for preview
+    // Read file and show in cropper
     const reader = new FileReader();
-    
     reader.onload = function(e) {
-        console.log('Photo loaded successfully');
-        photoPreview.src = e.target.result;
-        photoPreview.style.display = 'block';
+        // Show modal
+        cropModal.classList.add('active');
         
-        // Update upload area to show selected file
-        const fileSizeKB = (file.size / 1024).toFixed(2);
-        uploadContent.innerHTML = `
-            <i class="fas fa-check-circle" style="color: #28a745; font-size: 2rem;"></i>
-            <p><strong>படம் தேர்ந்தெடுக்கப்பட்டது ✓</strong></p>
-            <p style="font-size: 0.9rem;">${file.name}</p>
-            <p><small>${fileSizeKB} KB</small></p>
-            <p><small>மாற்ற மீண்டும் தொடவும்</small></p>
-        `;
+        // Set image source
+        cropImage.src = e.target.result;
         
-        showStatusMessage('✅ படம் வெற்றிகரமாக தேர்ந்தெடுக்கப்பட்டது', 'success');
-    };
-    
-    reader.onerror = function(error) {
-        console.error('Error reading file:', error);
-        uploadContent.innerHTML = `
-            <i class="fas fa-camera"></i>
-            <p><strong>புகைப்படத்தை பதிவேற்ற தொடவும்</strong></p>
-            <p class="desktop-only">அல்லது இங்கே இழுத்து விடவும்</p>
-            <p><small>PNG, JPG, JPEG வடிவங்கள் மட்டுமே (அதிகபட்சம் 5MB)</small></p>
-        `;
-        showStatusMessage('❌ படத்தை படிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்', 'error');
+        // Initialize Cropper.js
+        if (cropper) {
+            cropper.destroy();
+        }
+        
+        cropper = new Cropper(cropImage, {
+            aspectRatio: 3 / 4,  // Portrait ratio for ID photos
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+        });
     };
     
     reader.readAsDataURL(file);
+}
+
+// Cancel crop
+window.cancelCrop = function() {
+    const cropModal = document.getElementById('cropModal');
+    cropModal.classList.remove('active');
     
-    // Note: We don't manually set photoInput.files on mobile as it may cause issues
-    // The file is already in photoInput.files from the change event
-    console.log('Photo file processed, ready for upload');
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+    // Reset file input
+    photoInput.value = '';
+    croppedFile = null;
+}
+
+// Apply crop
+window.applyCrop = async function() {
+    if (!cropper) return;
+    
+    try {
+        // Show loading
+        showStatusMessage('📸 படம் செயலாக்கப்படுகிறது...', 'loading');
+        
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+            width: 800,
+            height: 1066,  // 3:4 ratio at 800px width
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+        
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+            // Create file from blob
+            const fileName = `cropped_${Date.now()}.jpg`;
+            croppedFile = new File([blob], fileName, { type: 'image/jpeg' });
+            
+            console.log('Photo cropped:', {
+                size: croppedFile.size,
+                type: croppedFile.type
+            });
+            
+            // Show preview
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            photoPreview.src = dataUrl;
+            photoPreview.style.display = 'block';
+            
+            // Update upload area
+            const uploadContent = photoUpload.querySelector('.photo-upload-content');
+            const fileSizeKB = (croppedFile.size / 1024).toFixed(2);
+            uploadContent.innerHTML = `
+                <i class="fas fa-check-circle" style="color: #28a745; font-size: 2rem;"></i>
+                <p><strong>படம் தயார் ✓</strong></p>
+                <p style="font-size: 0.9rem;">${fileSizeKB} KB</p>
+                <p><small>மாற்ற மீண்டும் தொடவும்</small></p>
+            `;
+            
+            // Close modal
+            const cropModal = document.getElementById('cropModal');
+            cropModal.classList.remove('active');
+            
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            showStatusMessage('✅ படம் தயார்!', 'success');
+        }, 'image/jpeg', 0.9);
+        
+    } catch (error) {
+        console.error('Error cropping photo:', error);
+        showStatusMessage('❌ படம் செயலாக்குவதில் பிழை', 'error');
+    }
 }
 
 // Setup input validation
@@ -471,6 +543,9 @@ function setupInputValidation() {
 // Handle form submission
 async function handleFormSubmission(e) {
     e.preventDefault();
+    e.stopPropagation(); // Also stop propagation to prevent any parent handlers
+    
+    console.log('=== FORM SUBMISSION START ===');
     
     try {
         // Show loading state
@@ -480,6 +555,9 @@ async function handleFormSubmission(e) {
         
         // Validate required fields
         if (!validateForm()) {
+            // Reset button on validation failure
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>சமர்ப்பிக்கவும்</span>';
             return;
         }
         
@@ -488,8 +566,28 @@ async function handleFormSubmission(e) {
         
         // Upload photo if selected
         let photoUrl = null;
-        if (photoInput.files.length > 0) {
-            photoUrl = await uploadPhoto(photoInput.files[0]);
+        try {
+            if (croppedFile) {
+                // Use cropped file
+                console.log('Uploading cropped photo...');
+                photoUrl = await uploadPhoto(croppedFile);
+            } else if (photoInput.files.length > 0) {
+                // Use original file if no crop
+                console.log('Uploading original photo...');
+                photoUrl = await uploadPhoto(photoInput.files[0]);
+            }
+        } catch (photoError) {
+            console.error('Photo upload failed:', photoError);
+            // Hide progress bar on photo upload error
+            const progressDiv = document.getElementById('uploadProgress');
+            if (progressDiv) progressDiv.classList.remove('active');
+            
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>சமர்ப்பிக்கவும்</span>';
+            
+            // Show error and stop submission
+            throw new Error('படம் பதிவேற்றுவதில் பிழை. மீண்டும் முயற்சிக்கவும்.');
         }
         
         // Generate membership number
@@ -502,16 +600,74 @@ async function handleFormSubmission(e) {
             let userSession = sessionStorage.getItem('bla_employee_session');
             if (userSession) {
                 const employee = JSON.parse(userSession);
-                registeredByEmployeeId = employee.employeeId || employee.id;
-                console.log('Registered by BLA employee ID:', registeredByEmployeeId);
+                // Try different possible ID field names
+                const possibleId = employee.id || employee.employeeId || employee.employee_id || employee.uuid;
+                
+                // Validate it's a UUID format (8-4-4-4-12 pattern)
+                const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                if (possibleId && uuidPattern.test(possibleId)) {
+                    registeredByEmployeeId = possibleId;
+                    console.log('✅ Registered by BLA employee ID:', registeredByEmployeeId);
+                } else {
+                    console.warn('⚠️ Employee ID is not a valid UUID:', possibleId);
+                    console.log('Employee object:', employee);
+                    
+                    // FALLBACK: Fetch correct UUID from database using email
+                    if (employee.email) {
+                        console.log('🔄 Attempting to fetch correct UUID from database using email:', employee.email);
+                        try {
+                            const { data: dbEmployee, error: dbError } = await supabaseClient
+                                .from('employees')
+                                .select('id')
+                                .eq('email', employee.email)
+                                .single();
+                            
+                            if (!dbError && dbEmployee && dbEmployee.id) {
+                                if (uuidPattern.test(dbEmployee.id)) {
+                                    registeredByEmployeeId = dbEmployee.id;
+                                    console.log('✅ Successfully fetched UUID from database:', registeredByEmployeeId);
+                                    
+                                    // Update session with correct UUID for future use
+                                    employee.id = dbEmployee.id;
+                                    employee.uuid = dbEmployee.id;
+                                    sessionStorage.setItem('bla_employee_session', JSON.stringify(employee));
+                                    console.log('✅ Updated session with correct UUID');
+                                } else {
+                                    console.error('❌ Database ID is also not a UUID:', dbEmployee.id);
+                                }
+                            } else {
+                                console.error('❌ Failed to fetch employee from database:', dbError);
+                            }
+                        } catch (fetchError) {
+                            console.error('❌ Error fetching UUID from database:', fetchError);
+                        }
+                    }
+                }
             } else {
                 // Fall back to admin session
                 const adminUser = sessionStorage.getItem('tvk_admin_user');
                 if (adminUser) {
                     const user = JSON.parse(adminUser);
-                    registeredByEmployeeId = user.id;
-                    console.log('Registered by admin ID:', registeredByEmployeeId);
+                    // Try different possible ID field names
+                    const possibleId = user.id || user.uuid || user.user_id;
+                    
+                    // Validate it's a UUID format
+                    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                    if (possibleId && uuidPattern.test(possibleId)) {
+                        registeredByEmployeeId = possibleId;
+                        console.log('✅ Registered by admin ID:', registeredByEmployeeId);
+                    } else {
+                        console.warn('⚠️ Admin ID is not a valid UUID:', possibleId);
+                        console.log('Admin user object:', user);
+                    }
                 }
+            }
+            
+            // If we still don't have a valid UUID, log it and continue without it
+            if (!registeredByEmployeeId) {
+                console.warn('⚠️ No valid employee/admin UUID found. Member will be registered without employee tracking.');
+            } else {
+                console.log('✅ Final employee UUID for tracking:', registeredByEmployeeId);
             }
         } catch (e) {
             console.warn('Could not get employee ID from session:', e);
@@ -536,21 +692,36 @@ async function handleFormSubmission(e) {
             gender: formData.gender,
             occupation: 'Not specified', // Default
             education: null,
-            status: 'active',
-            registered_by_employee_id: registeredByEmployeeId // Add employee ID who registered this member
+            status: 'active'
         };
+        
+        // Only add registered_by_employee_id if we have a valid UUID
+        if (registeredByEmployeeId) {
+            memberData.registered_by_employee_id = registeredByEmployeeId;
+            console.log('✅ Including employee ID in registration:', registeredByEmployeeId);
+        } else {
+            console.log('⚠️ No employee ID - member will be registered without tracking');
+        }
         
         // Check if voter ID already exists
         if (memberData.voter_id) {
+            console.log('🔍 Checking for duplicate voter ID:', memberData.voter_id);
             const { data: existing, error: checkError } = await supabaseClient
                 .from('bla_members')
-                .select('id')
+                .select('id, full_name, membership_number')
                 .eq('voter_id', memberData.voter_id)
-                .single();
+                .maybeSingle(); // Use maybeSingle() instead of single() to avoid error on no results
+            
+            if (checkError) {
+                console.error('Error checking voter ID:', checkError);
+                // Continue anyway if check fails
+            }
             
             if (existing) {
-                throw new Error('இந்த வாக்காளர் அடையாள எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது. வேறு எண்ணை பயன்படுத்தவும்.');
+                console.error('❌ Duplicate voter ID found:', existing);
+                throw new Error(`இந்த வாக்காளர் அடையாள எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.\n\nஇருக்கும் உறுப்பினர்:\n📋 பெயர்: ${existing.full_name}\n🎫 உறுப்பினர் எண்: ${existing.membership_number}\n\nவேறு வாக்காளர் எண்ணை பயன்படுத்தவும்.`);
             }
+            console.log('✅ Voter ID is unique, proceeding...');
         }
         
         // Insert into database
@@ -570,17 +741,17 @@ async function handleFormSubmission(e) {
         // Success
         showStatusMessage('✅ வெற்றிகரமாக பதிவு செய்யப்பட்டது! உங்கள் உறுப்பினர் எண்: ' + membershipNumber, 'success');
         
-        // Reset form after successful submission
+        // Redirect to voter-check page to fill a new form
         setTimeout(() => {
-            resetForm();
-        }, 3000);
+            window.location.href = 'voter-check.html';
+        }, 2000);
         
     } catch (error) {
         console.error('Error submitting form:', error);
-        showStatusMessage('❌ பதிவு செய்வதில் பிழை. மீண்டும் முயற்சிக்கவும்.', 'error');
+        const errorMessage = error.message || 'பதிவு செய்வதில் பிழை. மீண்டும் முயற்சிக்கவும்.';
+        showStatusMessage('❌ ' + errorMessage, 'error');
         
-    } finally {
-        // Reset submit button
+        // Reset submit button on error
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>சமர்ப்பிக்கவும்</span>';
     }
@@ -674,105 +845,102 @@ async function uploadPhoto(file) {
             name: file.name,
             size: file.size,
             type: file.type,
-            lastModified: new Date(file.lastModified)
+            lastModified: file.lastModified ? new Date(file.lastModified) : 'N/A'
         });
         
-        // Show upload progress message
-        showStatusMessage('📤 படம் பதிவேற்றப்படுகிறது...', 'loading');
+        // Get progress bar elements
+        const progressDiv = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressText = document.getElementById('progressText');
         
-        // Option 1: Upload to Supabase Storage (if bucket exists)
-        // First, try to upload to storage bucket
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const filePath = `member-photos/${fileName}`;
-            
-            console.log('Attempting upload to Supabase storage...');
-            console.log('Storage path:', filePath);
-            
-            const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                .from('tvk-storage')
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-            
-            if (uploadError) {
-                console.warn('Storage upload failed:', uploadError);
-                console.warn('Error details:', {
-                    message: uploadError.message,
-                    statusCode: uploadError.statusCode
-                });
-                throw uploadError;
+        // Show progress bar
+        progressDiv.classList.add('active');
+        progressFill.style.width = '0%';
+        progressPercent.textContent = '0%';
+        progressFill.classList.remove('complete');
+        progressText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>படம் செயலாக்கப்படுகிறது...</span>';
+        
+        // Simulate progress during processing (0-30%)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 5;
+            if (progress <= 30) {
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = progress + '%';
             }
-            
-            console.log('Storage upload successful:', uploadData);
-            
-            // Get public URL
-            const { data: urlData } = supabaseClient.storage
-                .from('tvk-storage')
-                .getPublicUrl(filePath);
-            
-            console.log('Public URL obtained:', urlData.publicUrl);
-            console.log('=== PHOTO UPLOAD SUCCESS (STORAGE) ===');
-            
-            showStatusMessage('✅ படம் வெற்றிகரமாக பதிவேற்றப்பட்டது', 'success');
-            return urlData.publicUrl;
-            
-        } catch (storageError) {
-            // Option 2: Fallback to base64 if storage fails
-            console.log('Storage failed, using base64 fallback');
-            console.log('Fallback reason:', storageError.message);
-            
-            showStatusMessage('⚠️ படம் base64 வடிவத்தில் சேமிக்கப்படுகிறது...', 'loading');
-            
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onloadstart = () => {
-                    console.log('Starting base64 conversion...');
-                };
-                
-                reader.onprogress = (e) => {
-                    if (e.lengthComputable) {
-                        const percentComplete = (e.loaded / e.total) * 100;
-                        console.log(`Base64 conversion progress: ${percentComplete.toFixed(2)}%`);
-                    }
-                };
-                
-                reader.onload = () => {
-                    const base64String = reader.result;
-                    console.log('Base64 conversion successful');
-                    console.log('Base64 string length:', base64String.length);
-                    console.log('=== PHOTO UPLOAD SUCCESS (BASE64) ===');
-                    
-                    showStatusMessage('✅ படம் சேமிக்கப்பட்டது (base64)', 'success');
-                    resolve(base64String);
-                };
-                
-                reader.onerror = (error) => {
-                    console.error('Base64 conversion error:', error);
-                    console.error('FileReader error:', reader.error);
-                    
-                    showStatusMessage('⚠️ படம் செயலாக்குவதில் பிழை. படம் இல்லாமல் தொடர்கிறது.', 'warning');
-                    
-                    // Don't reject, just return null to allow form submission without photo
-                    resolve(null);
-                };
-                
-                // Start reading the file
-                console.log('Starting FileReader.readAsDataURL...');
-                reader.readAsDataURL(file);
+        }, 100);
+        
+        showStatusMessage('📤 படம் செயலாக்கப்படுகிறது...', 'loading');
+        
+        // Upload to Supabase Storage (member-photos bucket)
+        const fileExt = file.type.split('/')[1] || 'jpg';
+        const fileName = `member_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `members/${fileName}`;
+        
+        console.log('Uploading to Supabase storage...');
+        console.log('Bucket: member-photos');
+        console.log('Path:', filePath);
+        
+        // Clear interval, set to uploading stage (40%)
+        clearInterval(progressInterval);
+        progressFill.style.width = '40%';
+        progressPercent.textContent = '40%';
+        progressText.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> <span>Supabase Storage இல் பதிவேற்றுகிறது...</span>';
+        
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+            .from('member-photos')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: file.type
             });
+        
+        if (uploadError) {
+            console.error('Storage upload failed:', uploadError);
+            progressDiv.classList.remove('active');
+            throw new Error(`படம் பதிவேற்றுவதில் பிழை: ${uploadError.message}`);
         }
+        
+        console.log('Storage upload successful:', uploadData);
+        
+        // Upload complete - 90%
+        progressFill.style.width = '90%';
+        progressPercent.textContent = '90%';
+        progressText.innerHTML = '<i class="fas fa-link"></i> <span>URL உருவாக்குகிறது...</span>';
+        
+        // Get public URL
+        const { data: urlData } = supabaseClient.storage
+            .from('member-photos')
+            .getPublicUrl(filePath);
+        
+        console.log('Public URL obtained:', urlData.publicUrl);
+        console.log('=== PHOTO UPLOAD SUCCESS (STORAGE) ===');
+        
+        // Complete - 100%
+        progressFill.style.width = '100%';
+        progressPercent.textContent = '100%';
+        progressFill.classList.add('complete');
+        progressText.innerHTML = '<i class="fas fa-check-circle"></i> <span>வெற்றி! படம் பதிவேற்றப்பட்டது ✓</span>';
+        
+        // Hide progress bar after 2 seconds
+        setTimeout(() => {
+            progressDiv.classList.remove('active');
+        }, 2000);
+        
+        showStatusMessage('✅ படம் வெற்றிகரமாக பதிவேற்றப்பட்டது!', 'success');
+        return urlData.publicUrl;
         
     } catch (error) {
         console.error('=== PHOTO UPLOAD FAILED ===');
-        console.error('Unexpected error:', error);
-        console.error('Error stack:', error.stack);
+        console.error('Error:', error);
         
-        showStatusMessage('⚠️ படம் செயலாக்குவதில் பிழை. படம் இல்லாமல் தொடர்கிறது.', 'warning');
-        return null;
+        // Hide progress bar on error
+        const progressDiv = document.getElementById('uploadProgress');
+        progressDiv.classList.remove('active');
+        
+        showStatusMessage('❌ படம் பதிவேற்றுவதில் பிழை: ' + error.message, 'error');
+        throw error;  // Don't allow form submission without photo if upload fails
     }
 }
 
@@ -829,7 +997,9 @@ function resetForm() {
 
 // Show status message
 function showStatusMessage(message, type) {
-    statusMessage.textContent = message;
+    // Convert \n to <br> for HTML display, but preserve text content security
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    statusMessage.innerHTML = formattedMessage; // Use innerHTML to support line breaks
     statusMessage.className = `status-message ${type}`;
     statusMessage.style.display = 'block';
     

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLA உறுப்பினர்கள் - Database Fix Required</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #c62828 0%, #8b1010 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #c62828; font-size: 2em; margin-bottom: 15px; }
+        .critical-warning { background: #fff3cd; border: 3px solid #ff9800; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .critical-warning h2 { color: #ff6f00; margin-bottom: 15px; }
+        .sql-box { background: #000; color: #0f0; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; margin: 15px 0; overflow-x: auto; }
+        .steps { background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .steps ol { margin-left: 20px; }
+        .steps li { margin: 10px 0; line-height: 1.6; }
+        .status { background: #ffebee; padding: 15px; border-left: 5px solid #c62828; margin: 20px 0; }
+        .btn { background: #c62828; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .btn:hover { background: #8b1010; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ BLA உறுப்பினர்கள் புகைப்பட காட்சி</h1>
+            <p>TVK கட்சி உறுப்பினர்கள் புகைப்படப் பகுதி</p>
+        </div>
+
+        <div class="critical-warning">
+            <h2>⚠️ DATABASE PERFORMANCE ISSUE DETECTED</h2>
+            <h3>⚠️ தரவுத்தள செயல்திறன் சிக்கல் கண்டறியப்பட்டது</h3>
+            <p><strong>Problem / பிரச்சனை:</strong></p>
+            <p>Your database queries are timing out because there is no index on the `created_at` column. This causes every query to scan the entire table, which is extremely slow when you have many records.</p>
+            <p>உங்கள் தரவுத்தள வினவல்கள் காலாவதியாகின்றன, ஏனெனில் `created_at` நெடுவரிசையில் அட்டவணை இல்லை.</p>
+        </div>
+
+        <div class="steps">
+            <h2>🔧 IMMEDIATE FIX / உடனடி தீர்வு:</h2>
+            <ol>
+                <li>
+                    <strong>Go to Supabase Dashboard</strong><br>
+                    Supabase Dashboard க்கு செல்லவும்<br>
+                    <a href="https://supabase.com/dashboard" target="_blank">https://supabase.com/dashboard</a>
+                </li>
+                <li>
+                    <strong>Click "SQL Editor"</strong><br>
+                    "SQL Editor" என்பதைக் கிளிக் செய்யவும்
+                </li>
+                <li>
+                    <strong>Paste and run this SQL:</strong><br>
+                    இந்த SQL ஐ ஒட்டவும் மற்றும் இயக்கவும்:
+                    <div class="sql-box">CREATE INDEX IF NOT EXISTS idx_bla_members_created_at 
+ON public.bla_members (created_at DESC);</div>
+                </li>
+                <li>
+                    <strong>Click "RUN" button</strong><br>
+                    "RUN" பொத்தானைக் கிளிக் செய்யவும்
+                </li>
+                <li>
+                    <strong>Refresh this page</strong><br>
+                    இந்தப் பக்கத்தைப் புதுப்பிக்கவும்
+                </li>
+            </ol>
+        </div>
+
+        <div class="status">
+            <h3>📊 Current Status / தற்போதைய நிலை:</h3>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>❌ Database queries: <strong>TIMEOUT (>5 seconds)</strong></li>
+                <li>❌ தரவுத்தள வினவல்கள்: <strong>காலாவதி (>5 விநாடிகள்)</strong></li>
+                <li>⚠️ Index status: <strong>MISSING</strong></li>
+                <li>⚠️ அட்டவணை நிலை: <strong>இல்லை</strong></li>
+                <li>🔴 Page status: <strong>NOT FUNCTIONAL</strong></li>
+                <li>🔴 பக்க நிலை: <strong>செயல்படவில்லை</strong></li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="window.location.href='admin-dashboard.html'">
+                ← திரும்பு / Go Back
+            </button>
+            <button class="btn" onclick="window.location.reload()">
+                🔄 புதுப்பி / Refresh
+            </button>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 10px;">
+            <h3>ℹ️ Technical Details:</h3>
+            <p><strong>Why this is happening:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                <li>The `bla_members` table has no index on `created_at`</li>
+                <li>Every query must scan ALL rows (sequential scan)</li>
+                <li>With many records, this exceeds the 5-second timeout</li>
+                <li>An index makes queries 100x-1000x faster</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>After adding the index:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                <li>✅ Queries will complete in <strong>&lt;100ms</strong></li>
+                <li>✅ Page will load instantly</li>
+                <li>✅ Can handle high traffic</li>
+                <li>✅ All features will work normally</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

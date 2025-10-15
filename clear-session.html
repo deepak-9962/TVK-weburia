@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Session & Logout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #DC143C 0%, #2C1810 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #DC143C;
+            margin-bottom: 20px;
+        }
+        .session-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #b00f2f;
+        }
+        .success {
+            background: #28a745;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: white;
+            display: none;
+        }
+        .info {
+            background: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Session Cleanup Tool</h1>
+        
+        <div class="info">
+            <strong>⚠️ Fix Employee UUID Tracking</strong><br>
+            This tool will clear your old session and redirect you to login again with the correct UUID data.
+        </div>
+
+        <div id="sessionInfo" class="session-info">
+            <strong>Current Session Data:</strong><br>
+            <div id="sessionContent">Loading...</div>
+        </div>
+
+        <button onclick="clearAndLogout()">🚪 Clear Session & Logout</button>
+        <button onclick="showSession()">🔍 Refresh Session Info</button>
+
+        <div id="success" class="success">
+            ✅ Session cleared successfully!<br>
+            Redirecting to login in <span id="countdown">3</span> seconds...
+        </div>
+    </div>
+
+    <script>
+        // Show current session on load
+        window.onload = function() {
+            showSession();
+        };
+
+        function showSession() {
+            const sessionContent = document.getElementById('sessionContent');
+            
+            // Get both sessions
+            const blaSession = sessionStorage.getItem('bla_employee_session');
+            const tvkSession = sessionStorage.getItem('tvk_employee_session');
+            const adminSession = sessionStorage.getItem('tvk_admin_user');
+
+            let html = '';
+
+            if (blaSession) {
+                try {
+                    const data = JSON.parse(blaSession);
+                    html += '<strong>BLA Employee Session:</strong><br>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    // Check if UUID is valid
+                    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                    if (data.id) {
+                        if (uuidPattern.test(data.id)) {
+                            html += '<span style="color: green;">✅ ID is valid UUID</span><br>';
+                        } else {
+                            html += '<span style="color: red;">❌ ID is NOT a valid UUID: ' + data.id + '</span><br>';
+                            html += '<span style="color: orange;">⚠️ You need to logout and login again!</span><br>';
+                        }
+                    }
+                    html += '<br>';
+                } catch (e) {
+                    html += 'Error parsing BLA session<br><br>';
+                }
+            } else {
+                html += '<em>No BLA employee session found</em><br><br>';
+            }
+
+            if (tvkSession) {
+                try {
+                    const data = JSON.parse(tvkSession);
+                    html += '<strong>TVK Employee Session:</strong><br>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre><br>';
+                } catch (e) {
+                    html += 'Error parsing TVK session<br><br>';
+                }
+            }
+
+            if (adminSession) {
+                try {
+                    const data = JSON.parse(adminSession);
+                    html += '<strong>Admin Session:</strong><br>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } catch (e) {
+                    html += 'Error parsing admin session<br>';
+                }
+            }
+
+            if (!blaSession && !tvkSession && !adminSession) {
+                html = '<em style="color: green;">✅ No active sessions - You\'re logged out</em>';
+            }
+
+            sessionContent.innerHTML = html;
+        }
+
+        function clearAndLogout() {
+            // Clear all session storage
+            sessionStorage.clear();
+            
+            // Also clear local storage (just in case)
+            localStorage.removeItem('supabase.auth.token');
+            
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+            
+            // Countdown and redirect
+            let count = 3;
+            const countdown = setInterval(() => {
+                count--;
+                document.getElementById('countdown').textContent = count;
+                if (count <= 0) {
+                    clearInterval(countdown);
+                    window.location.href = 'employee-login.html';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

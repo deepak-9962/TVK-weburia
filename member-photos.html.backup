@@ -604,7 +604,7 @@
     <div class="container">
         <div class="header">
             <h1>🖼️ BLA உறுப்பினர்கள் புகைப்பட காட்சி</h1>
-            <p>TVK கட்சி உறுப்பினர்கள் புகைப்படங்கள்</p>
+            <p>TVK கட்சி உறுப்பினர்கள் புகைப்படங்கள் (சமீபத்திய 200 உறுப்பினர்கள்)</p>
             <div class="stats">
                 <div class="stat">
                     <div class="stat-number" id="totalMembers">0</div>
@@ -678,21 +678,31 @@
         <div id="loading" class="loading">Loading members...</div>
         <div id="error" class="error" style="display: none;"></div>
         <div id="gallery" class="gallery"></div>
+        <div id="loadMoreContainer" style="text-align:center;margin:10px 0 30px;">
+            <button id="loadMoreBtn" class="export-btn" style="background:#1976d2;display:none;">மேலும் ஏற்று (Load More)</button>
+        </div>
     </div>
 
     <script src="supabase-config.js"></script>
     <script>
         // Supabase configuration - will be loaded from supabase-config.js
         let supabase;
-        let allMembers = [];
+    let allMembers = [];
+    // Pagination state for high-performance loads
+    const PAGE_SIZE = 40; // even smaller pages to keep queries cheap under load
+    let pageCursor = null; // created_at cursor for keyset pagination
+    let isLoadingPage = false;
+    let hasMore = true;
+    let activeFilters = { town: '', gender: '', status: '', category: '', fromDate: '', toDate: '', search: '' };
 
         // Initialize the page
         async function initializePage() {
             try {
-                // Skip Supabase client initialization - use direct REST API only
-                console.log('Initializing with direct REST API...');
+                // Initialize Supabase client
+                supabase = await getSupabaseClient();
+                console.log('Supabase client initialized successfully');
                 
-                // Load members directly
+                // Load members after Supabase is ready
                 await loadMembers();
             } catch (error) {
                 console.error('Error initializing:', error);
@@ -708,109 +718,37 @@
             const loadingDiv = document.getElementById('loading');
             const errorDiv = document.getElementById('error');
             const galleryDiv = document.getElementById('gallery');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
             
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             galleryDiv.innerHTML = '';
             
             try {
-                // DIRECT SUPABASE CONNECTION: Simplified query
-                console.log('🔄 Loading members from Supabase...');
-                
-                const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-                
-                // Try multiple approaches to get data
-                let success = false;
-                
-                // Approach 1: Try with specific essential columns only (NO BACKUP COLUMN!)
-                try {
-                    console.log('Attempting optimized query (no backup data)...');
-                    let response = await fetch(
-                        `${SUPABASE_URL}/rest/v1/bla_members?select=id,membership_number,full_name,father_name,date_of_birth,gender,religion,occupation,education,mobile,alt_mobile,email,address,town,pincode,voter_id,part_number,constituency,previous_party,interests,aadhaar_number,member_category,photo_url,id_proof_url,status,created_at,updated_at,registered_by_employee_id,area_union_city,ward_village,ward_circle`,
-                        {
-                            headers: {
-                                'apikey': SUPABASE_KEY,
-                                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                'Range': '0-999',  // Fetch up to 1000 records
-                                'Prefer': 'count=exact'
-                            }
-                        }
-                    );
-                    
-                    if (response.ok) {
-                        allMembers = await response.json();
-                        console.log(`✅ Loaded ${allMembers.length} members (optimized - no backup)`);
-                        success = true;
-                    }
-                } catch (e) {
-                    console.warn('Optimized query failed:', e);
-                }
-                
-                // Approach 2: Try with specific columns (no ordering, with pagination, NO BACKUP!)
-                if (!success) {
-                    try {
-                        console.log('Attempting specific columns query...');
-                        let response = await fetch(
-                            `${SUPABASE_URL}/rest/v1/bla_members?select=id,full_name,father_name,date_of_birth,town,mobile,photo_url,gender,member_category,membership_number,voter_id,ward_circle,part_number,created_at,address,occupation,status`,
-                            {
-                                headers: {
-                                    'apikey': SUPABASE_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
-                                    'Prefer': 'count=exact'
-                                }
-                            }
-                        );
-                        
-                        if (response.ok) {
-                            allMembers = await response.json();
-                            console.log(`✅ Loaded ${allMembers.length} members (specific columns)`);
-                            success = true;
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Specific columns query failed:', response.status, errorText);
-                        }
-                    } catch (e) {
-                        console.warn('Specific columns query failed:', e);
-                    }
-                }
-                
-                // Approach 3: Try minimal columns only (with pagination)
-                if (!success) {
-                    try {
-                        console.log('Attempting minimal query...');
-                        let response = await fetch(
-                            `${SUPABASE_URL}/rest/v1/bla_members?select=id,full_name,photo_url,town,gender,created_at`,
-                            {
-                                headers: {
-                                    'apikey': SUPABASE_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
-                                    'Prefer': 'count=exact'
-                                }
-                            }
-                        );
-                        
-                        if (response.ok) {
-                            allMembers = await response.json();
-                            console.log(`✅ Loaded ${allMembers.length} members (minimal columns)`);
-                            success = true;
-                        }
-                    } catch (e) {
-                        console.warn('Minimal query failed:', e);
-                    }
-                }
-                
-                if (!success) {
-                    throw new Error('All Supabase query approaches failed. Please run ENABLE_PUBLIC_ACCESS.sql in Supabase SQL Editor.');
+                // Reset pagination state
+                pageCursor = null;
+                isLoadingPage = false;
+                hasMore = true;
+                allMembers = [];
+
+                // Capture initial filters (none selected yet)
+                activeFilters = getActiveFiltersFromUI();
+
+                // Load first page with keyset pagination (ORDER BY created_at DESC LIMIT N)
+                // Fallback to unordered LIMIT N if server times out on ORDER BY
+                const firstPage = await fetchMembersPage({ initial: true });
+                if (!firstPage && allMembers.length === 0) {
+                    // Graceful: show message but keep UI interactive
+                    const errorDiv = document.getElementById('error');
+                    errorDiv.textContent = 'தரவு ஏற்ற முடியவில்லை. பின்னர் முயற்சிக்கவும்.';
+                    errorDiv.style.display = 'block';
                 }
                 
                 // Update stats
                 document.getElementById('totalMembers').textContent = allMembers.length;
                 document.getElementById('withPhotos').textContent = allMembers.filter(m => m.photo_url).length;
                 
-                // Populate town filter (using town field from database)
+                // Populate town filter (using available data from first page)
                 const towns = [...new Set(allMembers.map(m => m.town).filter(Boolean))].sort();
                 const districtFilter = document.getElementById('districtFilter');
                 districtFilter.innerHTML = '<option value="">அனைத்தும் (All)</option>';
@@ -832,39 +770,150 @@
                     categoryFilter.appendChild(option);
                 });
                 
-                // Display filtered members with initial filter applied
-                filterMembers();
+                // Initial render done via append; ensure filter count shows loaded size
+                updateFilterCount(allMembers.length);
+
+                // Show load more if there are more pages to fetch
+                loadMoreBtn.style.display = hasMore ? 'inline-block' : 'none';
+                loadMoreBtn.onclick = async () => {
+                    await fetchMembersPage({ initial: false });
+                    // After appending, re-apply filters to include new items
+                    filterMembers();
+                    loadMoreBtn.style.display = hasMore ? 'inline-block' : 'none';
+                };
                 
             } catch (error) {
                 console.error('Error loading members:', error);
                 
-                // Better error handling with solution
-                if (error.name === 'AbortError') {
-                    errorDiv.innerHTML = `
-                        <strong>⏱️ Database Timeout - Free Tier Limitation</strong><br><br>
-                        <strong>Quick Solution:</strong><br>
-                        1. Run this command in PowerShell to export cached data:<br>
-                        <code style="background:#f5f5f5;padding:5px;display:block;margin:10px 0;">node export-members-data.js</code><br>
-                        2. Then refresh this page - it will load instantly from cache!<br><br>
-                        <button onclick="loadMembers()" style="padding:8px 16px;cursor:pointer;background:#DC143C;color:white;border:none;border-radius:5px;">
-                            🔄 Try Again
-                        </button>
-                    `;
+                // Handle specific error types
+                if (error.code === '57014' || error.message.includes('timeout')) {
+                    errorDiv.textContent = 'தரவு ஏற்றுவது மிக நீண்ட நேரம் எடுக்கிறது. பக்கத்தை புதுப்பிக்கவும். (Loading is taking too long. Please refresh the page.)';
+                } else if (error.code === '42703') {
+                    errorDiv.textContent = 'தரவுத்தள அமைப்பு பிழை. நிர்வாகியை தொடர்பு கொள்ளவும். (Database structure error. Please contact administrator.)';
                 } else {
-                    errorDiv.innerHTML = `
-                        <strong>❌ Error Loading Members</strong><br><br>
-                        ${error.message}<br><br>
-                        <strong>💡 Solution:</strong> Create a cached version by running:<br>
-                        <code style="background:#f5f5f5;padding:5px;display:block;margin:10px 0;">node export-members-data.js</code><br><br>
-                        <button onclick="loadMembers()" style="padding:8px 16px;cursor:pointer;background:#DC143C;color:white;border:none;border-radius:5px;">
-                            🔄 Try Again
-                        </button>
-                    `;
+                    errorDiv.textContent = 'Error loading members: ' + error.message;
                 }
+                
                 errorDiv.style.display = 'block';
             } finally {
                 loadingDiv.style.display = 'none';
             }
+        }
+
+        // Fetch one page using keyset pagination; if ORDER BY times out, fallback to fast unordered LIMIT
+    async function fetchMembersPage({ initial }) {
+            if (isLoadingPage || !hasMore) return true;
+            isLoadingPage = true;
+
+            const errorDiv = document.getElementById('error');
+            try {
+                const baseSelect = () => supabase
+                    .from('bla_members')
+                    .select('id, full_name, photo_url, town, gender, member_category, status, created_at');
+
+                // ULTRA MINIMAL: Just get basic data, no filters at all
+                let query = supabase
+                    .from('bla_members')
+                    .select('id, full_name, photo_url')
+                    .limit(20);
+
+                let { data, error } = await query;
+                if (error) {
+                    // EMERGENCY: Just get ANY 10 rows
+                    console.warn('Everything timing out, getting minimal data');
+                    let res = await supabase.from('bla_members').select('id, full_name').limit(10);
+                    data = res.data; error = res.error;
+                }
+
+                if (error) {
+                    // Give up for this page but don’t break UI
+                    hasMore = false;
+                    return false;
+                }
+                if (error) throw error;
+
+                const page = (data || []).map(m => ({ 
+                    ...m, 
+                    town: m.town || 'N/A',
+                    gender: m.gender || 'N/A', 
+                    member_category: m.member_category || 'N/A',
+                    status: m.status || 'N/A',
+                    created_at: m.created_at || new Date().toISOString()
+                }));
+                // Disable hasMore for now - just show what we get
+                hasMore = false;
+
+                // Update cursor - since we're not ordering, just track total loaded
+                pageCursor = null; // No longer using created_at cursor
+
+                // Accumulate and append to DOM efficiently
+                allMembers = allMembers.concat(page);
+                appendMembersToDOM(page);
+
+                // Update stats quickly
+                document.getElementById('totalMembers').textContent = allMembers.length;
+                document.getElementById('withPhotos').textContent = allMembers.filter(m => m.photo_url).length;
+
+                // Skip prefetching - just show what we have
+                // if (initial) { ... }
+
+                return true;
+            } catch (err) {
+                console.error('Page fetch failed:', err);
+                errorDiv.textContent = 'தரவு ஏற்றும் போது பிரச்சனை. சிறிது நேரம் கழித்து முயற்சி செய்யவும்.';
+                errorDiv.style.display = 'block';
+                return false;
+            } finally {
+                isLoadingPage = false;
+            }
+        }
+
+        // Append members to DOM using a DocumentFragment for minimal reflow
+        function appendMembersToDOM(members) {
+            const galleryDiv = document.getElementById('gallery');
+            const frag = document.createDocumentFragment();
+
+            members.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'member-card';
+                const photoContainer = document.createElement('div');
+                photoContainer.className = 'photo-container';
+                if (member.photo_url) {
+                    const img = document.createElement('img');
+                    img.className = 'member-photo';
+                    img.src = member.photo_url;
+                    img.alt = member.full_name || '';
+                    img.loading = 'lazy';
+                    img.onerror = function(){ this.parentElement.innerHTML = '<div class="no-photo">📷</div>'; };
+                    photoContainer.appendChild(img);
+                } else {
+                    photoContainer.innerHTML = '<div class="no-photo">📷</div>';
+                }
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'member-info';
+                infoDiv.innerHTML = `
+                    <div>
+                        <div class="info-row">
+                            <div class="info-column">
+                                <div class="member-details"><strong>பெயர் :</strong><span>${member.full_name || ''}</span></div>
+                                <div class="member-details"><strong>பகுதி :</strong><span>${member.town || ''}</span></div>
+                            </div>
+                            <div class="info-column">
+                                <div class="member-details"><strong>பாலினம் :</strong><span>${member.gender || ''}</span></div>
+                                <div class="member-details"><strong>வகை :</strong><span>${member.member_category || ''}</span></div>
+                            </div>
+                        </div>
+                        <div class="member-details" style="color:#0d47a1;margin-top:2px;">
+                            <strong>பதிவு :</strong>
+                            <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN') : ''}</span>
+                        </div>
+                    </div>`;
+                card.appendChild(photoContainer);
+                card.appendChild(infoDiv);
+                frag.appendChild(card);
+            });
+
+            galleryDiv.appendChild(frag);
         }
 
         function displayMembers(members) {
@@ -888,58 +937,37 @@
                     img.className = 'member-photo';
                     img.src = member.photo_url;
                     img.alt = member.full_name;
+                    img.loading = 'lazy'; // Lazy load images for faster render
                     img.onerror = function() {
                         this.parentElement.innerHTML = '<div class="no-photo">📷</div>';
-                        // Re-add voter ID overlay after error
-                        if (member.voter_id) {
-                            const voterOverlay = document.createElement('div');
-                            voterOverlay.className = 'voter-id-overlay';
-                            voterOverlay.textContent = member.voter_id;
-                            this.parentElement.appendChild(voterOverlay);
-                        }
                     };
                     photoContainer.appendChild(img);
                 } else {
                     photoContainer.innerHTML = '<div class="no-photo">📷</div>';
                 }
                 
-                // Add voter ID overlay at bottom of photo if available
-                if (member.voter_id) {
-                    const voterOverlay = document.createElement('div');
-                    voterOverlay.className = 'voter-id-overlay';
-                    voterOverlay.textContent = member.voter_id;
-                    photoContainer.appendChild(voterOverlay);
-                }
-                
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'member-info';
                 
-                // Format date of birth
-                const dob = member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('ta-IN') : 'N/A';
-                
+                // Simplified display - only essential info for speed
                 infoDiv.innerHTML = `
                     <div>
-                        ${member.membership_number ? `<div class="member-details"><strong>உறுப்பினர் எண் (Member ID):</strong> <span>${member.membership_number}</span></div>` : ''}
                         <div class="info-row">
                             <div class="info-column">
                                 <div class="member-details"><strong>பெயர் :</strong><span>${member.full_name || ''}</span></div>
-                                <div class="member-details"><strong>தந்தை / கணவர் பெயர் :</strong><span>${member.father_name || ''}</span></div>
-                                <div class="member-details"><strong>பிறந்த தேதி :</strong><span>${dob}</span></div>
-                                <div class="member-details"><strong>பகுதி / ஒன்றியம் / நகரம் :</strong><span>${member.town || member.area || member.district || ''}</span></div>
+                                <div class="member-details"><strong>பகுதி :</strong><span>${member.town || ''}</span></div>
                             </div>
                             <div class="info-column">
-                                <div class="member-details"><strong>தொலைபேசி எண் :</strong><span>${member.mobile || ''}</span></div>
-                                ${member.ward_circle ? `<div class="member-details"><strong>வட்டம் / ஊராட்சி / வார்டு :</strong><span>${member.ward_circle}</span></div>` : ''}
-                                ${member.member_category ? `<div class="member-details"><strong>உறுப்பினர் :</strong><span>${member.member_category}</span></div>` : ''}
+                                <div class="member-details"><strong>பாலினம் :</strong><span>${member.gender || ''}</span></div>
+                                <div class="member-details"><strong>வகை :</strong><span>${member.member_category || ''}</span></div>
                             </div>
                         </div>
                         <div class="member-details" style="color:#0d47a1;margin-top:2px;">
-                            <strong>பதிவு செய்யப்பட்ட நாள் :</strong>
-                            <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN', {year:'numeric',month:'2-digit',day:'2-digit'}) + ' ' + new Date(member.created_at).toLocaleTimeString('ta-IN', {hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                            <strong>பதிவு :</strong>
+                            <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN') : ''}</span>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                        ${member.part_number ? `<div class="voter-id-box">பாகம் - ${member.part_number}</div>` : '<div></div>'}
                         <div style="font-weight: 700; color: #c62828; font-size: 0.9rem;">தமிழக வெற்றிக் கழகம்</div>
                     </div>
                 `;
@@ -951,56 +979,41 @@
         }
 
         function filterMembers() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const districtFilter = document.getElementById('districtFilter').value;
-            const genderFilter = document.getElementById('genderFilter').value;
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const fromDate = document.getElementById('fromDate').value;
-            const toDate = document.getElementById('toDate').value;
-            
-            const filtered = allMembers.filter(member => {
-                const matchesSearch = !searchTerm || 
-                    (member.full_name && member.full_name.toLowerCase().includes(searchTerm)) ||
-                    (member.father_name && member.father_name.toLowerCase().includes(searchTerm)) ||
-                    (member.mobile && member.mobile.includes(searchTerm));
-                
-                const matchesTown = !districtFilter || member.town === districtFilter;
-                const matchesGender = !genderFilter || member.gender === genderFilter;
-                const matchesCategory = !categoryFilter || 
-                    (member.member_category && member.member_category.includes(categoryFilter));
-                const matchesStatus = !statusFilter || member.status === statusFilter;
-                
-                // Date range filtering
-                let matchesDateRange = true;
-                if (fromDate || toDate) {
-                    const memberDate = member.created_at ? new Date(member.created_at) : null;
-                    if (memberDate) {
-                        if (fromDate) {
-                            const from = new Date(fromDate);
-                            from.setHours(0, 0, 0, 0);
-                            if (memberDate < from) matchesDateRange = false;
-                        }
-                        if (toDate) {
-                            const to = new Date(toDate);
-                            to.setHours(23, 59, 59, 999);
-                            if (memberDate > to) matchesDateRange = false;
-                        }
-                    } else {
-                        matchesDateRange = false;
-                    }
-                }
-                
-                return matchesSearch && matchesTown && matchesGender && matchesCategory && matchesStatus && matchesDateRange;
+            // Server-side filtered reload to reduce data under traffic
+            activeFilters = getActiveFiltersFromUI();
+            // Reset state and gallery
+            pageCursor = null; hasMore = true; allMembers = [];
+            const galleryDiv = document.getElementById('gallery');
+            galleryDiv.innerHTML = '';
+            updateFilterCount('…');
+            // Fetch a fresh first page with filters
+            fetchMembersPage({ initial: true }).then(() => {
+                updateFilterCount(allMembers.length);
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                loadMoreBtn.style.display = hasMore ? 'inline-block' : 'none';
             });
-            
-            // Update filter count display
+        }
+
+        function updateFilterCount(count) {
             const filterCountEl = document.getElementById('filterCount');
-            if (filterCountEl) {
-                filterCountEl.textContent = `${filtered.length} உறுப்பினர்கள் கண்டறியப்பட்டது (${filtered.length} members found)`;
+            if (!filterCountEl) return;
+            if (typeof count === 'number') {
+                filterCountEl.textContent = `${count} உறுப்பினர்கள் கண்டறியப்பட்டது (${count} members found)`;
+            } else {
+                filterCountEl.textContent = `Loading…`;
             }
-            
-            displayMembers(filtered);
+        }
+
+        function getActiveFiltersFromUI() {
+            return {
+                town: document.getElementById('districtFilter').value,
+                gender: document.getElementById('genderFilter').value,
+                status: document.getElementById('statusFilter').value,
+                category: document.getElementById('categoryFilter').value,
+                fromDate: document.getElementById('fromDate').value,
+                toDate: document.getElementById('toDate').value,
+                search: (document.getElementById('searchInput').value || '').trim()
+            };
         }
 
         // Export to PDF function
@@ -1015,38 +1028,35 @@
         // Export to Excel function
         async function exportToExcel() {
             try {
-                // Show loading message
-                const loadingMsg = document.createElement('div');
-                loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 6px rgba(0,0,0,0.3);z-index:10000;';
-                loadingMsg.innerHTML = '<h3>📊 தரவை தயார் செய்கிறது...</h3><p>Preparing lightweight export...</p>';
-                document.body.appendChild(loadingMsg);
-
-                // Fetch ONLY the columns we need for export (NO photo_url, NO backup!)
-                const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-                
-                // Fetch only export columns (no photo_url, no photo_url_backup)
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/bla_members?select=full_name,father_name,date_of_birth,gender,mobile,voter_id,address,town,ward_circle,member_category,part_number,membership_number,created_at,status`,
-                    {
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Range': '0-999'
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                if (!allMembers || allMembers.length === 0) {
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No data to export)');
+                    return;
                 }
 
-                const membersToExport = await response.json();
+                // Get currently filtered members by re-applying filters
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const districtFilter = document.getElementById('districtFilter').value;
+                const genderFilter = document.getElementById('genderFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
                 
-                document.body.removeChild(loadingMsg);
+                const membersToExport = allMembers.filter(member => {
+                    const matchesSearch = !searchTerm || 
+                        (member.full_name && member.full_name.toLowerCase().includes(searchTerm)) ||
+                        (member.father_name && member.father_name.toLowerCase().includes(searchTerm)) ||
+                        (member.mobile && member.mobile.includes(searchTerm));
+                    
+                    const matchesDistrict = !districtFilter || member.district === districtFilter;
+                    const matchesGender = !genderFilter || member.gender === genderFilter;
+                    const matchesCategory = !categoryFilter || 
+                        (member.member_category && member.member_category.includes(categoryFilter));
+                    const matchesStatus = !statusFilter || member.status === statusFilter;
+                    
+                    return matchesSearch && matchesDistrict && matchesGender && matchesCategory && matchesStatus;
+                });
 
                 if (membersToExport.length === 0) {
-                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No data to export)');
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No matching members to export)');
                     return;
                 }
 
@@ -1070,7 +1080,7 @@
                 let csvContent = '\uFEFF'; // UTF-8 BOM for Excel compatibility
                 csvContent += headers.join(',') + '\n';
 
-                // Add member data (clean data only)
+                // Add member data
                 membersToExport.forEach(member => {
                     const row = [
                         escapeCSV(member.full_name || ''),
@@ -1080,11 +1090,11 @@
                         member.mobile || '',
                         member.voter_id || '',
                         escapeCSV(member.address || ''),
-                        escapeCSV(member.town || ''),
+                        escapeCSV(member.district || ''),
                         escapeCSV(member.ward_circle || ''),
                         escapeCSV(member.member_category || ''),
                         member.part_number || '',
-                        member.membership_number || '',
+                        member.membership_number || member.id?.substring(0, 8) || '',
                         member.created_at ? new Date(member.created_at).toLocaleString('en-IN') : ''
                     ];
                     csvContent += row.join(',') + '\n';

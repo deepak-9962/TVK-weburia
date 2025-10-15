@@ -1,0 +1,44 @@
+{
+  "exportDate": "2025-10-14T22:40:00.000Z",
+  "totalMembers": 2,
+  "members": [
+    {
+      "id": 1,
+      "full_name": "Sample Member 1",
+      "father_name": "Father Name",
+      "date_of_birth": "1990-01-01",
+      "town": "Sample Town",
+      "area": "Sample Area",
+      "district": "Sample District",
+      "mobile": "9876543210",
+      "photo_url": "https://example.com/photo1.jpg",
+      "gender": "Male",
+      "member_category": "General Member",
+      "membership_number": "TVK001",
+      "voter_id": "ABC1234567",
+      "ward_circle": "Ward 1",
+      "part_number": "123",
+      "status": "Active",
+      "created_at": "2025-10-01T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "full_name": "Sample Member 2",
+      "father_name": "Another Father",
+      "date_of_birth": "1985-05-15",
+      "town": "Another Town",
+      "area": null,
+      "district": null,
+      "mobile": "9876543211",
+      "photo_url": null,
+      "gender": "Female",
+      "member_category": "Youth Wing",
+      "membership_number": "TVK002",
+      "voter_id": "XYZ9876543",
+      "ward_circle": "Ward 2",
+      "part_number": "456",
+      "status": "Active",
+      "created_at": "2025-10-02T14:30:00.000Z"
+    }
+  ]
+}

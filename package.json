@@ -5,5 +5,8 @@
   "description": "Static TVK political party web application",
   "scripts": {
     "generate:env": "node scripts/generate-env.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0"
   }
 }

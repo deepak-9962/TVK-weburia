@@ -714,96 +714,53 @@
             galleryDiv.innerHTML = '';
             
             try {
-                // DIRECT SUPABASE CONNECTION: Simplified query
-                console.log('🔄 Loading members from Supabase...');
+                // HYBRID APPROACH: Try cached JSON first (instant), fall back to API if needed
+                console.log('🔄 Trying to load from cached data...');
                 
-                const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-                
-                // Try multiple approaches to get data
-                let success = false;
-                
-                // Approach 1: Try with specific essential columns only (NO BACKUP COLUMN!)
                 try {
-                    console.log('Attempting optimized query (no backup data)...');
-                    let response = await fetch(
-                        `${SUPABASE_URL}/rest/v1/bla_members?select=id,membership_number,full_name,father_name,date_of_birth,gender,religion,occupation,education,mobile,alt_mobile,email,address,town,pincode,voter_id,part_number,constituency,previous_party,interests,aadhaar_number,member_category,photo_url,id_proof_url,status,created_at,updated_at,registered_by_employee_id,area_union_city,ward_village,ward_circle`,
+                    const cacheResponse = await fetch('members-data.json');
+                    if (cacheResponse.ok) {
+                        const cacheData = await cacheResponse.json();
+                        allMembers = cacheData.members || [];
+                        console.log(`✅ Loaded ${allMembers.length} members from cache (${cacheData.exportDate})`);
+                        
+                        // Show success message with cache info
+                        const cacheDate = new Date(cacheData.exportDate).toLocaleString('ta-IN');
+                        loadingDiv.innerHTML = `<div style="color:#4CAF50;">✅ இருப்பு தரவிலிருந்து ${allMembers.length} உறுப்பினர்கள் ஏற்றப்பட்டது<br>கேச் தேதி: ${cacheDate}</div>`;
+                        setTimeout(() => loadingDiv.style.display = 'none', 2000);
+                    } else {
+                        throw new Error('Cache not found');
+                    }
+                } catch (cacheError) {
+                    console.log('⚠️ No cache found, trying live API...');
+                    
+                    // Fall back to live API with timeout
+                    const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
+                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+                    
+                    // Try a simple fast query first
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                    
+                    const response = await fetch(
+                        `${SUPABASE_URL}/rest/v1/bla_members?select=id,full_name,father_name,date_of_birth,town,mobile,photo_url,gender,member_category,membership_number,voter_id,ward_circle,part_number,created_at&limit=100`,
                         {
                             headers: {
                                 'apikey': SUPABASE_KEY,
-                                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                'Range': '0-999',  // Fetch up to 1000 records
-                                'Prefer': 'count=exact'
-                            }
+                                'Authorization': `Bearer ${SUPABASE_KEY}`
+                            },
+                            signal: controller.signal
                         }
                     );
                     
-                    if (response.ok) {
-                        allMembers = await response.json();
-                        console.log(`✅ Loaded ${allMembers.length} members (optimized - no backup)`);
-                        success = true;
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                } catch (e) {
-                    console.warn('Optimized query failed:', e);
-                }
-                
-                // Approach 2: Try with specific columns (no ordering, with pagination, NO BACKUP!)
-                if (!success) {
-                    try {
-                        console.log('Attempting specific columns query...');
-                        let response = await fetch(
-                            `${SUPABASE_URL}/rest/v1/bla_members?select=id,full_name,father_name,date_of_birth,town,mobile,photo_url,gender,member_category,membership_number,voter_id,ward_circle,part_number,created_at,address,occupation,status`,
-                            {
-                                headers: {
-                                    'apikey': SUPABASE_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
-                                    'Prefer': 'count=exact'
-                                }
-                            }
-                        );
-                        
-                        if (response.ok) {
-                            allMembers = await response.json();
-                            console.log(`✅ Loaded ${allMembers.length} members (specific columns)`);
-                            success = true;
-                        } else {
-                            const errorText = await response.text();
-                            console.error('Specific columns query failed:', response.status, errorText);
-                        }
-                    } catch (e) {
-                        console.warn('Specific columns query failed:', e);
-                    }
-                }
-                
-                // Approach 3: Try minimal columns only (with pagination)
-                if (!success) {
-                    try {
-                        console.log('Attempting minimal query...');
-                        let response = await fetch(
-                            `${SUPABASE_URL}/rest/v1/bla_members?select=id,full_name,photo_url,town,gender,created_at`,
-                            {
-                                headers: {
-                                    'apikey': SUPABASE_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
-                                    'Prefer': 'count=exact'
-                                }
-                            }
-                        );
-                        
-                        if (response.ok) {
-                            allMembers = await response.json();
-                            console.log(`✅ Loaded ${allMembers.length} members (minimal columns)`);
-                            success = true;
-                        }
-                    } catch (e) {
-                        console.warn('Minimal query failed:', e);
-                    }
-                }
-                
-                if (!success) {
-                    throw new Error('All Supabase query approaches failed. Please run ENABLE_PUBLIC_ACCESS.sql in Supabase SQL Editor.');
+                    
+                    allMembers = await response.json();
+                    console.log(`✅ Loaded ${allMembers.length} members from live API`);
                 }
                 
                 // Update stats
@@ -1015,38 +972,35 @@
         // Export to Excel function
         async function exportToExcel() {
             try {
-                // Show loading message
-                const loadingMsg = document.createElement('div');
-                loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 6px rgba(0,0,0,0.3);z-index:10000;';
-                loadingMsg.innerHTML = '<h3>📊 தரவை தயார் செய்கிறது...</h3><p>Preparing lightweight export...</p>';
-                document.body.appendChild(loadingMsg);
-
-                // Fetch ONLY the columns we need for export (NO photo_url, NO backup!)
-                const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
-                
-                // Fetch only export columns (no photo_url, no photo_url_backup)
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/bla_members?select=full_name,father_name,date_of_birth,gender,mobile,voter_id,address,town,ward_circle,member_category,part_number,membership_number,created_at,status`,
-                    {
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Range': '0-999'
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                if (!allMembers || allMembers.length === 0) {
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No data to export)');
+                    return;
                 }
 
-                const membersToExport = await response.json();
+                // Get currently filtered members by re-applying filters
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const districtFilter = document.getElementById('districtFilter').value;
+                const genderFilter = document.getElementById('genderFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
                 
-                document.body.removeChild(loadingMsg);
+                const membersToExport = allMembers.filter(member => {
+                    const matchesSearch = !searchTerm || 
+                        (member.full_name && member.full_name.toLowerCase().includes(searchTerm)) ||
+                        (member.father_name && member.father_name.toLowerCase().includes(searchTerm)) ||
+                        (member.mobile && member.mobile.includes(searchTerm));
+                    
+                    const matchesDistrict = !districtFilter || member.district === districtFilter;
+                    const matchesGender = !genderFilter || member.gender === genderFilter;
+                    const matchesCategory = !categoryFilter || 
+                        (member.member_category && member.member_category.includes(categoryFilter));
+                    const matchesStatus = !statusFilter || member.status === statusFilter;
+                    
+                    return matchesSearch && matchesDistrict && matchesGender && matchesCategory && matchesStatus;
+                });
 
                 if (membersToExport.length === 0) {
-                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No data to export)');
+                    alert('ஏற்றுமதி செய்ய தரவு இல்லை (No matching members to export)');
                     return;
                 }
 
@@ -1070,7 +1024,7 @@
                 let csvContent = '\uFEFF'; // UTF-8 BOM for Excel compatibility
                 csvContent += headers.join(',') + '\n';
 
-                // Add member data (clean data only)
+                // Add member data
                 membersToExport.forEach(member => {
                     const row = [
                         escapeCSV(member.full_name || ''),
@@ -1080,11 +1034,11 @@
                         member.mobile || '',
                         member.voter_id || '',
                         escapeCSV(member.address || ''),
-                        escapeCSV(member.town || ''),
+                        escapeCSV(member.district || ''),
                         escapeCSV(member.ward_circle || ''),
                         escapeCSV(member.member_category || ''),
                         member.part_number || '',
-                        member.membership_number || '',
+                        member.membership_number || member.id?.substring(0, 8) || '',
                         member.created_at ? new Date(member.created_at).toLocaleString('en-IN') : ''
                     ];
                     csvContent += row.join(',') + '\n';

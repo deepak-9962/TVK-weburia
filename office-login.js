@@ -112,35 +112,19 @@ async function handleLogin(e) {
         loginBtn.disabled = true;
         loginBtn.innerHTML = '<div class="loading-spinner"></div> உள்நுழைகிறது...';
         
-        // Test Supabase connection first
-        const client = await getSupabaseClient();
-
-        // Test basic connection
-        const { data: testData, error: testError } = await client
-            .from('employees')
-            .select('count')
-            .limit(1);
-        
-        if (testError) {
-            console.error('Supabase connection test failed:', testError);
-            showStatusMessage('❌ தரவுத்தள இணைப்பு பிழை. மீண்டும் முயற்சிக்கவும்.', 'error');
-            return;
-        }
-        
-        console.log('Supabase connection test successful');
-        
-        // Authenticate employee
-    const employee = await authenticateEmployee(username, password);
+        // Direct authentication - no preliminary tests
+        const employee = await authenticateEmployee(username, password);
         
         if (employee) {
-            console.log('Employee authenticated:', employee.username);
+            console.log('Employee authenticated:', employee.email);
             
             // Create session
             const sessionData = {
                 employeeId: employee.id,
-                username: employee.username,
+                email: employee.email,
                 fullName: employee.full_name,
-                role: employee.role || 'employee',
+                employeeId: employee.employee_id,
+                role: employee.role || 'data_entry',
                 loginTime: new Date().getTime(),
                 expiresAt: new Date().getTime() + (24 * 60 * 60 * 1000) // 24 hours
             };
@@ -184,115 +168,38 @@ async function authenticateEmployee(username, password) {
     try {
         console.log('Authenticating employee:', username);
         
-        // First, check if employees table exists and has data
         const client = await getSupabaseClient();
 
-        const { data: employees, error } = await client
+        // Fast, direct query with .single() for better performance
+        const { data: employee, error } = await client
             .from('employees')
-            .select('*')
+            .select('id, email, full_name, employee_id, password, status, role')
             .eq('email', username)
             .eq('status', 'active')
-            .limit(1);
+            .single();
         
         if (error) {
-            console.error('Database query error:', error);
-            
-            // If table doesn't exist, try to create sample employees first
-            if (error.code === 'PGRST116' || error.message.includes('relation "employees" does not exist')) {
-                console.log('Employees table not found, creating sample employees...');
-                await createSampleEmployees();
-                
-                // Try again after creating employees
-                const { data: retryEmployees, error: retryError } = await client
-                    .from('employees')
-                    .select('*')
-                    .eq('email', username)
-                    .eq('status', 'active')
-                    .limit(1);
-                
-                if (retryError) {
-                    throw retryError;
-                }
-                
-                if (!retryEmployees || retryEmployees.length === 0) {
-                    console.log('No employee found with username:', username);
-                    return null;
-                }
-                
-                const employee = retryEmployees[0];
-                console.log('Found employee after retry:', employee.email);
-                
-                if (employee.password === password) {
-                    return employee;
-                }
-                
-                return null;
+            if (error.code === 'PGRST116') {
+                console.log('❌ No employee found with email:', username);
+            } else {
+                console.error('Database query error:', error);
             }
-            
-            throw error;
+            return null;
         }
         
-        if (!employees || employees.length === 0) {
-            console.log('No employee found with username:', username);
-            
-            // Check if this is a default employee that should exist
-            if (['admin', 'manager', 'office'].includes(username)) {
-                console.log('Default employee not found, creating sample employees...');
-                await createSampleEmployees();
-                
-                // Try again
-                const { data: retryEmployees, error: retryError } = await client
-                    .from('employees')
-                    .select('*')
-                    .eq('email', username)
-                    .eq('status', 'active')
-                    .limit(1);
-                
-                if (!retryError && retryEmployees && retryEmployees.length > 0) {
-                    const employee = retryEmployees[0];
-                    if (employee.password === password) {
-                        return employee;
-                    }
-                }
-            }
-            
-            return null; // User not found
-        }
-        
-        const employee = employees[0];
-        console.log('Found employee:', employee.email);
-        
-        // Simple password comparison (plain text passwords in setup-employees.sql)
-        if (employee.password === password) {
+        // Direct password comparison
+        if (employee && employee.password === password) {
+            console.log('✅ Employee authenticated:', employee.email);
+            // Update last login asynchronously (don't wait)
+            updateLastLogin(employee.id).catch(err => console.warn('Last login update failed:', err));
             return employee;
         }
         
-        return null; // Invalid password
+        console.log('❌ Invalid password for:', username);
+        return null;
         
     } catch (error) {
         console.error('Authentication error:', error);
-        
-        // Fallback authentication for demo purposes if database fails
-        const fallbackCredentials = {
-            'admin': 'admin123',
-            'manager': 'manager123',
-            'office': 'office123'
-        };
-        
-        if (fallbackCredentials[username] && fallbackCredentials[username] === password) {
-            console.log('Using fallback authentication for:', username);
-            return {
-                id: 'fallback-' + username,
-                username: username,
-                full_name: username === 'admin' ? 'நிர்வாகி முருகன்' : 
-                          username === 'manager' ? 'மேலாளர் கவிதா' : 
-                          'அலுவலக பணியாளர் ராஜ்',
-                role: username === 'admin' ? 'admin' : 
-                      username === 'manager' ? 'manager' : 'data_entry',
-                is_active: true
-            };
-        }
-        
         return null;
     }
 }

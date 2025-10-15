@@ -83,7 +83,7 @@ if (document.getElementById('employeeLoginForm')) {
             // Query employees table directly for email and password match
             const { data: employee, error } = await supabase
                 .from('employees')
-                .select('*')
+                .select('id, employee_id, email, full_name, role, status, department')
                 .eq('email', email.toLowerCase())
                 .eq('password', password)
                 .eq('status', 'active')
@@ -96,28 +96,56 @@ if (document.getElementById('employeeLoginForm')) {
                 return;
             }
 
-            console.log('Employee login successful:', employee.employee_id);
+            console.log('=== EMPLOYEE LOGIN SUCCESSFUL ===');
+            console.log('📋 Full Employee Data from Database:', employee);
+            console.log('🆔 Employee UUID (id):', employee.id); // This is the UUID we need
+            console.log('🏷️ Employee Code (employee_id):', employee.employee_id); // This is 'EMP042'
+            
+            // Validate UUID format
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (employee.id && uuidPattern.test(employee.id)) {
+                console.log('✅ UUID validation: PASS - This is a valid UUID');
+            } else {
+                console.error('❌ UUID validation: FAIL - This is NOT a valid UUID:', employee.id);
+                console.error('⚠️ This will cause tracking issues! Check your database schema.');
+            }
 
-            console.log('Employee login successful:', employee.employee_id);
-
-            // Store employee session
-            sessionStorage.setItem('tvk_employee_session', JSON.stringify({
-                employeeId: employee.id,
+            // Prepare session data
+            const sessionData = {
+                id: employee.id,  // UUID from database
+                uuid: employee.id,  // Also store as uuid for clarity
+                employeeId: employee.employee_id,  // Employee code like 'EMP042'
                 employee_id: employee.employee_id,
                 email: employee.email,
                 full_name: employee.full_name,
                 role: employee.role,
                 login_time: new Date().toISOString()
-            }));
+            };
 
-            // Also store for BLA office entry compatibility
-            sessionStorage.setItem('bla_employee_session', JSON.stringify({
-                employeeId: employee.id,
-                id: employee.id,
+            const blaSessionData = {
+                id: employee.id,  // UUID - this is what we need for registered_by_employee_id!
+                uuid: employee.id,  // Also as uuid
+                employeeId: employee.employee_id,  // Employee code 'EMP042'
                 employee_id: employee.employee_id,
                 email: employee.email,
-                full_name: employee.full_name
-            }));
+                full_name: employee.full_name,
+                fullName: employee.full_name  // Also as fullName for compatibility
+            };
+
+            console.log('💾 Storing TVK session:', sessionData);
+            console.log('💾 Storing BLA session:', blaSessionData);
+
+            // Store employee session with UUID
+            sessionStorage.setItem('tvk_employee_session', JSON.stringify(sessionData));
+
+            // Also store for BLA office entry compatibility
+            sessionStorage.setItem('bla_employee_session', JSON.stringify(blaSessionData));
+
+            // Verify storage worked
+            const storedBla = JSON.parse(sessionStorage.getItem('bla_employee_session'));
+            console.log('✅ Verification - BLA session stored:', storedBla);
+            console.log('✅ Verification - ID field value:', storedBla.id);
+            console.log('=== SESSION STORAGE COMPLETE ===');
 
             // Redirect to employee dashboard
             window.location.href = 'employee-dashboard.html';

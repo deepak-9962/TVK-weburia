@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-10-15T14:41:56.851Z",
+  "stats": {
+    "total": 0,
+    "processed": 93,
+    "uploaded": 73,
+    "skipped": 20,
+    "errors": 0,
+    "startTime": 1760538939013
+  },
+  "duration": "377.8s"
+}

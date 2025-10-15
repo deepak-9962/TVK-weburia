@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Diagnostic - Employee UUID Check</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .uuid-valid {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .uuid-invalid {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Employee Database Diagnostic Tool</h1>
+        <p>This tool will check your database schema and show what's actually stored in the <code>id</code> field.</p>
+
+        <div class="warning">
+            <strong>⚠️ Problem:</strong> The system is showing <code>EMP042</code> in the <code>id</code> field, but it should be a UUID like <code>abc12345-1234-1234-1234-123456789abc</code>
+        </div>
+
+        <button onclick="checkDatabase()">🔍 Check Database Schema</button>
+        <button onclick="checkEmployee()">👤 Check Current Employee</button>
+        <button onclick="checkAllEmployees()">👥 Check All Employees</button>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Checking database...</p>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        let supabaseClient;
+
+        // Initialize Supabase
+        async function initSupabase() {
+            if (supabaseClient) return supabaseClient;
+            
+            try {
+                const config = await getSupabaseClient();
+                supabaseClient = config;
+                return supabaseClient;
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+                showError('Failed to initialize Supabase: ' + error.message);
+                return null;
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showResults(html) {
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function showError(message) {
+            showResults(`<div class="error"><strong>❌ Error:</strong><br>${message}</div>`);
+        }
+
+        async function checkDatabase() {
+            showLoading(true);
+            const supabase = await initSupabase();
+            if (!supabase) return;
+
+            try {
+                // Check table schema
+                const { data, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .limit(1);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    const employee = data[0];
+                    
+                    let html = '<div class="success"><strong>✅ Database Connected</strong></div>';
+                    html += '<h3>Table Schema Analysis:</h3>';
+                    html += '<table>';
+                    html += '<tr><th>Field Name</th><th>Sample Value</th><th>Type</th><th>Status</th></tr>';
+
+                    for (const [key, value] of Object.entries(employee)) {
+                        const valueStr = String(value);
+                        const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                        
+                        let status = '';
+                        if (key === 'id') {
+                            if (uuidPattern.test(valueStr)) {
+                                status = '<span class="uuid-valid">✅ Valid UUID</span>';
+                            } else {
+                                status = '<span class="uuid-invalid">❌ NOT a UUID! This is the problem!</span>';
+                            }
+                        }
+
+                        html += `<tr>
+                            <td><strong>${key}</strong></td>
+                            <td>${valueStr.substring(0, 50)}${valueStr.length > 50 ? '...' : ''}</td>
+                            <td>${typeof value}</td>
+                            <td>${status}</td>
+                        </tr>`;
+                    }
+
+                    html += '</table>';
+
+                    // Check if id is UUID
+                    if (!uuidPattern.test(String(employee.id))) {
+                        html += '<div class="error">';
+                        html += '<h3>🔴 PROBLEM FOUND!</h3>';
+                        html += `<p>The <code>id</code> field contains: <strong>${employee.id}</strong></p>`;
+                        html += '<p>This is NOT a valid UUID! It should be formatted like:</p>';
+                        html += '<p><code>abc12345-1234-1234-1234-123456789abc</code></p>';
+                        html += '<h4>Solution:</h4>';
+                        html += '<p>Your database schema needs to be fixed. The <code>id</code> column should be a UUID type, not TEXT.</p>';
+                        html += '</div>';
+                    }
+
+                    showResults(html);
+                } else {
+                    showError('No employees found in database');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function checkEmployee() {
+            showLoading(true);
+            const supabase = await initSupabase();
+            if (!supabase) return;
+
+            try {
+                // Get current employee from session
+                const session = sessionStorage.getItem('bla_employee_session');
+                if (!session) {
+                    showError('No employee session found. Please login first.');
+                    showLoading(false);
+                    return;
+                }
+
+                const employeeSession = JSON.parse(session);
+                const email = employeeSession.email;
+
+                // Fetch from database
+                const { data: employee, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .eq('email', email)
+                    .single();
+
+                if (error) throw error;
+
+                const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+                let html = '<h3>Current Employee Data:</h3>';
+                html += '<div class="info">';
+                html += `<strong>Email:</strong> ${email}<br>`;
+                html += `<strong>Full Name:</strong> ${employee.full_name}<br>`;
+                html += `<strong>Employee Code:</strong> ${employee.employee_id}<br><br>`;
+                html += `<strong>Database ID Field:</strong> ${employee.id}<br>`;
+                
+                if (uuidPattern.test(String(employee.id))) {
+                    html += `<span class="uuid-valid">✅ This IS a valid UUID!</span><br>`;
+                } else {
+                    html += `<span class="uuid-invalid">❌ This is NOT a valid UUID!</span><br>`;
+                }
+                
+                html += '</div>';
+
+                html += '<h3>Session Storage Data:</h3>';
+                html += '<div class="info">';
+                html += `<strong>Session ID Field:</strong> ${employeeSession.id || 'Not set'}<br>`;
+                
+                if (employeeSession.id && uuidPattern.test(String(employeeSession.id))) {
+                    html += `<span class="uuid-valid">✅ Session has valid UUID</span><br>`;
+                } else {
+                    html += `<span class="uuid-invalid">❌ Session does NOT have valid UUID</span><br>`;
+                }
+                
+                html += '</div>';
+
+                html += '<h3>Comparison:</h3>';
+                html += '<table>';
+                html += '<tr><th>Source</th><th>ID Value</th><th>Is UUID?</th></tr>';
+                html += `<tr>
+                    <td><strong>Database</strong></td>
+                    <td>${employee.id}</td>
+                    <td>${uuidPattern.test(String(employee.id)) ? '<span class="uuid-valid">✅ Yes</span>' : '<span class="uuid-invalid">❌ No</span>'}</td>
+                </tr>`;
+                html += `<tr>
+                    <td><strong>Session Storage</strong></td>
+                    <td>${employeeSession.id || 'Not set'}</td>
+                    <td>${employeeSession.id && uuidPattern.test(String(employeeSession.id)) ? '<span class="uuid-valid">✅ Yes</span>' : '<span class="uuid-invalid">❌ No</span>'}</td>
+                </tr>`;
+                html += '</table>';
+
+                // Diagnosis
+                if (!uuidPattern.test(String(employee.id))) {
+                    html += '<div class="error">';
+                    html += '<h3>🔴 ROOT CAUSE IDENTIFIED!</h3>';
+                    html += '<p>The database itself has <strong>EMP042</strong> (or similar) stored in the <code>id</code> column.</p>';
+                    html += '<p>This is a <strong>database schema issue</strong>, not a code issue.</p>';
+                    html += '<h4>Fix Required:</h4>';
+                    html += '<ol>';
+                    html += '<li>The <code>employees</code> table needs to have a proper UUID primary key</li>';
+                    html += '<li>Current data needs to be migrated with proper UUIDs generated</li>';
+                    html += '<li>The <code>employee_id</code> field should store codes like "EMP042"</li>';
+                    html += '<li>The <code>id</code> field should store UUIDs for relationships</li>';
+                    html += '</ol>';
+                    html += '</div>';
+                } else if (!uuidPattern.test(String(employeeSession.id))) {
+                    html += '<div class="warning">';
+                    html += '<h3>⚠️ SESSION ISSUE!</h3>';
+                    html += '<p>Database has correct UUID, but session storage has wrong value.</p>';
+                    html += '<p><strong>Solution:</strong> Logout and login again to refresh session.</p>';
+                    html += '<button onclick="clearSession()">🚪 Clear Session & Logout</button>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="success">';
+                    html += '<h3>✅ EVERYTHING LOOKS GOOD!</h3>';
+                    html += '<p>Both database and session have proper UUIDs.</p>';
+                    html += '</div>';
+                }
+
+                showResults(html);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function checkAllEmployees() {
+            showLoading(true);
+            const supabase = await initSupabase();
+            if (!supabase) return;
+
+            try {
+                const { data: employees, error } = await supabase
+                    .from('employees')
+                    .select('id, employee_id, email, full_name')
+                    .limit(20);
+
+                if (error) throw error;
+
+                const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+                let html = '<h3>All Employees (First 20):</h3>';
+                html += '<table>';
+                html += '<tr><th>Email</th><th>ID Field</th><th>Employee Code</th><th>UUID Valid?</th></tr>';
+
+                employees.forEach(emp => {
+                    const isValid = uuidPattern.test(String(emp.id));
+                    html += `<tr>
+                        <td>${emp.email}</td>
+                        <td>${emp.id}</td>
+                        <td>${emp.employee_id}</td>
+                        <td>${isValid ? '<span class="uuid-valid">✅ Yes</span>' : '<span class="uuid-invalid">❌ No</span>'}</td>
+                    </tr>`;
+                });
+
+                html += '</table>';
+
+                const invalidCount = employees.filter(emp => !uuidPattern.test(String(emp.id))).length;
+                
+                if (invalidCount > 0) {
+                    html += `<div class="error">`;
+                    html += `<h3>⚠️ ${invalidCount} of ${employees.length} employees have INVALID UUIDs!</h3>`;
+                    html += `<p>Your database needs to be fixed. Contact your database administrator.</p>`;
+                    html += `</div>`;
+                } else {
+                    html += `<div class="success">`;
+                    html += `<h3>✅ All ${employees.length} employees have valid UUIDs!</h3>`;
+                    html += `</div>`;
+                }
+
+                showResults(html);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function clearSession() {
+            sessionStorage.clear();
+            window.location.href = 'employee-login.html';
+        }
+
+        // Initialize on load
+        initSupabase();
+    </script>
+</body>
+</html>
