@@ -85,6 +85,17 @@
             margin-left: 3px;
         }
 
+        .form-group label .format-hint {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #666;
+            margin-left: 8px;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -111,6 +122,58 @@
             background: #f8f9fa;
             color: #6c757d;
             cursor: not-allowed;
+        }
+
+        /* Date Input with Overlay Styling */
+        .date-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .date-input-wrapper input {
+            position: relative;
+            z-index: 2;
+            background: transparent;
+        }
+
+        .date-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            pointer-events: none;
+            z-index: 1;
+            font-size: 1rem;
+            color: #bbb;
+            font-family: 'Noto Sans Tamil', sans-serif;
+        }
+
+        .date-overlay span {
+            transition: opacity 0.2s ease;
+        }
+
+        .year-guide {
+            width: 50px;
+            text-align: left;
+        }
+
+        .month-guide {
+            width: 30px;
+            text-align: center;
+        }
+
+        .day-guide {
+            width: 30px;
+            text-align: center;
+        }
+
+        .separator {
+            margin: 0 2px;
+            color: #ddd;
         }
 
         /* Part Number Input Styling */
@@ -689,8 +752,18 @@
                 <div class="form-group">
                     <label for="dateOfBirth">
                         <i class="fas fa-calendar-alt"></i> பிறந்த தேதி <span class="required">*</span>
+                        <span class="format-hint">(YYYY-MM-DD)</span>
                     </label>
-                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                    <div class="date-input-wrapper">
+                        <input type="text" id="dateOfBirth" name="dateOfBirth" placeholder="YYYY-MM-DD" required>
+                        <div class="date-overlay" id="dateOverlay">
+                            <span class="year-guide">YYYY</span>
+                            <span class="separator">-</span>
+                            <span class="month-guide">MM</span>
+                            <span class="separator">-</span>
+                            <span class="day-guide">DD</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">

@@ -79,6 +79,112 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Setup part number to area lookup (NEW - Reverse workflow)
         await setupPartNumberLookup();
         
+        // Auto-format date input with hyphens as user types (YYYY-MM-DD)
+        const dateOfBirthInput = document.getElementById('dateOfBirth');
+        const dateOverlay = document.getElementById('dateOverlay');
+        
+        if (dateOfBirthInput && dateOverlay) {
+            const yearGuide = dateOverlay.querySelector('.year-guide');
+            const monthGuide = dateOverlay.querySelector('.month-guide');
+            const dayGuide = dateOverlay.querySelector('.day-guide');
+            const separators = dateOverlay.querySelectorAll('.separator');
+            
+            dateOfBirthInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                
+                if (value.length >= 4) {
+                    // Add hyphen after year (YYYY-)
+                    value = value.substring(0, 4) + '-' + value.substring(4);
+                }
+                if (value.length >= 7) {
+                    // Add hyphen after month (YYYY-MM-)
+                    value = value.substring(0, 7) + '-' + value.substring(7);
+                }
+                if (value.length > 10) {
+                    // Limit to YYYY-MM-DD format
+                    value = value.substring(0, 10);
+                }
+                
+                e.target.value = value;
+                
+                // Update overlay visibility based on input
+                const parts = value.split('-');
+                const yearPart = parts[0] || '';
+                const monthPart = parts[1] || '';
+                const dayPart = parts[2] || '';
+                
+                // Always keep overlay visible, just hide the parts being typed
+                dateOverlay.style.display = 'flex';
+                
+                // Year guide (YYYY)
+                if (yearPart.length > 0) {
+                    yearGuide.style.opacity = '0'; // Hide when typing year
+                } else {
+                    yearGuide.style.opacity = '1'; // Show when empty
+                }
+                
+                // First separator (-)
+                if (yearPart.length === 4) {
+                    separators[0].style.opacity = '1'; // Show after year complete
+                } else if (monthPart.length > 0) {
+                    separators[0].style.opacity = '0'; // Hide when typing month
+                } else {
+                    separators[0].style.opacity = '1'; // Default visible
+                }
+                
+                // Month guide (MM)
+                if (monthPart.length > 0) {
+                    monthGuide.style.opacity = '0'; // Hide when typing month
+                } else if (yearPart.length === 4) {
+                    monthGuide.style.opacity = '1'; // Show when year complete
+                } else {
+                    monthGuide.style.opacity = '1'; // Default visible
+                }
+                
+                // Second separator (-)
+                if (monthPart.length === 2) {
+                    separators[1].style.opacity = '1'; // Show after month complete
+                } else if (dayPart.length > 0) {
+                    separators[1].style.opacity = '0'; // Hide when typing day
+                } else {
+                    separators[1].style.opacity = '1'; // Default visible
+                }
+                
+                // Day guide (DD)
+                if (dayPart.length > 0) {
+                    dayGuide.style.opacity = '0'; // Hide when typing day
+                } else if (monthPart.length === 2) {
+                    dayGuide.style.opacity = '1'; // Show when month complete
+                } else {
+                    dayGuide.style.opacity = '1'; // Default visible
+                }
+                
+                // Hide entire overlay only when date is fully complete
+                if (value.length === 10) {
+                    setTimeout(() => {
+                        dateOverlay.style.display = 'none';
+                    }, 300);
+                }
+            });
+            
+            // Handle focus - always show overlay
+            dateOfBirthInput.addEventListener('focus', function(e) {
+                dateOverlay.style.display = 'flex';
+                yearGuide.style.opacity = '1';
+                monthGuide.style.opacity = '1';
+                dayGuide.style.opacity = '1';
+                separators[0].style.opacity = '1';
+                separators[1].style.opacity = '1';
+            });
+            
+            // Handle blur - keep overlay if field is incomplete
+            dateOfBirthInput.addEventListener('blur', function(e) {
+                if (e.target.value.length === 10) {
+                    dateOverlay.style.display = 'none';
+                }
+            });
+        }
+        
         // Add event listeners
         form.addEventListener('submit', handleFormSubmission);
         resetBtn.addEventListener('click', resetForm);
