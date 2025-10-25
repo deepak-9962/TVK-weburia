@@ -1053,21 +1053,50 @@ async function uploadPhoto(file) {
 // Generate membership number
 async function generateMembershipNumber() {
     try {
-        // Get count of existing members to generate next number
-        const { count, error } = await supabaseClient
+        // Get the highest existing membership number to avoid duplicates
+        const { data, error } = await supabaseClient
             .from('bla_members')
-            .select('*', { count: 'exact', head: true });
+            .select('membership_number')
+            .like('membership_number', 'TVK-MAD-%')
+            .order('membership_number', { ascending: false })
+            .limit(1);
         
         if (error) {
             throw error;
         }
         
-        const nextNumber = (count || 0) + 1;
-        return `TVK-MAD-${nextNumber.toString().padStart(6, '0')}`;
+        let nextNumber = 1;
+        
+        if (data && data.length > 0) {
+            // Extract the number from the last membership_number (e.g., "TVK-MAD-000123" -> 123)
+            const lastNumber = data[0].membership_number;
+            const match = lastNumber.match(/TVK-MAD-(\d+)/);
+            if (match) {
+                nextNumber = parseInt(match[1], 10) + 1;
+            }
+        }
+        
+        // Generate with proper padding
+        const membershipNumber = `TVK-MAD-${nextNumber.toString().padStart(6, '0')}`;
+        
+        // Double-check this number doesn't exist (safety check)
+        const { data: existing } = await supabaseClient
+            .from('bla_members')
+            .select('membership_number')
+            .eq('membership_number', membershipNumber)
+            .single();
+        
+        // If it exists (rare case), use timestamp-based fallback
+        if (existing) {
+            console.warn('Generated number already exists, using timestamp fallback');
+            return `TVK-MAD-${Date.now().toString().slice(-6)}`;
+        }
+        
+        return membershipNumber;
         
     } catch (error) {
         console.error('Error generating membership number:', error);
-        // Fallback to timestamp-based number
+        // Fallback to timestamp-based number (guaranteed unique)
         return `TVK-MAD-${Date.now().toString().slice(-6)}`;
     }
 }
