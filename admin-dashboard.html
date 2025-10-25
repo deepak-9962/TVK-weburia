@@ -300,6 +300,36 @@
             margin-bottom: 30px;
         }
 
+        /* Dashboard Toggle Button */
+        .dashboard-toggle-btn {
+            display: block;
+            margin: -10px auto 30px auto;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #DC143C 0%, #C41E3A 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .dashboard-toggle-btn:hover {
+            background: linear-gradient(135deg, #B8001D 0%, #A01828 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 20, 60, 0.4);
+        }
+
+        .dashboard-toggle-btn:active {
+            transform: translateY(0);
+        }
+
+        .dashboard-toggle-btn i {
+            margin-right: 8px;
+        }
+
         .union-card {
             background: white;
             border-radius: 15px;
@@ -1189,6 +1219,12 @@
                 grid-template-columns: 1fr;
             }
 
+            .dashboard-toggle-btn {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+                margin: -10px auto 20px auto;
+            }
+
             .additional-stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -1301,7 +1337,13 @@
         <h2 class="section-title">
             <i class="fas fa-map-marked-alt"></i> ஒன்றிய வாரியாக உறுப்பினர்கள் (Union-wise Members)
         </h2>
-        <div class="union-stats-grid">
+        
+        <!-- Toggle Button for Detailed Dashboard -->
+        <button id="toggleDashboardBtn" class="dashboard-toggle-btn">
+            <i class="fas fa-chart-pie"></i> விரிவான புள்ளிவிவரங்களைக் காண்க (View Detailed Dashboard)
+        </button>
+        
+        <div class="union-stats-grid" id="summaryDashboard">
             <!-- Madhavaram Union -->
             <div class="union-card">
                 <div class="union-header">
@@ -1411,6 +1453,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Detailed Dashboard Grid (Hidden by Default) -->
+        <div id="detailedDashboardGrid" class="union-stats-grid" style="display: none;">
+            <!-- Will be populated dynamically by JavaScript -->
         </div>
 
         <!-- Additional Stats -->
@@ -1611,6 +1658,80 @@
 
     <script src="supabase-config.js"></script>
     <script>
+        // Detailed Dashboard Data Structure (Search patterns for database queries)
+        const detailedDashboardData = [
+            { 
+                name: 'மாதவரம் வடக்கு பகுதி', 
+                englishName: 'Madhavaram North Area',
+                searchPatterns: ['மாதவரம் வடக்கு', 'madhavaram vadakku', 'madhavaram north'],
+                color: '#3b82f6',
+                count: 0
+            },
+            { 
+                name: 'மாதவரம் மத்திய பகுதி', 
+                englishName: 'Madhavaram Central Area',
+                searchPatterns: ['மாதவரம் மத்திய', 'madhavaram mathiya', 'madhavaram central'],
+                color: '#8b5cf6',
+                count: 0
+            },
+            { 
+                name: 'மாதவரம் கிழக்கு பகுதி', 
+                englishName: 'Madhavaram East Area',
+                searchPatterns: ['மாதவரம் கிழக்கு', 'madhavaram kizhakku', 'madhavaram east'],
+                color: '#ec4899',
+                count: 0
+            },
+            { 
+                name: 'மாதவரம் தெற்கு பகுதி', 
+                englishName: 'Madhavaram South Area',
+                searchPatterns: ['மாதவரம் தெற்கு', 'madhavaram therku', 'madhavaram south'],
+                color: '#f59e0b',
+                count: 0
+            },
+            { 
+                name: 'மாதவரம் வடமேற்கு பகுதி', 
+                englishName: 'Madhavaram Northwest Area',
+                searchPatterns: ['மாதவரம் வடமேற்கு', 'madhavaram vadamerku', 'madhavaram northwest'],
+                color: '#10b981',
+                count: 0
+            },
+            { 
+                name: 'மாதவரம் மேற்கு பகுதி', 
+                englishName: 'Madhavaram West Area',
+                searchPatterns: ['மாதவரம் மேற்கு', 'madhavaram merku', 'madhavaram west'],
+                color: '#06b6d4',
+                count: 0
+            },
+            { 
+                name: 'புழல் ஒன்றியம்', 
+                englishName: 'Puzhal Union',
+                searchPatterns: ['புழல்', 'puzhal'],
+                color: '#6366f1',
+                count: 0
+            },
+            { 
+                name: 'வில்லிவாக்கம் ஒன்றியம்', 
+                englishName: 'Villivakkam Union',
+                searchPatterns: ['வில்லிவாக்கம்', 'villivakkam'],
+                color: '#8b5cf6',
+                count: 0
+            },
+            { 
+                name: 'சோழவரம் ஒன்றியம்', 
+                englishName: 'Sholavaram Union',
+                searchPatterns: ['சோழவரம்', 'sholavaram', 'solavaram'],
+                color: '#f59e0b',
+                count: 0
+            },
+            { 
+                name: 'செங்குன்றம் நகரம்', 
+                englishName: 'Senguntram Town',
+                searchPatterns: ['செங்குன்றம்', 'senguntram', 'sengunram'],
+                color: '#10b981',
+                count: 0
+            }
+        ];
+
         // Global variables - must be declared before use
         let previousStats = {
             total: 0,
@@ -1622,6 +1743,102 @@
         };
 
         let refreshInterval;
+        let isDetailedView = false; // Track current view state
+
+        // Function to load detailed dashboard data from database
+        async function loadDetailedDashboardData() {
+            console.log('Loading detailed dashboard data from database...');
+            
+            for (let area of detailedDashboardData) {
+                try {
+                    // Build OR query for all search patterns
+                    const orConditions = area.searchPatterns
+                        .map(pattern => `town.ilike.%${pattern}%`)
+                        .join(',');
+                    
+                    const { count, error } = await supabase
+                        .from('bla_members')
+                        .select('*', { count: 'exact', head: true })
+                        .or(orConditions);
+                    
+                    if (!error && count !== null) {
+                        area.count = count;
+                        console.log(`${area.name}: ${count} members`);
+                    } else if (error) {
+                        console.error(`Error loading ${area.name}:`, error);
+                        area.count = 0;
+                    }
+                } catch (error) {
+                    console.error(`Error querying ${area.name}:`, error);
+                    area.count = 0;
+                }
+            }
+            
+            // After loading data, populate the dashboard
+            populateDetailedDashboard();
+            console.log('Detailed dashboard data loaded successfully');
+        }
+
+        // Function to populate detailed dashboard with real data
+        function populateDetailedDashboard() {
+            const detailedGrid = document.getElementById('detailedDashboardGrid');
+            
+            // Calculate total for percentage
+            const total = detailedDashboardData.reduce((sum, area) => sum + area.count, 0);
+            
+            const cardsHTML = detailedDashboardData.map((item, index) => `
+                <div class="union-card" style="border-left-color: ${item.color}">
+                    <div class="union-header">
+                        <div class="union-icon" style="background: ${item.color}20; color: ${item.color}">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="union-name">
+                            <h4>${item.name}</h4>
+                            <p>${item.englishName}</p>
+                        </div>
+                    </div>
+                    <div class="union-stats">
+                        <div class="union-count">
+                            <h2 class="count-number">${item.count.toLocaleString('en-IN')}</h2>
+                            <div class="stat-change positive">
+                                <i class="fas fa-users"></i> பதிவு செய்யப்பட்ட உறுப்பினர்கள்
+                            </div>
+                        </div>
+                        <div class="union-percentage">
+                            <span style="color: ${item.color}; font-weight: 600;">
+                                ${total > 0 ? ((item.count / total) * 100).toFixed(2) : '0.00'}%
+                            </span> மொத்தத்தில்
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            detailedGrid.innerHTML = cardsHTML;
+        }
+
+        // Function to toggle between summary and detailed dashboard
+        function toggleDashboard() {
+            const summaryDashboard = document.getElementById('summaryDashboard');
+            const detailedDashboard = document.getElementById('detailedDashboardGrid');
+            const toggleBtn = document.getElementById('toggleDashboardBtn');
+            
+            if (isDetailedView) {
+                // Switch to Summary View
+                summaryDashboard.style.display = 'grid';
+                detailedDashboard.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-chart-pie"></i> விரிவான புள்ளிவிவரங்களைக் காண்க (View Detailed Dashboard)';
+                isDetailedView = false;
+            } else {
+                // Switch to Detailed View
+                summaryDashboard.style.display = 'none';
+                detailedDashboard.style.display = 'grid';
+                toggleBtn.innerHTML = '<i class="fas fa-chart-line"></i> சுருக்கமான புள்ளிவிவரங்களைக் காண்க (View Summary Dashboard)';
+                isDetailedView = true;
+                
+                // Reload detailed data when switching to detailed view
+                loadDetailedDashboardData();
+            }
+        }
 
         // Check authentication and initialize on page load
         window.addEventListener('DOMContentLoaded', async function() {
@@ -1677,6 +1894,10 @@
                     // Don't logout for refresh errors
                 }
 
+                // Initialize detailed dashboard
+                populateDetailedDashboard();
+                console.log('Detailed dashboard populated');
+
             } catch (e) {
                 console.error('Critical session error:', e);
                 console.error('Error stack:', e.stack);
@@ -1686,6 +1907,9 @@
                 // window.location.href = 'admin-login.html';
             }
         });
+
+        // Toggle Dashboard Button Event Listener
+        document.getElementById('toggleDashboardBtn').addEventListener('click', toggleDashboard);
 
         // Logout functionality
         document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -1698,14 +1922,34 @@
         // Load statistics from database
         async function loadStatistics() {
             try {
+                console.log('Loading statistics from database...');
+                
+                // Verify Supabase client is initialized
+                if (!supabase) {
+                    console.error('Supabase client not initialized!');
+                    supabase = await getSupabaseClient();
+                    console.log('Supabase client re-initialized');
+                }
+                
                 // Get total members
                 const { count: membersCount, error: membersError } = await supabase
                     .from('bla_members')
                     .select('*', { count: 'exact', head: true });
 
-                if (!membersError && membersCount !== null) {
+                if (membersError) {
+                    console.error('Error fetching total members:', membersError);
+                    console.error('Error code:', membersError.code);
+                    console.error('Error message:', membersError.message);
+                    // Don't update if there's an error - keep previous value
+                    return;
+                }
+
+                if (membersCount !== null && membersCount !== undefined) {
+                    console.log('Total members count:', membersCount);
                     updateStatWithAnimation('totalMembers', membersCount, previousStats.total);
                     previousStats.total = membersCount;
+                } else {
+                    console.warn('Members count is null or undefined');
                 }
 
                 // Get union-wise counts
@@ -1746,7 +1990,19 @@
                 updateLastUpdateTime();
 
             } catch (error) {
-                console.error('Error loading statistics:', error);
+                console.error('Critical error loading statistics:', error);
+                console.error('Error details:', error.message);
+                console.error('Stack trace:', error.stack);
+                
+                // Show error notification to user
+                const lastUpdateEl = document.getElementById('lastUpdate');
+                if (lastUpdateEl) {
+                    lastUpdateEl.textContent = 'Error loading data';
+                    lastUpdateEl.style.color = 'red';
+                }
+                
+                // Don't clear the interval - keep trying to reconnect
+                console.log('Will retry on next refresh cycle...');
             }
         }
 
@@ -1821,7 +2077,16 @@
         // Update stat with animation and change indicator
         function updateStatWithAnimation(elementId, newValue, oldValue) {
             const element = document.getElementById(elementId);
-            if (!element) return;
+            if (!element) {
+                console.warn(`Element ${elementId} not found`);
+                return;
+            }
+
+            // Don't update with 0 if we previously had a valid value (prevents showing 0 on error)
+            if (newValue === 0 && oldValue > 0) {
+                console.warn(`Skipping update to 0 for ${elementId} (previous value: ${oldValue})`);
+                return;
+            }
 
             // Animate number change
             animateValue(element, parseInt(element.textContent) || 0, newValue, 800);
@@ -1902,6 +2167,12 @@
             refreshInterval = setInterval(() => {
                 console.log('Auto-refreshing statistics...');
                 loadStatistics();
+                
+                // Also refresh detailed dashboard if it's currently visible
+                if (isDetailedView) {
+                    console.log('Refreshing detailed dashboard...');
+                    loadDetailedDashboardData();
+                }
             }, 10000); // 10 seconds
         }
 
