@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLA Members Photo Gallery - TVK</title>
+    
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -114,7 +119,7 @@
         }
 
         .member-card {
-            background: #FFEB3B;
+            background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -122,16 +127,16 @@
             display: flex;
             min-height: 120px;
             max-height: 120px;
-            border: none;
+            border: 2px solid #DC143C;
             position: relative;
         }
 
         .member-card:nth-child(odd) {
-            background: #FFEB3B; /* Yellow background */
+            background: white; /* White background */
         }
 
         .member-card:nth-child(even) {
-            background: #FFEB3B; /* Yellow background */
+            background: white; /* White background */
         }
 
         .member-card:hover {
@@ -144,7 +149,7 @@
             .member-card {
                 flex-direction: column;
                 min-height: auto;
-                border: 2px solid #333;
+                border: 2px solid #DC143C;
             }
 
             .photo-container {
@@ -478,7 +483,7 @@
                 page-break-inside: avoid;
                 break-inside: avoid;
                 box-shadow: none !important;
-                border: none !important;
+                border: 2px solid #DC143C !important;
                 margin-bottom: 4px;
                 height: 120px !important;
                 min-height: 120px !important;
@@ -518,11 +523,11 @@
             }
 
             .member-card:nth-child(odd) {
-                background: #FFEB3B !important;
+                background: white !important;
             }
 
             .member-card:nth-child(even) {
-                background: #f5f5f5 !important;
+                background: white !important;
             }
 
             .member-info {
@@ -622,6 +627,30 @@
             <button class="export-btn" onclick="exportToExcel()" style="background: #28a745;">📊 Excel ஏற்றுமதி</button>
         </div>
 
+        <!-- Show Entries Control -->
+        <div class="filters" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: bold; color: #DC143C;">காண்பிக்கும் எண்ணிக்கை (Show Entries):</label>
+                <select class="filter-input" id="entriesPerPage" onchange="updateDisplay()" style="width: auto; min-width: 100px;">
+                    <option value="all" selected>அனைத்தும் (All)</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" style="display: none; align-items: center; gap: 10px;">
+                <button class="filter-input" onclick="previousPage()" id="prevBtn" style="width: auto; padding: 8px 16px; cursor: pointer;">
+                    ← முந்தைய (Previous)
+                </button>
+                <span id="pageInfo" style="font-weight: bold; color: #DC143C;">Page 1 of 1</span>
+                <button class="filter-input" onclick="nextPage()" id="nextBtn" style="width: auto; padding: 8px 16px; cursor: pointer;">
+                    அடுத்த (Next) →
+                </button>
+            </div>
+        </div>
+
         <div class="filters">
             <div style="display: flex; flex-wrap: wrap; gap: 15px; width: 100%;">
                 <!-- Row 1: Basic Filters -->
@@ -687,6 +716,9 @@
         // Supabase configuration - will be loaded from supabase-config.js
         let supabase;
         let allMembers = [];
+        let filteredMembers = [];
+        let currentPage = 1;
+        let entriesPerPage = 'all';
 
         // Initialize the page
         async function initializePage() {
@@ -734,7 +766,7 @@
                             headers: {
                                 'apikey': SUPABASE_KEY,
                                 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                'Range': '0-999',  // Fetch up to 1000 records
+                                'Range': '0-999999',  // Request up to 1 million records to ensure we get ALL
                                 'Prefer': 'count=exact'
                             }
                         }
@@ -759,7 +791,7 @@
                                 headers: {
                                     'apikey': SUPABASE_KEY,
                                     'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
+                                    'Range': '0-999999',  // Request up to 1 million records to ensure we get ALL
                                     'Prefer': 'count=exact'
                                 }
                             }
@@ -788,7 +820,7 @@
                                 headers: {
                                     'apikey': SUPABASE_KEY,
                                     'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Range': '0-999',  // Fetch up to 1000 records
+                                    'Range': '0-999999',  // Request up to 1 million records to ensure we get ALL
                                     'Prefer': 'count=exact'
                                 }
                             }
@@ -961,7 +993,7 @@
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
             
-            const filtered = allMembers.filter(member => {
+            filteredMembers = allMembers.filter(member => {
                 const matchesSearch = !searchTerm || 
                     (member.full_name && member.full_name.toLowerCase().includes(searchTerm)) ||
                     (member.father_name && member.father_name.toLowerCase().includes(searchTerm)) ||
@@ -996,22 +1028,253 @@
                 return matchesSearch && matchesTown && matchesGender && matchesCategory && matchesStatus && matchesDateRange;
             });
             
+            // Reset to first page when filters change
+            currentPage = 1;
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const entriesSelect = document.getElementById('entriesPerPage');
+            entriesPerPage = entriesSelect.value;
+            
+            let membersToDisplay = [];
+            const totalFiltered = filteredMembers.length;
+            
+            if (entriesPerPage === 'all') {
+                // Show all members
+                membersToDisplay = filteredMembers;
+                document.getElementById('paginationControls').style.display = 'none';
+            } else {
+                // Show paginated members
+                const limit = parseInt(entriesPerPage);
+                const startIndex = (currentPage - 1) * limit;
+                const endIndex = startIndex + limit;
+                membersToDisplay = filteredMembers.slice(startIndex, endIndex);
+                
+                // Show/update pagination controls
+                const totalPages = Math.ceil(totalFiltered / limit);
+                document.getElementById('paginationControls').style.display = 'flex';
+                document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+            }
+            
             // Update filter count display
             const filterCountEl = document.getElementById('filterCount');
             if (filterCountEl) {
-                filterCountEl.textContent = `${filtered.length} உறுப்பினர்கள் கண்டறியப்பட்டது (${filtered.length} members found)`;
+                if (entriesPerPage === 'all') {
+                    filterCountEl.textContent = `${totalFiltered} உறுப்பினர்கள் கண்டறியப்பட்டது (${totalFiltered} members found)`;
+                } else {
+                    const startNum = (currentPage - 1) * parseInt(entriesPerPage) + 1;
+                    const endNum = Math.min(currentPage * parseInt(entriesPerPage), totalFiltered);
+                    filterCountEl.textContent = `காட்டப்படுகிறது ${startNum}-${endNum} / ${totalFiltered} உறுப்பினர்கள் (Showing ${startNum}-${endNum} of ${totalFiltered} members found)`;
+                }
             }
             
-            displayMembers(filtered);
+            displayMembers(membersToDisplay);
         }
 
-        // Export to PDF function
-        function exportToPDF() {
-            // Show a confirmation
-            if (confirm('PDF ஏற்றுமதி செய்ய விரும்புகிறீர்களா?\n\nஇது உங்கள் உலாவியின் அச்சு செயல்பாட்டைத் திறக்கும். "PDF ஆக சேமி" விருப்பத்தைத் தேர்ந்தெடுக்கவும்.')) {
-                // Trigger browser print dialog
-                window.print();
+        function nextPage() {
+            const limit = parseInt(entriesPerPage);
+            const totalPages = Math.ceil(filteredMembers.length / limit);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateDisplay();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateDisplay();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Export to PDF function using html2canvas and jsPDF
+        async function exportToPDF() {
+            try {
+                // Show loading message
+                const loadingMsg = document.createElement('div');
+                loadingMsg.id = 'pdfLoadingMsg';
+                loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:30px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:10000;text-align:center;min-width:300px;';
+                loadingMsg.innerHTML = '<h3 style="color:#DC143C;margin-bottom:10px;">📄 PDF உருவாக்குகிறது...</h3><p>Creating PDF... Please wait...</p><div id="pdfProgress"></div>';
+                document.body.appendChild(loadingMsg);
+
+                // Get the current selection from dropdown
+                const entriesSelect = document.getElementById('entriesPerPage');
+                const currentSelection = entriesSelect.value;
+                
+                // Determine which members to export
+                let membersToExport = [];
+                if (currentSelection === 'all') {
+                    membersToExport = filteredMembers;
+                } else {
+                    // Export only the current page/selection
+                    const limit = parseInt(currentSelection);
+                    const startIndex = (currentPage - 1) * limit;
+                    const endIndex = startIndex + limit;
+                    membersToExport = filteredMembers.slice(startIndex, endIndex);
+                }
+
+                if (membersToExport.length === 0) {
+                    alert('ஏற்றுமதி செய்ய உறுப்பினர்கள் இல்லை (No members to export)');
+                    document.body.removeChild(loadingMsg);
+                    return;
+                }
+
+                // Update progress
+                document.getElementById('pdfProgress').innerHTML = `<p>Processing ${membersToExport.length} members...</p>`;
+
+                // Create a temporary container for rendering
+                const tempContainer = document.createElement('div');
+                tempContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:white;padding:20px;';
+                document.body.appendChild(tempContainer);
+
+                // Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const margin = 10;
+                const contentWidth = pageWidth - (2 * margin);
+                
+                let isFirstPage = true;
+                const cardsPerPage = 9; // Match the print CSS setting
+                
+                for (let i = 0; i < membersToExport.length; i += cardsPerPage) {
+                    const pageMembers = membersToExport.slice(i, i + cardsPerPage);
+                    
+                    // Update progress
+                    document.getElementById('pdfProgress').innerHTML = `<p>Processing page ${Math.floor(i / cardsPerPage) + 1} of ${Math.ceil(membersToExport.length / cardsPerPage)}...</p>`;
+                    
+                    // Clear temp container
+                    tempContainer.innerHTML = '';
+                    
+                    // Create cards for this page
+                    pageMembers.forEach(member => {
+                        const card = createMemberCard(member);
+                        tempContainer.appendChild(card);
+                    });
+                    
+                    // Wait for images to load
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Capture the container as canvas
+                    const canvas = await html2canvas(tempContainer, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    // Convert canvas to image
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    // Add new page if not first
+                    if (!isFirstPage) {
+                        pdf.addPage();
+                    }
+                    isFirstPage = false;
+                    
+                    // Calculate dimensions to fit page
+                    const imgWidth = contentWidth;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    // Add image to PDF
+                    pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, pageHeight - 2 * margin));
+                }
+                
+                // Remove temporary container
+                document.body.removeChild(tempContainer);
+                
+                // Save PDF
+                const fileName = `BLA_Members_Photos_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                // Remove loading message
+                document.body.removeChild(loadingMsg);
+                
+                alert(`✅ PDF வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!\n${membersToExport.length} உறுப்பினர்கள்\n(PDF downloaded successfully!)`);
+                
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                const loadingMsg = document.getElementById('pdfLoadingMsg');
+                if (loadingMsg) {
+                    document.body.removeChild(loadingMsg);
+                }
+                alert('PDF ஏற்றுமதியில் பிழை (Error exporting to PDF): ' + error.message);
+            }
+        }
+
+        // Helper function to create a member card element
+        function createMemberCard(member) {
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            card.style.cssText = 'display:flex;background:white;border:2px solid #DC143C;border-radius:12px;margin-bottom:4px;height:120px;min-height:120px;max-height:120px;overflow:hidden;';
+            
+            const photoContainer = document.createElement('div');
+            photoContainer.style.cssText = 'width:110px;min-width:110px;height:116px;position:relative;overflow:hidden;';
+            
+            if (member.photo_url) {
+                const img = document.createElement('img');
+                img.src = member.photo_url;
+                img.alt = member.full_name;
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;';
+                photoContainer.appendChild(img);
+            } else {
+                const noPhoto = document.createElement('div');
+                noPhoto.textContent = '📷';
+                noPhoto.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:40px;';
+                photoContainer.appendChild(noPhoto);
+            }
+            
+            // Add voter ID overlay
+            if (member.voter_id) {
+                const voterOverlay = document.createElement('div');
+                voterOverlay.textContent = member.voter_id;
+                voterOverlay.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(220,20,60,0.9);color:white;padding:3px 4px;font-size:9px;font-weight:bold;text-align:center;letter-spacing:0.4px;';
+                photoContainer.appendChild(voterOverlay);
+            }
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.style.cssText = 'flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;';
+            
+            const dob = member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('ta-IN') : 'N/A';
+            
+            infoDiv.innerHTML = `
+                <div>
+                    ${member.membership_number ? `<div style="margin-bottom:1px;"><strong style="font-size:10px;display:inline-block;min-width:70px;">உறுப்பினர் எண்:</strong> <span>${member.membership_number}</span></div>` : ''}
+                    <div style="display:flex;gap:8px;">
+                        <div style="flex:1;">
+                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பெயர் :</strong><span>${member.full_name || ''}</span></div>
+                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">தந்தை பெயர் :</strong><span>${member.father_name || ''}</span></div>
+                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பிறந்த தேதி :</strong><span>${dob}</span></div>
+                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பகுதி :</strong><span>${member.town || ''}</span></div>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">தொலைபேசி :</strong><span>${member.mobile || ''}</span></div>
+                            ${member.ward_circle ? `<div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">வட்டம் :</strong><span>${member.ward_circle}</span></div>` : ''}
+                            ${member.member_category ? `<div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">உறுப்பினர் :</strong><span>${member.member_category}</span></div>` : ''}
+                        </div>
+                    </div>
+                    <div style="color:#0d47a1;margin-top:2px;font-size:10px;">
+                        <strong>பதிவு தேதி:</strong>
+                        <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN') : ''}</span>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                    ${member.part_number ? `<div style="background:#DC143C;color:white;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:bold;">பாகம் - ${member.part_number}</div>` : '<div></div>'}
+                    <div style="font-weight:700;color:#c62828;font-size:9px;">தமிழக வெற்றிக் கழகம்</div>
+                </div>
+            `;
+            
+            card.appendChild(photoContainer);
+            card.appendChild(infoDiv);
+            
+            return card;
         }
 
         // Export to Excel function
@@ -1020,30 +1283,24 @@
                 // Show loading message
                 const loadingMsg = document.createElement('div');
                 loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 6px rgba(0,0,0,0.3);z-index:10000;';
-                loadingMsg.innerHTML = '<h3>📊 தரவை தயார் செய்கிறது...</h3><p>Preparing lightweight export...</p>';
+                loadingMsg.innerHTML = '<h3>📊 தரவை தயார் செய்கிறது...</h3><p>Preparing export...</p>';
                 document.body.appendChild(loadingMsg);
 
-                // Fetch ONLY the columns we need for export (NO photo_url, NO backup!)
-                const SUPABASE_URL = 'https://cbcuhojwffwppocnoxel.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiY3Vob2p3ZmZ3cHBvY25veGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5ODY3NDYsImV4cCI6MjA3NDU2Mjc0Nn0.yYdiAY297k7dA2uUYnIlePy8xE0k8veUu_LoVae_QvI';
+                // Get the current selection from dropdown
+                const entriesSelect = document.getElementById('entriesPerPage');
+                const currentSelection = entriesSelect.value;
                 
-                // Fetch only export columns (no photo_url, no photo_url_backup)
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/bla_members?select=full_name,father_name,date_of_birth,gender,mobile,voter_id,address,town,ward_circle,member_category,part_number,membership_number,created_at,status`,
-                    {
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Range': '0-999'
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                // Determine which members to export (same logic as PDF)
+                let membersToExport = [];
+                if (currentSelection === 'all') {
+                    membersToExport = filteredMembers;
+                } else {
+                    // Export only the current page/selection
+                    const limit = parseInt(currentSelection);
+                    const startIndex = (currentPage - 1) * limit;
+                    const endIndex = startIndex + limit;
+                    membersToExport = filteredMembers.slice(startIndex, endIndex);
                 }
-
-                const membersToExport = await response.json();
                 
                 document.body.removeChild(loadingMsg);
 
