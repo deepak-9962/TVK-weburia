@@ -453,53 +453,62 @@
 
             @page {
                 size: A4;
-                margin: 10mm 8mm;
+                margin: 8mm;
             }
 
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
+            html, body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                height: auto !important;
             }
 
-            .header, .filters, .refresh-btn, .export-btn {
+            .header, .filters, .refresh-btn, .export-btn, #loading, #error {
                 display: none !important;
             }
 
             .container {
-                max-width: 100%;
-                padding: 0;
-                margin: 0;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
             }
 
             .gallery {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
 
-            /* Optimized PDF styles for maximum cards per page */
+            /* Optimized card layout for print - NO FORCED PAGE BREAKS */
             .member-card {
-                page-break-inside: avoid;
-                break-inside: avoid;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                display: flex !important;
+                flex-direction: row !important;
                 box-shadow: none !important;
                 border: 2px solid #DC143C !important;
-                margin-bottom: 4px;
-                height: 120px !important;
-                min-height: 120px !important;
-                max-height: 120px !important;
-                flex-direction: row !important;
+                border-radius: 8px !important;
+                margin: 0 0 2mm 0 !important;
+                padding: 0 !important;
+                height: 28mm !important;
+                min-height: 28mm !important;
+                max-height: 28mm !important;
+                background: white !important;
+                overflow: hidden !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
 
             .photo-container {
-                width: 110px !important;
-                min-width: 110px !important;
-                max-width: 110px !important;
-                height: 112px !important;
-                border-right: none !important;
-                border-bottom: none !important;
+                width: 25mm !important;
+                min-width: 25mm !important;
+                max-width: 25mm !important;
+                height: 100% !important;
                 border: none !important;
                 position: relative !important;
+                flex-shrink: 0 !important;
             }
 
             .member-photo {
@@ -507,87 +516,73 @@
                 height: 100% !important;
                 object-fit: cover !important;
                 object-position: center !important;
+                display: block !important;
+            }
+
+            .no-photo {
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: #f5f5f5 !important;
+                font-size: 30px !important;
             }
 
             .voter-id-overlay {
-                font-size: 9px !important;
-                padding: 3px 4px !important;
-                letter-spacing: 0.4px !important;
-            }
-
-            /* Force page break after every 9th card (9 cards per page for A4) */
-            .member-card:nth-child(9n) {
-                page-break-after: always;
-                break-after: page;
-                margin-bottom: 0;
-            }
-
-            .member-card:nth-child(odd) {
-                background: white !important;
-            }
-
-            .member-card:nth-child(even) {
-                background: white !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: rgba(220, 20, 60, 0.95) !important;
+                color: white !important;
+                padding: 2px 3px !important;
+                font-size: 7px !important;
+                font-weight: bold !important;
+                text-align: center !important;
+                letter-spacing: 0.3px !important;
             }
 
             .member-info {
-                padding: 6px 10px !important;
-            }
-
-            .member-name {
-                font-size: 14px !important;
-                margin-bottom: 1px !important;
+                flex: 1 !important;
+                padding: 2mm 3mm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                font-size: 8px !important;
+                line-height: 1.2 !important;
+                overflow: hidden !important;
             }
 
             .member-details {
-                font-size: 10px !important;
-                margin: 1px 0 !important;
-                gap: 3px !important;
+                font-size: 8px !important;
+                margin: 0.5px 0 !important;
+                display: flex !important;
+                gap: 2px !important;
             }
 
             .member-details strong {
-                font-size: 10px !important;
-                min-width: 70px !important;
-                max-width: 70px !important;
+                font-size: 8px !important;
+                min-width: 60px !important;
+                max-width: 60px !important;
+                display: inline-block !important;
             }
 
             .info-row {
+                display: flex !important;
                 flex-direction: row !important;
-                gap: 8px !important;
-                margin-bottom: 2px !important;
+                gap: 6px !important;
+                margin-bottom: 1px !important;
             }
 
-            .voter-id-box {
-                font-size: 9px !important;
-                padding: 2px 6px !important;
-                border: none !important;
+            .info-column {
+                flex: 1 !important;
             }
 
-            .member-id {
-                font-size: 9px !important;
-            }
-
-            .part-number-box {
-                font-size: 10px !important;
-                padding: 2px 6px !important;
-            }
-
-            /* Mobile print styles */
-            @media (max-width: 768px) {
-                .member-card {
-                    height: 120px !important;
-                }
-
-                .photo-container {
-                    width: 110px !important;
-                    min-width: 110px !important;
-                }
-
-                /* 9 cards per page on mobile too */
-                .member-card:nth-child(9n) {
-                    page-break-after: always;
-                    break-after: page;
-                }
+            .voter-id-box, .part-number-box {
+                font-size: 7px !important;
+                padding: 1px 4px !important;
+                border-radius: 2px !important;
             }
         }
 
@@ -1093,188 +1088,58 @@
             }
         }
 
-        // Export to PDF function using html2canvas and jsPDF
+        // Export to PDF function - INSTANT using browser print dialog
         async function exportToPDF() {
-            try {
-                // Show loading message
-                const loadingMsg = document.createElement('div');
-                loadingMsg.id = 'pdfLoadingMsg';
-                loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:30px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:10000;text-align:center;min-width:300px;';
-                loadingMsg.innerHTML = '<h3 style="color:#DC143C;margin-bottom:10px;">📄 PDF உருவாக்குகிறது...</h3><p>Creating PDF... Please wait...</p><div id="pdfProgress"></div>';
-                document.body.appendChild(loadingMsg);
-
-                // Get the current selection from dropdown
-                const entriesSelect = document.getElementById('entriesPerPage');
-                const currentSelection = entriesSelect.value;
-                
-                // Determine which members to export
-                let membersToExport = [];
-                if (currentSelection === 'all') {
-                    membersToExport = filteredMembers;
-                } else {
-                    // Export only the current page/selection
-                    const limit = parseInt(currentSelection);
-                    const startIndex = (currentPage - 1) * limit;
-                    const endIndex = startIndex + limit;
-                    membersToExport = filteredMembers.slice(startIndex, endIndex);
-                }
-
-                if (membersToExport.length === 0) {
-                    alert('ஏற்றுமதி செய்ய உறுப்பினர்கள் இல்லை (No members to export)');
-                    document.body.removeChild(loadingMsg);
-                    return;
-                }
-
-                // Update progress
-                document.getElementById('pdfProgress').innerHTML = `<p>Processing ${membersToExport.length} members...</p>`;
-
-                // Create a temporary container for rendering
-                const tempContainer = document.createElement('div');
-                tempContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:white;padding:20px;';
-                document.body.appendChild(tempContainer);
-
-                // Initialize jsPDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = 210; // A4 width in mm
-                const pageHeight = 297; // A4 height in mm
-                const margin = 10;
-                const contentWidth = pageWidth - (2 * margin);
-                
-                let isFirstPage = true;
-                const cardsPerPage = 9; // Match the print CSS setting
-                
-                for (let i = 0; i < membersToExport.length; i += cardsPerPage) {
-                    const pageMembers = membersToExport.slice(i, i + cardsPerPage);
-                    
-                    // Update progress
-                    document.getElementById('pdfProgress').innerHTML = `<p>Processing page ${Math.floor(i / cardsPerPage) + 1} of ${Math.ceil(membersToExport.length / cardsPerPage)}...</p>`;
-                    
-                    // Clear temp container
-                    tempContainer.innerHTML = '';
-                    
-                    // Create cards for this page
-                    pageMembers.forEach(member => {
-                        const card = createMemberCard(member);
-                        tempContainer.appendChild(card);
-                    });
-                    
-                    // Wait for images to load
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    // Capture the container as canvas
-                    const canvas = await html2canvas(tempContainer, {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: '#ffffff'
-                    });
-                    
-                    // Convert canvas to image
-                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                    
-                    // Add new page if not first
-                    if (!isFirstPage) {
-                        pdf.addPage();
-                    }
-                    isFirstPage = false;
-                    
-                    // Calculate dimensions to fit page
-                    const imgWidth = contentWidth;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    
-                    // Add image to PDF
-                    pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, pageHeight - 2 * margin));
-                }
-                
-                // Remove temporary container
-                document.body.removeChild(tempContainer);
-                
-                // Save PDF
-                const fileName = `BLA_Members_Photos_${new Date().toISOString().split('T')[0]}.pdf`;
-                pdf.save(fileName);
-                
-                // Remove loading message
-                document.body.removeChild(loadingMsg);
-                
-                alert(`✅ PDF வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!\n${membersToExport.length} உறுப்பினர்கள்\n(PDF downloaded successfully!)`);
-                
-            } catch (error) {
-                console.error('PDF Export Error:', error);
-                const loadingMsg = document.getElementById('pdfLoadingMsg');
-                if (loadingMsg) {
-                    document.body.removeChild(loadingMsg);
-                }
-                alert('PDF ஏற்றுமதியில் பிழை (Error exporting to PDF): ' + error.message);
-            }
-        }
-
-        // Helper function to create a member card element
-        function createMemberCard(member) {
-            const card = document.createElement('div');
-            card.className = 'member-card';
-            card.style.cssText = 'display:flex;background:white;border:2px solid #DC143C;border-radius:12px;margin-bottom:4px;height:120px;min-height:120px;max-height:120px;overflow:hidden;';
+            // Get the current selection from dropdown
+            const entriesSelect = document.getElementById('entriesPerPage');
+            const currentSelection = entriesSelect.value;
             
-            const photoContainer = document.createElement('div');
-            photoContainer.style.cssText = 'width:110px;min-width:110px;height:116px;position:relative;overflow:hidden;';
+            // Temporarily hide elements that shouldn't be in PDF
+            const header = document.querySelector('.header');
+            const filters = document.querySelectorAll('.filters');
+            const showEntriesDiv = filters[0]; // First filter div with Show Entries
+            const paginationControls = document.getElementById('paginationControls');
             
-            if (member.photo_url) {
-                const img = document.createElement('img');
-                img.src = member.photo_url;
-                img.alt = member.full_name;
-                img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;';
-                photoContainer.appendChild(img);
-            } else {
-                const noPhoto = document.createElement('div');
-                noPhoto.textContent = '📷';
-                noPhoto.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:40px;';
-                photoContainer.appendChild(noPhoto);
+            // Store original values
+            const originalHeaderDisplay = header.style.display;
+            const originalShowEntriesDisplay = showEntriesDiv ? showEntriesDiv.style.display : '';
+            const originalPaginationDisplay = paginationControls ? paginationControls.style.display : '';
+            const originalFiltersDisplay = filters[1] ? filters[1].style.display : '';
+            
+            // Hide UI elements
+            header.style.display = 'none';
+            if (showEntriesDiv) showEntriesDiv.style.display = 'none';
+            if (paginationControls) paginationControls.style.display = 'none';
+            if (filters[1]) filters[1].style.display = 'none';
+            
+            // If not showing all, temporarily display all filtered members for PDF
+            let originalGalleryContent = null;
+            if (currentSelection !== 'all') {
+                const galleryDiv = document.getElementById('gallery');
+                originalGalleryContent = galleryDiv.innerHTML;
+                
+                // Re-render with all filtered members
+                displayMembers(filteredMembers);
             }
             
-            // Add voter ID overlay
-            if (member.voter_id) {
-                const voterOverlay = document.createElement('div');
-                voterOverlay.textContent = member.voter_id;
-                voterOverlay.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(220,20,60,0.9);color:white;padding:3px 4px;font-size:9px;font-weight:bold;text-align:center;letter-spacing:0.4px;';
-                photoContainer.appendChild(voterOverlay);
-            }
+            // Small delay to ensure DOM is updated
+            await new Promise(resolve => setTimeout(resolve, 100));
             
-            const infoDiv = document.createElement('div');
-            infoDiv.style.cssText = 'flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;';
+            // Open print dialog (instant!)
+            window.print();
             
-            const dob = member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString('ta-IN') : 'N/A';
-            
-            infoDiv.innerHTML = `
-                <div>
-                    ${member.membership_number ? `<div style="margin-bottom:1px;"><strong style="font-size:10px;display:inline-block;min-width:70px;">உறுப்பினர் எண்:</strong> <span>${member.membership_number}</span></div>` : ''}
-                    <div style="display:flex;gap:8px;">
-                        <div style="flex:1;">
-                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பெயர் :</strong><span>${member.full_name || ''}</span></div>
-                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">தந்தை பெயர் :</strong><span>${member.father_name || ''}</span></div>
-                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பிறந்த தேதி :</strong><span>${dob}</span></div>
-                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">பகுதி :</strong><span>${member.town || ''}</span></div>
-                        </div>
-                        <div style="flex:1;">
-                            <div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">தொலைபேசி :</strong><span>${member.mobile || ''}</span></div>
-                            ${member.ward_circle ? `<div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">வட்டம் :</strong><span>${member.ward_circle}</span></div>` : ''}
-                            ${member.member_category ? `<div style="margin:1px 0;"><strong style="font-size:10px;display:inline-block;min-width:70px;">உறுப்பினர் :</strong><span>${member.member_category}</span></div>` : ''}
-                        </div>
-                    </div>
-                    <div style="color:#0d47a1;margin-top:2px;font-size:10px;">
-                        <strong>பதிவு தேதி:</strong>
-                        <span>${member.created_at ? new Date(member.created_at).toLocaleDateString('ta-IN') : ''}</span>
-                    </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
-                    ${member.part_number ? `<div style="background:#DC143C;color:white;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:bold;">பாகம் - ${member.part_number}</div>` : '<div></div>'}
-                    <div style="font-weight:700;color:#c62828;font-size:9px;">தமிழக வெற்றிக் கழகம்</div>
-                </div>
-            `;
-            
-            card.appendChild(photoContainer);
-            card.appendChild(infoDiv);
-            
-            return card;
+            // Restore original UI after print dialog closes
+            setTimeout(() => {
+                header.style.display = originalHeaderDisplay;
+                if (showEntriesDiv) showEntriesDiv.style.display = originalShowEntriesDisplay;
+                if (paginationControls) paginationControls.style.display = originalPaginationDisplay;
+                if (filters[1]) filters[1].style.display = originalFiltersDisplay;
+                
+                // Restore original gallery content if it was changed
+                if (originalGalleryContent !== null) {
+                    document.getElementById('gallery').innerHTML = originalGalleryContent;
+                }
+            }, 500);
         }
 
         // Export to Excel function
