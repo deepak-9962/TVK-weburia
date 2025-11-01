@@ -1012,8 +1012,8 @@ function generateReport() {
                 <button class="action-btn" onclick="downloadReport()">
                     <i class="fas fa-download"></i> அறிக்கையை பதிவிறக்கம்
                 </button>
-                <button class="action-btn" onclick="printReport()">
-                    <i class="fas fa-print"></i> அச்சிடு
+                <button class="action-btn" onclick="exportDetailedReportAsPDF()">
+                    <i class="fas fa-print"></i> அச்சிடு / PDF ஏற்றுமதி
                 </button>
             </div>
         </div>
@@ -1027,7 +1027,363 @@ function downloadReport() {
 }
 
 function printReport() {
-    showNotification('அச்சிடுதல்', 'அச்சிடும் வசதி விரைவில் கிடைக்கும்', 'info');
+    // Legacy function - now redirects to new PDF export
+    exportDetailedReportAsPDF();
+}
+
+// New comprehensive PDF export function with dashboard summary
+async function exportDetailedReportAsPDF() {
+    try {
+        // Show loading notification
+        showNotification('PDF உருவாக்குகிறது', 'தயவுசெய்து காத்திருக்கவும்...', 'info');
+        
+        console.log('Starting PDF export...');
+        
+        // Sample data for the 10-card dashboard (based on image_d39802.png)
+        const dashboardData = [
+            {
+                title: 'மாதவரம் வடக்கு பகுதி',
+                subtitle: 'Madhavaram North Area',
+                count: 943,
+                percentage: 19.04,
+                color: '#3B82F6', // Blue
+                icon: '📍'
+            },
+            {
+                title: 'மாதவரம் மத்திய பகுதி',
+                subtitle: 'Madhavaram Central Area',
+                count: 644,
+                percentage: 13.00,
+                color: '#8B5CF6', // Purple
+                icon: '📍'
+            },
+            {
+                title: 'மாதவரம் கிழக்கு பகுதி',
+                subtitle: 'Madhavaram East Area',
+                count: 300,
+                percentage: 6.06,
+                color: '#EC4899', // Pink
+                icon: '📍'
+            },
+            {
+                title: 'மாதவரம் தெற்கு பகுதி',
+                subtitle: 'Madhavaram South Area',
+                count: 205,
+                percentage: 4.14,
+                color: '#F59E0B', // Orange
+                icon: '📍'
+            },
+            {
+                title: 'மாதவரம் வடமேற்கு பகுதி',
+                subtitle: 'Madhavaram Northwest Area',
+                count: 645,
+                percentage: 13.02,
+                color: '#10B981', // Green
+                icon: '📍'
+            },
+            {
+                title: 'மாதவரம் மேற்கு பகுதி',
+                subtitle: 'Madhavaram West Area',
+                count: 115,
+                percentage: 2.32,
+                color: '#06B6D4', // Cyan
+                icon: '📍'
+            },
+            {
+                title: 'புழல் ஒன்றியம்',
+                subtitle: 'Puzhal Union',
+                count: 251,
+                percentage: 5.07,
+                color: '#6366F1', // Indigo
+                icon: '📍'
+            },
+            {
+                title: 'விள்ளிவாக்கம் ஒன்றியம்',
+                subtitle: 'Villivakkam Union',
+                count: 1164,
+                percentage: 23.50,
+                color: '#8B5CF6', // Purple
+                icon: '📍'
+            },
+            {
+                title: 'சோழவரம் ஒன்றியம்',
+                subtitle: 'Sholavaram Union',
+                count: 461,
+                percentage: 9.31,
+                color: '#F59E0B', // Orange
+                icon: '📍'
+            },
+            {
+                title: 'செங்குன்றம் நகரம்',
+                subtitle: 'Senguntram Town',
+                count: 225,
+                percentage: 4.54,
+                color: '#10B981', // Green
+                icon: '📍'
+            }
+        ];
+
+        // Create off-screen container for the dashboard - FIXED POSITIONING
+        const dashboardContainer = document.createElement('div');
+        dashboardContainer.id = 'pdf-dashboard-container';
+        dashboardContainer.style.cssText = `
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 1200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            z-index: 999999;
+            opacity: 0;
+            pointer-events: none;
+        `;
+
+        // Create dashboard HTML with inline styles for better rendering
+        let dashboardHTML = `
+            <div style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); font-family: 'Noto Sans Tamil', sans-serif;">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h1 style="color: #DC143C; font-size: 36px; margin-bottom: 10px; font-weight: 700; font-family: 'Noto Sans Tamil', sans-serif;">
+                        TVK பகுதி வாரியான அறிக்கை
+                    </h1>
+                    <p style="color: #666; font-size: 18px; margin: 0; font-family: 'Noto Sans Tamil', sans-serif;">
+                        தமிழக வெற்றிக் கழகம் - உறுப்பினர் பகுப்பாய்வு
+                    </p>
+                    <p style="color: #999; font-size: 14px; margin-top: 10px; font-family: 'Noto Sans Tamil', sans-serif;">
+                        ${new Date().toLocaleDateString('ta-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+        `;
+
+        // Add cards to dashboard
+        dashboardData.forEach((card, index) => {
+            dashboardHTML += `
+                <div style="
+                    background: white;
+                    border-radius: 15px;
+                    padding: 25px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                    border-left: 5px solid ${card.color};
+                    position: relative;
+                    overflow: hidden;
+                    font-family: 'Noto Sans Tamil', sans-serif;
+                ">
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 40px; opacity: 0.1;">
+                        ${card.icon}
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 15px; position: relative; z-index: 1;">
+                        <div style="
+                            width: 50px;
+                            height: 50px;
+                            background: ${card.color};
+                            border-radius: 12px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 24px;
+                            flex-shrink: 0;
+                        ">
+                            ${card.icon}
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="
+                                color: #1a1a1a;
+                                font-size: 18px;
+                                font-weight: 700;
+                                margin: 0 0 5px 0;
+                                line-height: 1.3;
+                                font-family: 'Noto Sans Tamil', sans-serif;
+                            ">
+                                ${card.title}
+                            </h3>
+                            <p style="
+                                color: #666;
+                                font-size: 12px;
+                                margin: 0 0 15px 0;
+                                font-family: 'Noto Sans Tamil', sans-serif;
+                            ">
+                                ${card.subtitle}
+                            </p>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                                <div style="
+                                    font-size: 32px;
+                                    font-weight: 700;
+                                    color: ${card.color};
+                                    line-height: 1;
+                                    font-family: 'Noto Sans Tamil', sans-serif;
+                                ">
+                                    ${card.count}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="
+                                        font-size: 11px;
+                                        color: #10B981;
+                                        font-weight: 600;
+                                        margin-bottom: 3px;
+                                        font-family: 'Noto Sans Tamil', sans-serif;
+                                    ">
+                                        📊 புதிய செய்யப்பட்ட உறுப்பினர்கள்
+                                    </div>
+                                    <div style="
+                                        font-size: 16px;
+                                        color: ${card.percentage >= 10 ? '#10B981' : '#F59E0B'};
+                                        font-weight: 700;
+                                        font-family: 'Noto Sans Tamil', sans-serif;
+                                    ">
+                                        ${card.percentage}% மொத்தத்தில்
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        dashboardHTML += `
+                </div>
+                
+                <div style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    padding: 20px;
+                    color: white;
+                    text-align: center;
+                    margin-top: 20px;
+                    font-family: 'Noto Sans Tamil', sans-serif;
+                ">
+                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">
+                        மொத்த உறுப்பினர்கள்: ${dashboardData.reduce((sum, card) => sum + card.count, 0)}
+                    </div>
+                    <div style="font-size: 14px; opacity: 0.9;">
+                        தமிழக வெற்றிக் கழகம் - வளர்ச்சியில் முன்னேற்றம்
+                    </div>
+                </div>
+            </div>
+        `;
+
+        dashboardContainer.innerHTML = dashboardHTML;
+        document.body.appendChild(dashboardContainer);
+        
+        console.log('Dashboard container added to body');
+
+        // Wait for fonts and styles to load - INCREASED WAIT TIME
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Make visible temporarily for capture
+        dashboardContainer.style.opacity = '1';
+        
+        console.log('Starting canvas capture...');
+
+        // Capture dashboard as canvas with improved settings
+        const canvas = await html2canvas(dashboardContainer, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: true,
+            backgroundColor: '#667eea',
+            width: 1200,
+            height: dashboardContainer.scrollHeight,
+            windowWidth: 1200,
+            windowHeight: dashboardContainer.scrollHeight
+        });
+        
+        console.log('Canvas captured:', canvas.width, 'x', canvas.height);
+
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const pageWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Add dashboard image to first page
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        
+        // If image is taller than page, scale it to fit
+        if (imgHeight > pageHeight) {
+            const scaledHeight = pageHeight;
+            const scaledWidth = (canvas.width * scaledHeight) / canvas.height;
+            const xOffset = (pageWidth - scaledWidth) / 2;
+            pdf.addImage(imgData, 'PNG', xOffset, 0, scaledWidth, scaledHeight);
+        } else {
+            const yOffset = (pageHeight - imgHeight) / 2;
+            pdf.addImage(imgData, 'PNG', 0, yOffset, imgWidth, imgHeight);
+        }
+        
+        console.log('Dashboard added to PDF page 1');
+
+        // Add second page with detailed report
+        pdf.addPage();
+        
+        // Add header to second page
+        pdf.setFillColor(220, 20, 60);
+        pdf.rect(0, 0, 210, 40, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(24);
+        pdf.text('விரிவான அறிக்கை', 105, 20, { align: 'center' });
+        
+        pdf.setFontSize(14);
+        pdf.text('தமிழக வெற்றிக் கழகம்', 105, 32, { align: 'center' });
+
+        // Add content to second page
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(16);
+        pdf.text('உறுப்பினர் விவரங்கள்:', 20, 60);
+        
+        pdf.setFontSize(12);
+        let yPos = 75;
+        
+        pdf.text(`மொத்த உறுப்பினர்கள்: ${members.length}`, 20, yPos);
+        yPos += 10;
+        pdf.text(`மொத்த குறைகள்: ${complaints.length}`, 20, yPos);
+        yPos += 10;
+        pdf.text(`நிலுவையில் உள்ள குறைகள்: ${complaints.filter(c => c.status === 'pending').length}`, 20, yPos);
+        yPos += 10;
+        pdf.text(`தீர்க்கப்பட்ட குறைகள்: ${complaints.filter(c => c.status === 'resolved').length}`, 20, yPos);
+        
+        yPos += 20;
+        pdf.setFontSize(14);
+        pdf.text('பகுதி வாரியான பகுப்பாய்வு:', 20, yPos);
+        
+        yPos += 15;
+        pdf.setFontSize(10);
+        dashboardData.forEach((area) => {
+            if (yPos > 270) { // Check if we need a new page
+                pdf.addPage();
+                yPos = 20;
+            }
+            pdf.text(`• ${area.title}: ${area.count} உறுப்பினர்கள் (${area.percentage}%)`, 25, yPos);
+            yPos += 8;
+        });
+
+        // Clean up
+        document.body.removeChild(dashboardContainer);
+        console.log('Dashboard container removed');
+
+        // Save PDF
+        const fileName = `TVK_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+        pdf.save(fileName);
+        
+        console.log('PDF saved:', fileName);
+
+        showNotification('வெற்றி', 'PDF வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!', 'success');
+
+    } catch (error) {
+        console.error('PDF Export Error:', error);
+        showNotification('பிழை', 'PDF உருவாக்குவதில் பிழை ஏற்பட்டது: ' + error.message, 'error');
+        
+        // Clean up if error occurs
+        const container = document.getElementById('pdf-dashboard-container');
+        if (container) {
+            document.body.removeChild(container);
+        }
+    }
 }
 
 // Keyboard shortcuts

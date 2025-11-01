@@ -463,6 +463,12 @@
                 height: auto !important;
             }
 
+            /* Dashboard summary page */
+            .dashboard-summary-page {
+                display: block !important;
+                page-break-after: always !important;
+            }
+
             .header, .filters, .refresh-btn, .export-btn, #loading, #error {
                 display: none !important;
             }
@@ -1122,6 +1128,62 @@
                 displayMembers(filteredMembers);
             }
             
+            // Create dashboard summary page
+            const dashboardPage = document.createElement('div');
+            dashboardPage.className = 'dashboard-summary-page';
+            dashboardPage.style.cssText = 'display:none;';
+            
+            // Use FIXED COUNTS from Admin Dashboard (do not compute from members)
+            const dashboardData = [
+                { title: 'மாதவரம் வடக்கு பகுதி', subtitle: 'Madhavaram North Area', count: 943, percentage: 19.04, color: '#3B82F6', icon: '📍' },
+                { title: 'மாதவரம் மத்திய பகுதி', subtitle: 'Madhavaram Central Area', count: 644, percentage: 13.00, color: '#8B5CF6', icon: '📍' },
+                { title: 'மாதவரம் கிழக்கு பகுதி', subtitle: 'Madhavaram East Area', count: 300, percentage: 6.06, color: '#EC4899', icon: '📍' },
+                { title: 'மாதவரம் தெற்கு பகுதி', subtitle: 'Madhavaram South Area', count: 205, percentage: 4.14, color: '#F59E0B', icon: '📍' },
+                { title: 'மாதவரம் வடமேற்கு பகுதி', subtitle: 'Madhavaram Northwest Area', count: 645, percentage: 13.02, color: '#10B981', icon: '📍' },
+                { title: 'மாதவரம் மேற்கு பகுதி', subtitle: 'Madhavaram West Area', count: 115, percentage: 2.32, color: '#06B6D4', icon: '📍' },
+                { title: 'புழல் ஒன்றியம்', subtitle: 'Puzhal Union', count: 251, percentage: 5.07, color: '#6366F1', icon: '📍' },
+                { title: 'விள்ளிவாக்கம் ஒன்றியம்', subtitle: 'Villivakkam Union', count: 1164, percentage: 23.50, color: '#8B5CF6', icon: '📍' },
+                { title: 'சோழவரம் ஒன்றியம்', subtitle: 'Sholavaram Union', count: 461, percentage: 9.31, color: '#F59E0B', icon: '📍' },
+                { title: 'செங்குன்றம் நகரம்', subtitle: 'Senguntram Town', count: 225, percentage: 4.54, color: '#10B981', icon: '📍' }
+            ];
+
+            const totalMembers = dashboardData.reduce((sum, c) => sum + c.count, 0);
+            
+            let dashboardHTML = `
+                <div style="width:210mm;height:297mm;background:#f5f7fa;padding:15mm 10mm;box-sizing:border-box;page-break-after:always;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">`;
+            
+            dashboardData.forEach((card, index) => {
+                const percentage = Number(card.percentage).toFixed(2);
+                const color = card.color;
+                dashboardHTML += `
+                    <div style="background:white;border-radius:16px;padding:18px;box-shadow:0 4px 12px rgba(0,0,0,0.08);border-left:6px solid ${color};transition:transform 0.2s;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+                            <div style="width:42px;height:42px;background:${color}20;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <span style="font-size:22px;">${card.icon}</span>
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:2px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;">${card.title}</div>
+                                <div style="font-size:10px;color:#9ca3af;text-transform:none;letter-spacing:0.2px;">${card.subtitle}</div>
+                            </div>
+                        </div>
+                        <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6;">
+                            <div style="font-size:42px;font-weight:800;color:${color};line-height:1;margin-bottom:8px;text-shadow:0 2px 4px rgba(0,0,0,0.05);">${card.count}</div>
+                            <div style="display:inline-block;background:${percentage >= 10 ? '#10B981' : '#F59E0B'}15;padding:4px 10px;border-radius:20px;margin-bottom:4px;">
+                                <span style="font-size:11px;color:${percentage >= 10 ? '#10B981' : '#F59E0B'};font-weight:600;">📊 உறுப்பினர்கள்</span>
+                            </div>
+                            <div style="font-size:16px;font-weight:700;color:${percentage >= 10 ? '#10B981' : '#F59E0B'};">${percentage}% வெற்றித்திரள்</div>
+                        </div>
+                    </div>`;
+            });
+            
+            dashboardHTML += `
+                    </div>
+                </div>`;
+            
+            dashboardPage.innerHTML = dashboardHTML;
+            document.body.insertBefore(dashboardPage, document.body.firstChild);
+            
             // Small delay to ensure DOM is updated
             await new Promise(resolve => setTimeout(resolve, 100));
             
@@ -1138,6 +1200,11 @@
                 // Restore original gallery content if it was changed
                 if (originalGalleryContent !== null) {
                     document.getElementById('gallery').innerHTML = originalGalleryContent;
+                }
+                
+                // Remove dashboard page
+                if (dashboardPage.parentNode) {
+                    document.body.removeChild(dashboardPage);
                 }
             }, 500);
         }
